@@ -14,7 +14,7 @@ import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
 export default defineConfig({
   plugins: [
     TanStackRouterVite(),
-    tanstackStart({ server: { entry: "server" } }),
+    tanstackStart({ server: { entry: "server", preset: "vercel" } }),
     react(),
     tailwindcss(),
     tsconfigPaths(),
