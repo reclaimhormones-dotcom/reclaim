@@ -10,11 +10,14 @@ import tailwindcss from "@tailwindcss/vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 // @ts-ignore
 import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
+// @ts-ignore
+import { nitro } from "nitro/vite";
 
 export default defineConfig({
   plugins: [
     TanStackRouterVite(),
-    tanstackStart({ server: { entry: "server", preset: "vercel" } }),
+    tanstackStart({ server: { entry: "server" } }),
+    nitro(),
     react(),
     tailwindcss(),
     tsconfigPaths(),
