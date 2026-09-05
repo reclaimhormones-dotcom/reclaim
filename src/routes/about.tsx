@@ -244,7 +244,7 @@ function Story({ content }: { content: AboutContent["story"] }) {
           {cards.map((card) => (
             <div
               key={card.title}
-              className="flex flex-col items-center rounded-2xl border border-border bg-card p-6 text-center"
+              className="flex flex-col items-center rounded-2xl border border-border bg-card p-6 text-center transition-all duration-500 ease-out hover:-translate-y-1 hover:shadow-xl hover:shadow-brand/5"
             >
               <IconBubble icon={icon(card.icon)} />
               <p className="mt-4 text-xs font-semibold uppercase tracking-[0.16em] text-brand">
@@ -266,13 +266,13 @@ function Philosophy({ content }: { content: AboutContent["philosophy"] }) {
     <section className="bg-cream-deep">
       <div className="mx-auto max-w-7xl px-4 py-11 lg:px-8 lg:py-16">
         <Eyebrow>{content.eyebrow}</Eyebrow>
-        <div className="mt-6 grid gap-3 lg:grid-cols-2 lg:gap-4">
+        <div className="mt-6 mobile-slider lg:grid lg:grid-cols-2 lg:gap-4">
           {content.items.map((item) => {
             const Icon = icon(item.icon);
             return (
               <div
                 key={item.title}
-                className="flex gap-3 rounded-xl border border-border bg-card p-4 lg:p-5"
+                className="flex gap-3 rounded-xl border border-border bg-card p-4 transition-all duration-500 ease-out hover:-translate-y-1 hover:shadow-xl hover:shadow-brand/5 lg:p-5"
               >
                 <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-sage-soft">
                   <Icon className="size-4 text-primary" />
@@ -342,15 +342,15 @@ function Process({ content }: { content: AboutContent["process"] }) {
       <div className="mx-auto max-w-7xl px-4 py-11 lg:px-8 lg:py-16">
         <Eyebrow>{content.eyebrow}</Eyebrow>
 
-        <ol className="relative mt-8 space-y-7 border-l border-border pl-14 lg:space-y-0 lg:grid lg:grid-cols-5 lg:gap-6 lg:border-l-0 lg:pl-0">
+        <ol className="relative mt-8 mobile-slider lg:grid lg:grid-cols-5 lg:gap-6">
           {content.items.map((item) => {
             const Icon = icon(item.icon);
             return (
               <li
                 key={item.n}
-                className="relative lg:rounded-2xl lg:border lg:border-border lg:bg-card lg:p-6"
+                className="relative rounded-2xl border border-border bg-card p-5 transition-all duration-500 ease-out hover:-translate-y-1 hover:shadow-xl hover:shadow-brand/5 lg:p-6"
               >
-                <span className="absolute -left-[3.9rem] top-0 flex size-12 items-center justify-center rounded-full border border-border bg-card lg:static lg:mb-4 lg:flex">
+                <span className="mb-4 flex size-12 items-center justify-center rounded-full border border-border bg-card">
                   <Icon className="size-5 text-primary" />
                 </span>
                 <p className="text-xs font-semibold tracking-[0.16em] text-brand/70">{item.n}</p>
@@ -440,11 +440,11 @@ function Values({ content }: { content: AboutContent["values"] }) {
     <section className="bg-cream-deep">
       <div className="mx-auto max-w-7xl px-4 py-11 lg:px-8 lg:py-16">
         <Eyebrow center>{content.eyebrow}</Eyebrow>
-        <div className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 lg:gap-0">
+        <div className="mt-7 mobile-slider mobile-slider-peek lg:grid lg:grid-cols-5 lg:gap-0">
           {content.items.map((item, i) => (
             <div
               key={item.title}
-              className={`flex flex-col items-center rounded-2xl border border-border bg-card p-4 text-center lg:rounded-none lg:border-0 lg:bg-transparent lg:px-6 ${
+              className={`flex flex-col items-center rounded-2xl border border-border bg-card p-4 text-center transition-all duration-500 ease-out hover:-translate-y-1 hover:shadow-xl hover:shadow-brand/5 lg:rounded-none lg:border-0 lg:bg-transparent lg:px-6 lg:hover:translate-y-0 lg:hover:shadow-none ${
                 i !== content.items.length - 1 ? "lg:border-r lg:border-border" : ""
               }`}
             >
@@ -650,7 +650,7 @@ function AboutPage() {
           title={m.title}
           titleAccent={m.titleAccent}
           subtitle={m.subtitle}
-          primary={{ label: m.primaryLabel, to: "/about", hash: "experts" }}
+          primary={{ label: "Our Philosophy", to: "/about", hash: "philosophy" }}
           secondary={{ label: m.secondaryLabel, to: "/contact" }}
           scrollTo="about-start"
           position={m.position}
@@ -660,7 +660,6 @@ function AboutPage() {
         <MissionStory content={about.mission} />
         <Story content={about.story} />
         <Philosophy content={about.philosophy} />
-        <Experts content={about.experts} />
         <Process content={about.process} />
         <Trust content={about.trust} />
         <ClinicExperience content={about.clinic} />

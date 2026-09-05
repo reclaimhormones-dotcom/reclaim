@@ -173,7 +173,7 @@ function Lightbox({
       role="dialog"
       aria-modal="true"
       aria-label={photo.caption || "Gallery photo"}
-      className="fixed inset-0 z-[60] flex flex-col items-center justify-center bg-brand-deep/90 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-[60] flex flex-col items-center justify-center bg-brand-deep/90 p-4 backdrop-blur-sm animate-in fade-in duration-300"
       onClick={onClose}
     >
       <button
@@ -186,7 +186,7 @@ function Lightbox({
       </button>
 
       <figure
-        className="max-h-[82vh] w-full max-w-4xl"
+        className="max-h-[82vh] w-full max-w-4xl animate-in zoom-in-95 duration-400 ease-out"
         onClick={(e) => e.stopPropagation()}
       >
         <img
@@ -284,7 +284,7 @@ function PhotoGrid({ content }: { content: GalleryPageContent["grid"] }) {
             {shown.map((photo, i) => (
               <figure
                 key={`${photo.img}-${i}`}
-                className="group mb-4 break-inside-avoid overflow-hidden rounded-2xl border border-border bg-card"
+                className="group mb-4 break-inside-avoid overflow-hidden rounded-2xl border border-border bg-card transition-all duration-500 ease-out hover:-translate-y-1 hover:shadow-xl hover:shadow-brand/5"
               >
                 <button
                   type="button"
@@ -350,7 +350,7 @@ function ImpactStats({
             return (
               <div
                 key={stat.label}
-                className="rounded-2xl border border-primary-foreground/15 bg-primary-foreground/5 p-5 text-center"
+                className="rounded-2xl border border-primary-foreground/15 bg-primary-foreground/5 p-5 text-center transition-all duration-500 ease-out hover:-translate-y-1 hover:shadow-lg hover:shadow-primary-foreground/10 lg:p-6"
               >
                 <Icon className="mx-auto size-5 text-gold" />
                 <p className="mt-2 font-serif text-2xl text-primary-foreground lg:text-3xl">
@@ -380,11 +380,11 @@ function Stories({ content }: { content: GalleryPageContent["stories"] }) {
           {content.sub}
         </p>
 
-        <div className="mt-8 grid gap-5 lg:grid-cols-3">
+        <div className="mt-8 mobile-slider lg:grid lg:grid-cols-3 lg:gap-5">
           {content.items.map(({ name, tag, result, quote, img }) => (
             <article
               key={name}
-              className="flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card"
+              className="flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all duration-500 ease-out hover:-translate-y-1 hover:shadow-xl hover:shadow-brand/5"
             >
               <img
                 src={cldOptimize(img, 1000)}

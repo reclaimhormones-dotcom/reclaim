@@ -31,18 +31,17 @@ export function buildLeadMessage(lead: WhatsAppLead): string {
     line("Main concern", lead.concern),
     line("Preferred mode", lead.mode),
     line("Message", lead.message),
+    line("Website Source", lead.source),
   ].filter(Boolean) as string[];
 
   return [
     "Hello *Reclaim Hormones*,",
     "",
-    "I have submitted an enquiry on your website and would like to book a consultation.",
+    "You have a new *Website Enquiry* for a consultation.",
     "",
     ...rows,
     "",
-    `*Source:* Website — ${lead.source}`,
-    "",
-    "Please guide me on the next steps. Thank you.",
+    "Please review and contact the patient.",
   ].join("\n");
 }
 

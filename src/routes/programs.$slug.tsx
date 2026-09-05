@@ -7,6 +7,7 @@ import {
   Clock,
   Leaf,
   MessageCircle,
+  Share2,
   Star,
 } from "lucide-react";
 
@@ -172,6 +173,25 @@ function ProgramDetailPage() {
   const showPrice = program.showPrice !== false && Boolean(program.price);
   const waMessage = `Hello Reclaim Hormones,\n\nI would like to know more about the *${program.title}* program.\n\nSource: Website — Program page`;
 
+  const handleShare = async () => {
+    const url = window.location.href;
+    const shareData = {
+      title: `${program.title} — Reclaim Hormones`,
+      text: program.description,
+      url,
+    };
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        // user aborted or failed
+      }
+    } else {
+      await navigator.clipboard.writeText(url);
+      import("sonner").then((m) => m.toast.success("Link copied to clipboard"));
+    }
+  };
+
   return (
     <div className="bg-background">
       <SiteHeader />
@@ -235,6 +255,13 @@ function ProgramDetailPage() {
                   <MessageCircle className="size-4 text-brand" /> WhatsApp
                 </a>
               ) : null}
+              <button
+                type="button"
+                onClick={handleShare}
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-accent"
+              >
+                <Share2 className="size-4 text-brand" /> Share Program
+              </button>
             </div>
           </div>
           <div className="relative overflow-hidden rounded-[2rem]">

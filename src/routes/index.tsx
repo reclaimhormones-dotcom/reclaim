@@ -19,6 +19,7 @@ import { SiteHeader } from "@/components/site/SiteHeader";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { SiteLink } from "@/components/site/SiteLink";
 import { SmartImage } from "@/components/site/SmartImage";
+import { MobileCarousel } from "@/components/site/MobileCarousel";
 import { cldOptimize } from "@/lib/cloudinary";
 import { embedUrl } from "@/lib/content-types";
 import { ORGANIZATION_JSONLD, canonical, canonicalLink } from "@/lib/seo";
@@ -288,13 +289,13 @@ function Philosophy({ content }: { content: HomeContent["philosophy"] }) {
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{content.sub}</p>
           </div>
 
-          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:mt-0 lg:grid-cols-4">
+          <div className="mt-6 mobile-slider lg:mt-0 lg:grid lg:grid-cols-4 lg:gap-3">
             {content.items.map((item) => {
               const Icon = icon(item.icon);
               return (
                 <div
                   key={item.title}
-                  className="flex items-center gap-3 rounded-xl bg-card p-4 lg:flex-col lg:items-center lg:gap-2 lg:py-6 lg:text-center"
+                  className="flex items-center gap-3 rounded-xl bg-card p-4 transition-all duration-500 ease-out hover:-translate-y-1 hover:shadow-xl hover:shadow-brand/5 lg:flex-col lg:items-center lg:gap-2 lg:py-6 lg:text-center"
                 >
                   <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-sage">
                     <Icon className="size-4 text-primary" />
@@ -333,39 +334,45 @@ function Programs({ content }: { content: HomeContent["programs"] }) {
           </Link>
         </div>
 
-        <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-          {content.items.map((p) => {
-            const Icon = icon(p.icon);
-            return (
-              <article
-                key={p.title}
-                className="group flex overflow-hidden rounded-xl border border-border bg-card transition-shadow hover:shadow-md lg:flex-col"
-              >
-                <div className="relative w-2/5 shrink-0 lg:w-full">
-                  <img
-                    src={cldOptimize(p.img, 800)}
-                    alt={p.title}
-                    loading="lazy"
-                    width={800}
-                    height={700}
-                    className="h-full w-full object-cover lg:h-40"
-                  />
-                  <span className="absolute left-2 top-2 flex size-8 items-center justify-center rounded-full bg-card/90">
-                    <Icon className="size-4 text-primary" />
-                  </span>
-                </div>
-                <div className="flex flex-1 flex-col p-4">
-                  <div className="flex items-start justify-between gap-2">
-                    <h3 className="text-[0.95rem] font-semibold leading-snug text-foreground">
-                      {p.title}
-                    </h3>
-                    <ArrowRight className="mt-0.5 size-4 shrink-0 text-primary transition-transform group-hover:translate-x-1" />
+        <div className="mt-7">
+          <MobileCarousel
+            containerClassName="lg:grid-cols-5 lg:gap-4"
+            autoPlayDelay={4000}
+          >
+            {content.items.map((p) => {
+              const Icon = icon(p.icon);
+              return (
+                <article
+                  key={p.title}
+                  className="group flex overflow-hidden rounded-2xl border border-white/10 bg-card/80 backdrop-blur-md shadow-xl shadow-brand/5 transition-all duration-500 ease-out hover:-translate-y-1 hover:shadow-2xl hover:shadow-brand/15 hover:border-white/30 lg:flex-col"
+                >
+                  <div className="relative w-2/5 shrink-0 overflow-hidden lg:w-full">
+                    <img
+                      src={cldOptimize(p.img, 800)}
+                      alt={p.title}
+                      loading="lazy"
+                      width={800}
+                      height={700}
+                      className="h-full w-full object-cover transition-transform duration-[2000ms] ease-out group-hover:scale-105 lg:h-40"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent lg:hidden" />
+                    <span className="absolute left-2 top-2 flex size-8 items-center justify-center rounded-full bg-card/90 shadow-sm backdrop-blur-md">
+                      <Icon className="size-4 text-primary" />
+                    </span>
                   </div>
-                  <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{p.sub}</p>
-                </div>
-              </article>
-            );
-          })}
+                  <div className="flex flex-1 flex-col p-4">
+                    <div className="flex items-start justify-between gap-2">
+                      <h3 className="text-[0.95rem] font-semibold leading-snug text-foreground">
+                        {p.title}
+                      </h3>
+                      <ArrowRight className="mt-0.5 size-4 shrink-0 text-primary opacity-50 transition-all group-hover:translate-x-1 group-hover:opacity-100" />
+                    </div>
+                    <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{p.sub}</p>
+                  </div>
+                </article>
+              );
+            })}
+          </MobileCarousel>
         </div>
       </div>
     </section>
@@ -452,89 +459,60 @@ function Testimonials({ content }: { content: HomeContent["testimonials"] }) {
           </h2>
         </div>
 
-        <div className="mt-7 grid gap-4 lg:grid-cols-3">
-          {items.map((t, i) => (
-            <figure
-              key={t.name}
-              className={`rounded-xl border border-border bg-card p-5 ${
-                i === active ? "block" : "hidden lg:block"
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <Quote className="size-5 fill-sage text-sage" />
-                <span className="hidden items-center gap-0.5 lg:flex">
-                  {Array.from({ length: t.rating }).map((_, s) => (
-                    <Star key={s} className="size-3.5 fill-gold text-gold" />
-                  ))}
-                </span>
-              </div>
-              {t.video ? (
-                <div className="mt-3 overflow-hidden rounded-lg">
-                  <iframe
-                    src={t.video}
-                    title={`${t.name} video story`}
-                    loading="lazy"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"
-                    allowFullScreen
-                    className="aspect-video w-full"
-                  />
-                </div>
-              ) : t.photo ? (
-                <SmartImage
-                  src={t.photo}
-                  alt={`${t.name} — client story`}
-                  width={600}
-                  className="mt-3 aspect-[4/3] rounded-lg"
-                />
-              ) : null}
-              <blockquote className="mt-3 text-sm leading-relaxed text-foreground/85">
-                {t.quote}
-              </blockquote>
-              <figcaption className="mt-4">
-                <p className="text-sm font-semibold text-foreground">{t.name}</p>
-                <div className="mt-1 flex items-center justify-between">
-                  <p className="text-xs text-primary">{t.program}</p>
-                  <span className="flex items-center gap-0.5 lg:hidden">
+        <div className="mt-7">
+          <MobileCarousel
+            containerClassName="lg:grid-cols-3 lg:gap-5"
+            autoPlayDelay={5000}
+          >
+            {items.map((t, i) => (
+              <figure
+                key={t.name}
+                className="rounded-2xl border border-white/40 bg-white/60 p-6 backdrop-blur-xl shadow-xl shadow-brand/5 transition-all duration-500 ease-out hover:-translate-y-1 hover:shadow-2xl hover:shadow-brand/15 hover:bg-white/90"
+              >
+                <div className="flex items-center gap-2">
+                  <Quote className="size-5 fill-sage text-sage" />
+                  <span className="hidden items-center gap-0.5 lg:flex">
                     {Array.from({ length: t.rating }).map((_, s) => (
                       <Star key={s} className="size-3.5 fill-gold text-gold" />
                     ))}
                   </span>
                 </div>
-              </figcaption>
-            </figure>
-          ))}
-        </div>
-
-        <div className="mt-6 flex items-center justify-center gap-4">
-          <button
-            type="button"
-            aria-label="Previous testimonial"
-            onClick={() => setActive((a) => (a === 0 ? items.length - 1 : a - 1))}
-            className="hidden size-9 items-center justify-center rounded-full border border-border bg-card text-primary transition-colors hover:bg-secondary lg:flex"
-          >
-            <ArrowLeft className="size-4" />
-          </button>
-          <div className="flex items-center gap-2">
-            {items.map((t, i) => (
-              <button
-                key={t.name}
-                type="button"
-                aria-label={`Show testimonial ${i + 1}`}
-                onClick={() => setActive(i)}
-                className={`size-2 rounded-full transition-colors ${
-                  i === active ? "bg-primary" : "bg-border"
-                }`}
-              />
+                {t.video ? (
+                  <div className="mt-4 overflow-hidden rounded-xl border border-white/20 shadow-inner">
+                    <iframe
+                      src={t.video}
+                      title={`${t.name} video story`}
+                      loading="lazy"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"
+                      allowFullScreen
+                      className="aspect-video w-full"
+                    />
+                  </div>
+                ) : t.photo ? (
+                  <SmartImage
+                    src={t.photo}
+                    alt={`${t.name} — client story`}
+                    width={600}
+                    className="mt-4 aspect-[4/3] rounded-xl border border-white/20 shadow-inner"
+                  />
+                ) : null}
+                <blockquote className="mt-4 text-[0.95rem] leading-relaxed text-foreground/85">
+                  {t.quote}
+                </blockquote>
+                <figcaption className="mt-5 border-t border-border/50 pt-4">
+                  <p className="text-[0.9rem] font-semibold text-foreground">{t.name}</p>
+                  <div className="mt-1 flex items-center justify-between">
+                    <p className="text-[0.75rem] font-medium tracking-wide text-primary/80 uppercase">{t.program}</p>
+                    <span className="flex items-center gap-0.5 lg:hidden">
+                      {Array.from({ length: t.rating }).map((_, s) => (
+                        <Star key={s} className="size-3.5 fill-gold text-gold" />
+                      ))}
+                    </span>
+                  </div>
+                </figcaption>
+              </figure>
             ))}
-          </div>
-          <button
-            type="button"
-            aria-label="Next testimonial"
-            onClick={() => setActive((a) => (a + 1) % items.length)}
-            className="hidden size-9 items-center justify-center rounded-full border border-border bg-card text-primary transition-colors hover:bg-secondary lg:flex"
-          >
-            <ArrowRight className="size-4" />
-          </button>
+          </MobileCarousel>
         </div>
       </div>
     </section>
@@ -552,29 +530,34 @@ function Journey({ content }: { content: HomeContent["journey"] }) {
           </h2>
         </div>
 
-        <div className="relative mt-8 grid gap-5 lg:grid-cols-3">
-          {content.steps.map((step) => {
-            const Icon = icon(step.icon);
-            return (
-              <div
-                key={step.n + step.title}
-                className="relative flex gap-4 rounded-xl border border-border bg-card p-5 lg:flex-col lg:items-start"
-              >
-                <div className="relative shrink-0">
-                  <span className="flex size-12 items-center justify-center rounded-full bg-sage-soft">
-                    <Icon className="size-5 text-primary" />
-                  </span>
-                  <span className="absolute -right-1 -top-1 flex size-6 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
-                    {step.n}
-                  </span>
+        <div className="mt-8">
+          <MobileCarousel
+            containerClassName="lg:grid-cols-3 lg:gap-6"
+            autoPlayDelay={4500}
+          >
+            {content.steps.map((step) => {
+              const Icon = icon(step.icon);
+              return (
+                <div
+                  key={step.n + step.title}
+                  className="group relative flex gap-5 rounded-2xl border border-white/40 bg-white/60 p-6 backdrop-blur-xl shadow-lg shadow-brand/5 transition-all duration-500 ease-out hover:-translate-y-1 hover:shadow-2xl hover:shadow-brand/15 hover:bg-white/90 lg:flex-col lg:items-start"
+                >
+                  <div className="relative shrink-0 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-3">
+                    <span className="flex size-14 items-center justify-center rounded-full bg-sage-soft shadow-inner">
+                      <Icon className="size-6 text-primary" />
+                    </span>
+                    <span className="absolute -right-1 -top-1 flex size-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground shadow-md">
+                      {step.n}
+                    </span>
+                  </div>
+                  <div className="flex flex-col justify-center lg:justify-start">
+                    <h3 className="text-[1.05rem] font-semibold text-foreground">{step.title}</h3>
+                    <p className="mt-2 text-[0.85rem] leading-relaxed text-muted-foreground">{step.sub}</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-[0.95rem] font-semibold text-foreground">{step.title}</h3>
-                  <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{step.sub}</p>
-                </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </MobileCarousel>
         </div>
 
         <div className="mt-7 flex justify-center">

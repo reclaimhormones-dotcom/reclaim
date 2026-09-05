@@ -71,7 +71,7 @@ const field =
 const STEP_META = [
   { n: 1, label: "Your Details", icon: ClipboardList },
   { n: 2, label: "Consultation Payment", icon: CreditCard },
-  { n: 3, label: "Nutrition Log", icon: Utensils },
+  { n: 3, label: "Health Form", icon: Utensils },
 ];
 
 function Stepper({ step }: { step: number }) {
@@ -140,15 +140,11 @@ function BasicDetailsStep({
   function validate(): boolean {
     const e: Record<string, string> = {};
     if (value.name.trim().length < 2) e["name"] = "Please enter your full name.";
-    const age = Number(value.age);
-    if (!value.age || Number.isNaN(age) || age < 5 || age > 100)
-      e["age"] = "Enter an age from 5–100.";
     if (!/^\S+@\S+\.\S+$/.test(value.email.trim())) e["email"] = "Enter a valid email address.";
     if (phoneKey(value.phone).length !== 10) e["phone"] = "Enter a valid 10-digit phone number.";
-    if (value.address.trim().length < 4) e["address"] = "Please enter your address.";
     if (value.healthGoal.trim().length < 3) e["healthGoal"] = "Tell us your main health goal.";
     if (!value.gender) e["gender"] = "Please select your gender.";
-    if (!value.lookingToStart) e["lookingToStart"] = "Please choose when you want to start.";
+    if (!value.program) e["program"] = "Please select a program.";
     setErrors(e);
     return Object.keys(e).length === 0;
   }
@@ -191,17 +187,16 @@ function BasicDetailsStep({
         </div>
         <div>
           <label className="mb-1.5 block text-xs uppercase tracking-[0.12em] text-muted-foreground">
-            Age *
+            Phone Number *
           </label>
           <input
             className={field}
-            value={value.age}
-            inputMode="numeric"
-            maxLength={3}
-            onChange={(e) => set("age", e.target.value.replace(/\D/g, ""))}
-            placeholder="28"
+            value={value.phone}
+            maxLength={15}
+            onChange={(e) => set("phone", e.target.value)}
+            placeholder="+91 98765 43210"
           />
-          {err("age")}
+          {err("phone")}
         </div>
         <div>
           <label className="mb-1.5 block text-xs uppercase tracking-[0.12em] text-muted-foreground">
@@ -215,19 +210,6 @@ function BasicDetailsStep({
             placeholder="you@email.com"
           />
           {err("email")}
-        </div>
-        <div>
-          <label className="mb-1.5 block text-xs uppercase tracking-[0.12em] text-muted-foreground">
-            Phone Number *
-          </label>
-          <input
-            className={field}
-            value={value.phone}
-            maxLength={15}
-            onChange={(e) => set("phone", e.target.value)}
-            placeholder="+91 98765 43210"
-          />
-          {err("phone")}
         </div>
       </div>
 
@@ -275,26 +257,13 @@ function BasicDetailsStep({
             ))}
             <option value="Not sure yet">Not sure yet — please guide me</option>
           </select>
+          {err("program")}
         </div>
       </div>
 
       <div>
         <label className="mb-1.5 block text-xs uppercase tracking-[0.12em] text-muted-foreground">
-          Address *
-        </label>
-        <input
-          className={field}
-          value={value.address}
-          maxLength={200}
-          onChange={(e) => set("address", e.target.value)}
-          placeholder="City, State"
-        />
-        {err("address")}
-      </div>
-
-      <div>
-        <label className="mb-1.5 block text-xs uppercase tracking-[0.12em] text-muted-foreground">
-          Main Health Goal *
+          Main Problem / Health Goal *
         </label>
         <textarea
           className={`${field} min-h-20`}
@@ -306,113 +275,7 @@ function BasicDetailsStep({
         {err("healthGoal")}
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div>
-          <label className="mb-1.5 block text-xs uppercase tracking-[0.12em] text-muted-foreground">
-            Past Medical History
-          </label>
-          <textarea
-            className={`${field} min-h-20`}
-            value={value.medicalHistory}
-            maxLength={800}
-            onChange={(e) => set("medicalHistory", e.target.value)}
-            placeholder="Diagnoses, surgeries, medication, reports"
-          />
-        </div>
-        <div>
-          <label className="mb-1.5 block text-xs uppercase tracking-[0.12em] text-muted-foreground">
-            Daily Symptoms
-          </label>
-          <textarea
-            className={`${field} min-h-20`}
-            value={value.symptoms}
-            maxLength={800}
-            onChange={(e) => set("symptoms", e.target.value)}
-            placeholder="Fatigue, bloating, hair loss, cravings…"
-          />
-        </div>
-        <div>
-          <label className="mb-1.5 block text-xs uppercase tracking-[0.12em] text-muted-foreground">
-            Lifestyle / Daily Routine
-          </label>
-          <textarea
-            className={`${field} min-h-20`}
-            value={value.lifestyle}
-            maxLength={800}
-            onChange={(e) => set("lifestyle", e.target.value)}
-            placeholder="Work hours, sleep, activity, stress levels"
-          />
-        </div>
-        <div>
-          <label className="mb-1.5 block text-xs uppercase tracking-[0.12em] text-muted-foreground">
-            Previous Nutrition Programs
-          </label>
-          <textarea
-            className={`${field} min-h-20`}
-            value={value.previousPrograms}
-            maxLength={600}
-            onChange={(e) => set("previousPrograms", e.target.value)}
-            placeholder="Diets or programs you have tried before"
-          />
-        </div>
-      </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        {isFemale ? (
-          <div>
-            <label className="mb-1.5 block text-xs uppercase tracking-[0.12em] text-muted-foreground">
-              Menstrual Cycle
-            </label>
-            <select
-              className={field}
-              value={value.menstrualCycle}
-              onChange={(e) =>
-                set("menstrualCycle", e.target.value as BasicDetails["menstrualCycle"])
-              }
-            >
-              <option value="">Select</option>
-              <option value="Regular">Regular</option>
-              <option value="Irregular">Irregular</option>
-              <option value="NA">Not applicable</option>
-            </select>
-          </div>
-        ) : (
-          <div>
-            <label className="mb-1.5 block text-xs uppercase tracking-[0.12em] text-muted-foreground">
-              Energy, Sleep & Stress Pattern
-            </label>
-            <select
-              className={field}
-              value={value.menstrualCycle === "NA" ? "NA" : value.menstrualCycle}
-              onChange={(e) =>
-                set("menstrualCycle", e.target.value as BasicDetails["menstrualCycle"])
-              }
-            >
-              <option value="NA">Not applicable</option>
-            </select>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Share your energy, sleep and stress details in the lifestyle field above.
-            </p>
-          </div>
-        )}
-        <div>
-          <label className="mb-1.5 block text-xs uppercase tracking-[0.12em] text-muted-foreground">
-            Looking To Start *
-          </label>
-          <select
-            className={field}
-            value={value.lookingToStart}
-            onChange={(e) => set("lookingToStart", e.target.value)}
-          >
-            <option value="">Select</option>
-            <option value="Immediately">Immediately</option>
-            <option value="Within a week">Within a week</option>
-            <option value="Within a month">Within a month</option>
-            <option value="Just exploring">Just exploring</option>
-          </select>
-          {err("lookingToStart")}
-        </div>
-      </div>
 
       <button
         type="button"
@@ -638,24 +501,52 @@ function PaymentStep({
 function NutritionStep({
   assessmentKey,
   value,
+  details,
   onChange,
+  onChangeDetails,
   onBack,
   onDone,
 }: {
   assessmentKey: string;
   value: NutritionLog;
+  details: BasicDetails;
   onChange: (v: NutritionLog) => void;
+  onChangeDetails: (v: BasicDetails) => void;
   onBack: () => void;
   onDone: () => void;
 }) {
   const [saving, setSaving] = useState<"draft" | "submit" | null>(null);
 
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const isFemale =
+    details.gender === "Female" || details.gender === "Other" || details.gender === "";
+
+  function setDetail<K extends keyof BasicDetails>(key: K, v: BasicDetails[K]) {
+    onChangeDetails({ ...details, [key]: v });
+  }
+
   function set(slot: string, key: "time" | "food" | "portion", v: string) {
     onChange({ ...value, [slot]: { ...(value[slot] ?? { time: "", food: "", portion: "" }), [key]: v } });
   }
 
+  function validate(): boolean {
+    const e: Record<string, string> = {};
+    const age = Number(details.age);
+    if (!details.age || Number.isNaN(age) || age < 5 || age > 100)
+      e["age"] = "Enter an age from 5–100.";
+    if (details.address.trim().length < 4) e["address"] = "Please enter your address.";
+    if (!details.lookingToStart) e["lookingToStart"] = "Please choose when you want to start.";
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  }
+
   async function persist(submit: boolean) {
     if (submit) {
+      if (!validate()) {
+        toast.error("Please fix the highlighted fields in the health form.");
+        return;
+      }
       const filled = MEAL_SLOTS.filter((s) => (value[s]?.food ?? "").trim().length > 0);
       if (filled.length < 3) {
         toast.error("Please fill at least breakfast, lunch and dinner before submitting.");
@@ -664,7 +555,7 @@ function NutritionStep({
     }
     setSaving(submit ? "submit" : "draft");
     try {
-      await saveNutritionLog(assessmentKey, value, submit);
+      await saveNutritionLog(assessmentKey, value, details, submit);
       toast.success(submit ? "Assessment submitted. Thank you!" : "Nutrition log saved.");
       if (submit) onDone();
     } catch (err) {
@@ -677,8 +568,151 @@ function NutritionStep({
   return (
     <div className="space-y-5">
       <p className="text-sm text-muted-foreground">
-        Share a typical day of eating — timings, foods and rough portions. This helps us build a plan
-        around your real routine.
+        Help us understand your health better so we can craft the perfect nutrition plan for you.
+      </p>
+
+      <div className="rounded-2xl border border-border/70 bg-card p-4 sm:p-5">
+        <p className="font-serif text-lg text-brand-deep">Health Profile</p>
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <div>
+            <label className="mb-1.5 block text-xs uppercase tracking-[0.12em] text-muted-foreground">
+              Age *
+            </label>
+            <input
+              className={field}
+              value={details.age}
+              inputMode="numeric"
+              maxLength={3}
+              onChange={(e) => setDetail("age", e.target.value.replace(/\D/g, ""))}
+              placeholder="e.g. 28"
+            />
+            {errors["age"] && <p className="mt-1 text-xs text-destructive">{errors["age"]}</p>}
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs uppercase tracking-[0.12em] text-muted-foreground">
+              Address *
+            </label>
+            <input
+              className={field}
+              value={details.address}
+              maxLength={200}
+              onChange={(e) => setDetail("address", e.target.value)}
+              placeholder="City, State"
+            />
+            {errors["address"] && <p className="mt-1 text-xs text-destructive">{errors["address"]}</p>}
+          </div>
+        </div>
+
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <div>
+            <label className="mb-1.5 block text-xs uppercase tracking-[0.12em] text-muted-foreground">
+              Past Medical History
+            </label>
+            <textarea
+              className={`${field} min-h-20`}
+              value={details.medicalHistory}
+              maxLength={800}
+              onChange={(e) => setDetail("medicalHistory", e.target.value)}
+              placeholder="Diagnoses, surgeries, medication, reports"
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs uppercase tracking-[0.12em] text-muted-foreground">
+              Daily Symptoms
+            </label>
+            <textarea
+              className={`${field} min-h-20`}
+              value={details.symptoms}
+              maxLength={800}
+              onChange={(e) => setDetail("symptoms", e.target.value)}
+              placeholder="Fatigue, bloating, hair loss, cravings…"
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs uppercase tracking-[0.12em] text-muted-foreground">
+              Lifestyle / Daily Routine
+            </label>
+            <textarea
+              className={`${field} min-h-20`}
+              value={details.lifestyle}
+              maxLength={800}
+              onChange={(e) => setDetail("lifestyle", e.target.value)}
+              placeholder="Work hours, sleep, activity, stress levels"
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs uppercase tracking-[0.12em] text-muted-foreground">
+              Previous Nutrition Programs
+            </label>
+            <textarea
+              className={`${field} min-h-20`}
+              value={details.previousPrograms}
+              maxLength={600}
+              onChange={(e) => setDetail("previousPrograms", e.target.value)}
+              placeholder="Diets or programs you have tried before"
+            />
+          </div>
+        </div>
+
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          {isFemale ? (
+            <div>
+              <label className="mb-1.5 block text-xs uppercase tracking-[0.12em] text-muted-foreground">
+                Menstrual Cycle
+              </label>
+              <select
+                className={field}
+                value={details.menstrualCycle}
+                onChange={(e) =>
+                  setDetail("menstrualCycle", e.target.value as BasicDetails["menstrualCycle"])
+                }
+              >
+                <option value="">Select</option>
+                <option value="Regular">Regular</option>
+                <option value="Irregular">Irregular</option>
+                <option value="NA">Not applicable</option>
+              </select>
+            </div>
+          ) : (
+            <div>
+              <label className="mb-1.5 block text-xs uppercase tracking-[0.12em] text-muted-foreground">
+                Energy, Sleep & Stress Pattern
+              </label>
+              <select
+                className={field}
+                value={details.menstrualCycle === "NA" ? "NA" : details.menstrualCycle}
+                onChange={(e) =>
+                  setDetail("menstrualCycle", e.target.value as BasicDetails["menstrualCycle"])
+                }
+              >
+                <option value="NA">Not applicable</option>
+              </select>
+            </div>
+          )}
+          <div>
+            <label className="mb-1.5 block text-xs uppercase tracking-[0.12em] text-muted-foreground">
+              Looking To Start *
+            </label>
+            <select
+              className={field}
+              value={details.lookingToStart}
+              onChange={(e) => setDetail("lookingToStart", e.target.value)}
+            >
+              <option value="">Select</option>
+              <option value="Immediately">Immediately</option>
+              <option value="Within a week">Within a week</option>
+              <option value="Within a month">Within a month</option>
+              <option value="Just exploring">Just exploring</option>
+            </select>
+            {errors["lookingToStart"] && (
+              <p className="mt-1 text-xs text-destructive">{errors["lookingToStart"]}</p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <p className="text-sm text-muted-foreground">
+        Now, please share a typical day of eating — timings, foods and rough portions.
       </p>
 
       <div className="space-y-4">
@@ -897,7 +931,9 @@ function AssessmentPage() {
                 <NutritionStep
                   assessmentKey={key}
                   value={log}
+                  details={details}
                   onChange={setLog}
+                  onChangeDetails={setDetails}
                   onBack={() => setStep(2)}
                   onDone={() => setCompleted(true)}
                 />

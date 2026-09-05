@@ -12,17 +12,22 @@ export const inputClass =
 export function Field({
   label,
   hint,
+  action,
   children,
 }: {
   label: string;
   hint?: string | undefined;
+  action?: ReactNode;
   children: ReactNode;
 }) {
   return (
     <label className="block">
-      <span className="mb-1.5 block text-xs font-medium uppercase tracking-[0.1em] text-muted-foreground">
-        {label}
-      </span>
+      <div className="mb-1.5 flex items-center justify-between gap-3">
+        <span className="block text-xs font-medium uppercase tracking-[0.1em] text-muted-foreground">
+          {label}
+        </span>
+        {action}
+      </div>
       {children}
       {hint ? <span className="mt-1 block text-[0.7rem] text-muted-foreground">{hint}</span> : null}
     </label>

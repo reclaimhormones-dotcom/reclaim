@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-import logo from "@/assets/reclaim-logo.png.asset.json";
+import { IMG } from "@/lib/site-content";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { ADMIN_EMAIL } from "@/lib/firebase";
 import { Card, ErrorState, inputClass } from "@/components/admin/AdminUI";
@@ -174,7 +174,7 @@ function LoginScreen({
   return (
     <div className="flex min-h-screen items-center justify-center bg-cream px-4 py-14">
       <div className="w-full max-w-sm">
-        <img src={logo.url} alt="Reclaim Hormones" className="mx-auto h-12 w-auto" />
+        <img src={IMG.logo} alt="Reclaim Hormones" className="mx-auto h-12 w-auto" />
         <Card className="mt-6">
           <h1 className="font-serif text-2xl text-brand-deep">Admin Sign In</h1>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -351,7 +351,7 @@ function AdminLayout() {
       {/* Desktop sidebar */}
       <aside className="sticky top-0 hidden h-screen w-72 shrink-0 flex-col border-r border-border/70 bg-background/85 px-4 py-5 lg:flex">
         <Link to="/admin" className="flex items-center gap-2 px-2">
-          <img src={logo.url} alt="Reclaim Hormones" className="h-9 w-auto" />
+          <img src={IMG.logo} alt="Reclaim Hormones" className="h-9 w-auto" />
         </Link>
         <p className="mt-4 px-3 text-[0.7rem] uppercase tracking-[0.18em] text-muted-foreground">
           Clinic admin
@@ -417,7 +417,7 @@ function AdminLayout() {
             />
             <div className="absolute inset-y-0 left-0 flex w-[85%] max-w-xs flex-col bg-background px-4 py-5 shadow-2xl">
               <div className="flex items-center justify-between">
-                <img src={logo.url} alt="Reclaim Hormones" className="h-8 w-auto" />
+                <img src={IMG.logo} alt="Reclaim Hormones" className="h-8 w-auto" />
                 <button
                   type="button"
                   aria-label="Close menu"

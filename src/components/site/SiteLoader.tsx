@@ -10,18 +10,18 @@ import { NAVIGATION_DEFAULT } from "@/lib/site-content";
  * - Fades away without layout shift; fully skipped for reduced-motion users
  */
 
-const MIN_MS = 1800;
-const MAX_MS = 2500;
-const FADE_MS = 600;
+const MIN_MS = 1400;
+const MAX_MS = 1700;
+const FADE_MS = 1200;
 
 const LEAVES = [
-  { left: "8%", delay: "0s", duration: "13s", size: 34, drift: "26px", opacity: 0.5 },
-  { left: "22%", delay: "-4s", duration: "16s", size: 22, drift: "-18px", opacity: 0.38 },
-  { left: "38%", delay: "-8s", duration: "14s", size: 44, drift: "34px", opacity: 0.3 },
-  { left: "54%", delay: "-2s", duration: "18s", size: 26, drift: "-28px", opacity: 0.45 },
-  { left: "68%", delay: "-6s", duration: "15s", size: 38, drift: "22px", opacity: 0.34 },
-  { left: "82%", delay: "-10s", duration: "17s", size: 28, drift: "-24px", opacity: 0.42 },
-  { left: "92%", delay: "-3s", duration: "14s", size: 20, drift: "18px", opacity: 0.36 },
+  { left: "8%", delay: "0s", duration: "24s", size: 34, drift: "16px", opacity: 0.4 },
+  { left: "22%", delay: "-4s", duration: "32s", size: 22, drift: "-12px", opacity: 0.3 },
+  { left: "38%", delay: "-8s", duration: "28s", size: 44, drift: "24px", opacity: 0.2 },
+  { left: "54%", delay: "-2s", duration: "36s", size: 26, drift: "-18px", opacity: 0.35 },
+  { left: "68%", delay: "-6s", duration: "30s", size: 38, drift: "14px", opacity: 0.25 },
+  { left: "82%", delay: "-10s", duration: "34s", size: 28, drift: "-16px", opacity: 0.32 },
+  { left: "92%", delay: "-3s", duration: "26s", size: 20, drift: "12px", opacity: 0.28 },
 ];
 
 function Leaf({ size }: { size: number }) {
@@ -42,10 +42,11 @@ function Leaf({ size }: { size: number }) {
 }
 
 export function SiteLoader() {
-  const [progress, setProgress] = useState(6);
   const [leaving, setLeaving] = useState(false);
   const [gone, setGone] = useState(false);
   const startRef = useRef(Date.now());
+  const barRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     const reduced =
@@ -69,31 +70,50 @@ export function SiteLoader() {
     let fadeTimer: ReturnType<typeof setTimeout> | undefined;
     let goneTimer: ReturnType<typeof setTimeout> | undefined;
     let finished = false;
-
-    const finish = () => {
-      if (finished) return;
-      finished = true;
-      cancelAnimationFrame(frame);
-      setProgress(100);
-      fadeTimer = setTimeout(() => setLeaving(true), 200);
-      goneTimer = setTimeout(() => setGone(true), 200 + FADE_MS);
-    };
+    
+    let currentProgress = 0;
+    let targetProgress = 0;
+    let holdTimerStarted = false;
 
     const tick = () => {
       const elapsed = Date.now() - startRef.current;
-      setProgress(Math.min(96, 6 + (elapsed / MAX_MS) * 90));
-      if (elapsed >= MAX_MS || (assetsReady && elapsed >= MIN_MS)) {
-        finish();
-        return;
+
+      if (!finished) {
+        if ((assetsReady && elapsed >= MIN_MS) || elapsed >= MAX_MS) {
+          targetProgress = 100;
+        } else {
+          targetProgress = (elapsed / MAX_MS) * 100;
+        }
       }
-      frame = requestAnimationFrame(tick);
+
+      // Smooth easing (lerp) towards target
+      currentProgress += (targetProgress - currentProgress) * 0.12;
+
+      // Snap to 100 when close enough to finish
+      if (currentProgress >= 99.9) {
+        currentProgress = 100;
+      }
+
+      // Direct DOM manipulation for zero-flicker 60FPS
+      if (barRef.current) barRef.current.style.width = `${currentProgress}%`;
+      if (textRef.current) textRef.current.innerText = `${Math.floor(currentProgress)}%`;
+
+      if (currentProgress === 100) {
+        if (!holdTimerStarted) {
+          holdTimerStarted = true;
+          finished = true;
+          fadeTimer = setTimeout(() => setLeaving(true), 200);
+          goneTimer = setTimeout(() => setGone(true), 200 + FADE_MS);
+        }
+      } else {
+        frame = requestAnimationFrame(tick);
+      }
     };
+    
     frame = requestAnimationFrame(tick);
-    const hardStop = setTimeout(finish, MAX_MS + 120);
 
     return () => {
       cancelAnimationFrame(frame);
-      clearTimeout(hardStop);
       if (fadeTimer) clearTimeout(fadeTimer);
       if (goneTimer) clearTimeout(goneTimer);
       window.removeEventListener("load", onLoad);
@@ -139,23 +159,26 @@ export function SiteLoader() {
       <div className="site-loader__mark relative flex flex-col items-center px-6">
         <img
           src={NAVIGATION_DEFAULT.logo}
-          alt=""
+          alt="Reclaim Hormones"
           width={640}
           height={168}
           className="h-auto w-[min(74vw,26rem)] select-none"
           fetchPriority="high"
         />
-        <p className="site-loader__tag mt-5 text-center text-[0.62rem] uppercase tracking-[0.34em] text-brand-deep/70 sm:text-[0.7rem]">
-          Nourishing Hormones · Restoring You
-        </p>
-      </div>
-
-      <div className="absolute bottom-[max(1.75rem,env(safe-area-inset-bottom))] left-1/2 w-[min(78vw,20rem)] -translate-x-1/2">
-        <div className="site-loader__track h-[3px] w-full overflow-hidden rounded-full">
-          <div
-            className="site-loader__bar h-full rounded-full"
-            style={{ width: `${progress}%` }}
-          />
+        {/* Progress bar container (aligned to logo width, spaced 24px below) */}
+        <div className="mt-6 flex w-[min(74vw,26rem)] items-center gap-3">
+          <div className="site-loader__track h-[2px] w-full overflow-hidden rounded-full">
+            <div
+              ref={barRef}
+              className="site-loader__bar h-full w-0 rounded-full"
+            />
+          </div>
+          <span 
+            ref={textRef} 
+            className="w-[32px] text-right text-[0.65rem] font-semibold text-brand-deep/60 tabular-nums"
+          >
+            0%
+          </span>
         </div>
       </div>
     </div>

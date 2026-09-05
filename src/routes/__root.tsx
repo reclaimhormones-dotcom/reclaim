@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { ConsultPopup } from "@/components/site/ConsultPopup";
 import { SiteLoader } from "@/components/site/SiteLoader";
+import { ReactLenis } from "lenis/react";
 
 import appCss from "../styles.css?url";
 
@@ -91,7 +92,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "Evidence-based, personalized and holistic hormone care for PCOS, Thyroid, Diabetes, Infertility and Metabolic Health.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:image", content: "https://res.cloudinary.com/pumhgsff/image/upload/v1788419905/reclaim/site/w992zk1zdtdz7qlzbhz5.png" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: "https://res.cloudinary.com/pumhgsff/image/upload/v1788419905/reclaim/site/w992zk1zdtdz7qlzbhz5.png" },
     ],
     links: [
       {
@@ -134,11 +137,13 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
-      <SiteLoader />
-      <ConsultPopup />
-      <Toaster position="top-center" richColors />
+      <ReactLenis root>
+        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+        <Outlet />
+        <SiteLoader />
+        <ConsultPopup />
+        <Toaster position="top-center" richColors />
+      </ReactLenis>
     </QueryClientProvider>
   );
 }

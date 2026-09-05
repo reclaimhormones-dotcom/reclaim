@@ -15,7 +15,6 @@ import { nitro } from "nitro/vite";
 
 export default defineConfig({
   plugins: [
-    TanStackRouterVite(),
     tanstackStart({ server: { entry: "server" } }),
     nitro(),
     react(),

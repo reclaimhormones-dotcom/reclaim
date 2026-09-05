@@ -18,7 +18,7 @@ export type FirebasePublicConfig = {
 export const getFirebaseConfig = createServerFn({ method: "GET" }).handler(
   async (): Promise<FirebasePublicConfig> => {
     return {
-      apiKey: process.env["GOOGLE_API_KEY"] ?? "",
+      apiKey: process.env["FIREBASE_API_KEY"] ?? "",
       authDomain: "reclaim-2e2c7.firebaseapp.com",
       projectId: "reclaim-2e2c7",
       storageBucket: "reclaim-2e2c7.firebasestorage.app",

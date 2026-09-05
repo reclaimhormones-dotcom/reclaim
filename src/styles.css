@@ -1,5 +1,4 @@
-@import "tailwindcss" source(none);
-@source "../src";
+@import "tailwindcss";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
@@ -251,6 +250,33 @@ html {
   }
 }
 
+/* -------------------- mobile horizontal slider -------------------- */
+@media (max-width: 1023px) {
+  .mobile-slider {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    padding-bottom: 1.5rem;
+    margin-inline: -1rem;
+    padding-inline: 1rem;
+    /* Hide scrollbar */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .mobile-slider::-webkit-scrollbar {
+    display: none;
+  }
+  .mobile-slider > * {
+    flex: 0 0 calc(100% - 2rem); /* 100% minus some padding to peek the next card */
+    scroll-snap-align: center;
+  }
+  .mobile-slider-peek > * {
+    flex: 0 0 85%; /* Peek more aggressively */
+    scroll-snap-align: center;
+  }
+}
+
 /* -------------------- tasteful depth & parallax -------------------- */
 .tilt-card {
   transform-style: preserve-3d;
@@ -294,9 +320,9 @@ html[data-loading="true"] {
 }
 
 .site-loader {
-  background: #f7f4ee;
+  background: linear-gradient(135deg, #fdfcf9 0%, #f4f0e6 100%);
   opacity: 1;
-  transition: opacity 600ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity 1200ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .site-loader--leaving {
@@ -305,10 +331,19 @@ html[data-loading="true"] {
 }
 
 .site-loader__glow {
-  background:
-    radial-gradient(60% 55% at 50% 42%, oklch(1 0 0 / 0.9), transparent 70%),
-    radial-gradient(45% 40% at 12% 88%, oklch(0.88 0.04 145 / 0.5), transparent 72%),
-    radial-gradient(42% 38% at 88% 12%, oklch(0.92 0.05 92 / 0.45), transparent 70%);
+  background: radial-gradient(circle at 50% 50%, oklch(0.96 0.02 90 / 0.8) 0%, transparent 60%);
+  animation: loader-breathe 4s ease-in-out infinite alternate;
+}
+
+@keyframes loader-breathe {
+  from {
+    opacity: 0.6;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.05);
+  }
 }
 
 .site-loader__mark {
@@ -322,22 +357,13 @@ html[data-loading="true"] {
 @keyframes loader-reveal {
   from {
     opacity: 0;
-    transform: scale(0.95);
+    transform: scale(0.92);
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
   }
   to {
     opacity: 1;
     transform: scale(1);
-  }
-}
-
-@keyframes loader-tag {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 8px, 0);
-  }
-  to {
-    opacity: 1;
-    transform: none;
+    filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.8));
   }
 }
 
@@ -365,11 +391,10 @@ html[data-loading="true"] {
 .site-loader__bar {
   background: linear-gradient(
     90deg,
-    oklch(0.62 0.07 145),
-    oklch(0.45 0.07 148),
-    oklch(0.78 0.07 95)
+    #d4af37,
+    #b2ac88,
+    #8ba888
   );
-  transition: width 280ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @media (prefers-reduced-motion: reduce) {

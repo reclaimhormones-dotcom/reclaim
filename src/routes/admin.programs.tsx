@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { ArrowDown, ArrowUp, Pencil, Plus, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Pencil, Plus, Trash2, Sparkles, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -19,6 +19,7 @@ import { useCollectionData } from "@/hooks/useFirestore";
 import { createItem, deleteItem, swapOrder, updateItem } from "@/lib/admin-crud";
 import { cldOptimize } from "@/lib/cloudinary";
 import { programSlug, type ProgramDoc } from "@/lib/content-types";
+import { generateProgramContent } from "@/lib/ai.functions";
 
 export const Route = createFileRoute("/admin/programs")({
   component: AdminPrograms,
@@ -47,9 +48,52 @@ function AdminPrograms() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<Draft | null>(null);
   const [saving, setSaving] = useState(false);
+  const [generatingField, setGeneratingField] = useState<string | null>(null);
   const [pointsText, setPointsText] = useState("");
   const [whoForText, setWhoForText] = useState("");
   const [processText, setProcessText] = useState("");
+
+  async function handleAIGenerate(field: "description" | "points" | "longDescription" | "whoFor" | "process") {
+    if (!draft?.title.trim()) {
+      toast.error("Please enter a title first so the AI knows what to generate.");
+      return;
+    }
+    setGeneratingField(field);
+    try {
+      const generated = await generateProgramContent({ data: { title: draft.title, category: draft.category, field } });
+      
+      if (field === "description" || field === "longDescription") {
+        setDraft((prev) => prev ? { ...prev, [field]: generated.text } : prev);
+      } else if (field === "points") {
+        setPointsText(generated.text);
+      } else if (field === "whoFor") {
+        setWhoForText(generated.text);
+      } else if (field === "process") {
+        setProcessText(generated.text);
+      }
+      
+      toast.success("AI generated content successfully!");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to generate AI content");
+    } finally {
+      setGeneratingField(null);
+    }
+  }
+
+  function AIGenButton({ field }: { field: "description" | "points" | "longDescription" | "whoFor" | "process" }) {
+    const loading = generatingField === field;
+    return (
+      <button
+        type="button"
+        onClick={() => void handleAIGenerate(field)}
+        disabled={loading || generatingField !== null}
+        className="inline-flex items-center gap-1.5 rounded-md bg-amber-50/50 px-2.5 py-1 text-[0.7rem] font-medium text-amber-700 hover:bg-amber-100 disabled:opacity-50 transition-colors border border-amber-200/60"
+      >
+        {loading ? <Loader2 className="size-3 animate-spin text-amber-500" /> : <Sparkles className="size-3 text-amber-500" />}
+        {loading ? "Generating..." : "AI Fill"}
+      </button>
+    );
+  }
 
   function startNew() {
     setEditingId("new");
@@ -155,9 +199,11 @@ function AdminPrograms() {
 
       {editingId && draft ? (
         <Card className="mb-6">
-          <h3 className="font-serif text-xl text-brand-deep">
-            {editingId === "new" ? "New program" : "Edit program"}
-          </h3>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h3 className="font-serif text-xl text-brand-deep">
+              {editingId === "new" ? "New program" : "Edit program"}
+            </h3>
+          </div>
           <div className="mt-4 grid gap-4 lg:grid-cols-2">
             <Field label="Title">
               <input
@@ -180,7 +226,7 @@ function AdminPrograms() {
               </select>
             </Field>
             <div className="lg:col-span-2">
-              <Field label="Description">
+              <Field label="Description" action={<AIGenButton field="description" />}>
                 <textarea
                   className={`${inputClass} min-h-24`}
                   value={draft.description}
@@ -189,7 +235,7 @@ function AdminPrograms() {
                 />
               </Field>
             </div>
-            <Field label="Highlights" hint="Comma separated, e.g. Cycle Regulation, Weight Management">
+            <Field label="Highlights" hint="Comma separated, e.g. Cycle Regulation, Weight Management" action={<AIGenButton field="points" />}>
               <input
                 className={inputClass}
                 value={pointsText}
@@ -252,7 +298,7 @@ function AdminPrograms() {
               </label>
             </div>
             <div className="lg:col-span-2">
-              <Field label="Detail page introduction" hint="Shown on the program's own page.">
+              <Field label="Detail page introduction" hint="Shown on the program's own page." action={<AIGenButton field="longDescription" />}>
                 <textarea
                   className={`${inputClass} min-h-24`}
                   value={draft.longDescription ?? ""}
@@ -261,14 +307,14 @@ function AdminPrograms() {
                 />
               </Field>
             </div>
-            <Field label="Who is it for" hint="One point per line.">
+            <Field label="Who is it for" hint="One point per line." action={<AIGenButton field="whoFor" />}>
               <textarea
                 className={`${inputClass} min-h-24`}
                 value={whoForText}
                 onChange={(e) => setWhoForText(e.target.value)}
               />
             </Field>
-            <Field label="How it works" hint="One step per line.">
+            <Field label="How it works" hint="One step per line." action={<AIGenButton field="process" />}>
               <textarea
                 className={`${inputClass} min-h-24`}
                 value={processText}

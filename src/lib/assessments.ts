@@ -100,14 +100,30 @@ export async function submitPaymentProof(
 export async function saveNutritionLog(
   key: string,
   nutritionLog: NutritionLog,
+  details: BasicDetails,
   submit: boolean,
 ): Promise<void> {
   const db = await getDb();
   await updateDoc(doc(db, "assessments", key), {
     nutritionLog,
+    details,
     ...(submit ? { status: "completed", step: 4 } : { step: 3 }),
     updatedAt: Date.now(),
   });
+  if (submit) {
+    await setDoc(
+      doc(db, "users", key),
+      {
+        name: details.name,
+        email: details.email,
+        phone: details.phone,
+        age: details.age,
+        address: details.address,
+        updatedAt: serverTimestamp(),
+      },
+      { merge: true },
+    );
+  }
 }
 
 /* ------------------------------ admin actions ----------------------------- */
