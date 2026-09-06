@@ -279,7 +279,7 @@ export const FOOTER_DEFAULT: FooterContent = {
   ],
   contactHeading: "Contact Us",
   copyright: "© 2025 Reclaim Hormones. All Rights Reserved.",
-  credit: "Designed with love for Healing & Health",
+  credit: "",
 };
 
 /* -------------------------------- home page ------------------------------- */
