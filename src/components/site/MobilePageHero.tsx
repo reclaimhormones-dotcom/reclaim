@@ -103,7 +103,7 @@ export function MobilePageHero({
 
         <ActionLink
           action={primary}
-          className="tactile touch-lg fill-primary mt-7 inline-flex items-center justify-center gap-2.5 text-sm tracking-wide shadow-[0_14px_34px_-16px_oklch(0.44_0.052_140/0.85)]"
+          className="tactile magnetic touch-lg fill-primary mt-7 inline-flex items-center justify-center gap-2.5 text-sm tracking-wide shadow-[0_14px_34px_-16px_oklch(0.44_0.052_140/0.85)]"
         >
           {primary.label} <ArrowRight className="size-4" />
         </ActionLink>

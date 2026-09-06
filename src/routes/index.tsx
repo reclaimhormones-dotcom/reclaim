@@ -678,7 +678,7 @@ function Gallery({ content }: { content: HomeContent["gallery"] }) {
         <div className="mt-8 flex justify-center">
           <Link
             to="/gallery"
-            className="tactile touch-lg fill-primary inline-flex w-full items-center justify-center gap-3 text-sm sm:w-auto"
+            className="tactile magnetic touch-lg fill-primary inline-flex w-full items-center justify-center gap-3 text-sm sm:w-auto"
           >
             {content.ctaLabel} <ArrowRight className="size-4" />
           </Link>

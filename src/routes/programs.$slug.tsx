@@ -247,7 +247,7 @@ function ProgramDetailPage() {
             <div className="mt-7 flex flex-wrap gap-3">
               <Link
                 to="/contact"
-                className="inline-flex items-center gap-2 tactile touch-lg fill-primary text-sm font-semibold text-primary-foreground"
+                className="inline-flex items-center gap-2 tactile magnetic touch-lg fill-primary text-sm font-semibold text-primary-foreground"
               >
                 <CalendarCheck className="size-4" /> Book Consultation
               </Link>

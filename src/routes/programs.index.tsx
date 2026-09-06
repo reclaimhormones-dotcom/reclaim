@@ -339,7 +339,7 @@ function CatalogueEmpty({ content }: { content: ProgramsPageContent["sections"] 
       </p>
       <Link
         to="/contact"
-        className="tactile touch-lg fill-primary mt-7 inline-flex items-center gap-2 text-sm"
+        className="tactile magnetic touch-lg fill-primary mt-7 inline-flex items-center gap-2 text-sm"
       >
         {content.emptyCtaLabel} <ArrowRight className="size-4" />
       </Link>

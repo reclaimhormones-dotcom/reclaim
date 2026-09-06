@@ -100,7 +100,7 @@ function ContactHero({ hero }: { hero: ContactPageContent["hero"] }) {
           <div className="mt-6 flex flex-wrap gap-3">
             <a
               href={telLink(settings.phone)}
-              className="inline-flex items-center gap-2 tactile touch-lg fill-primary text-sm font-semibold text-primary-foreground"
+              className="inline-flex items-center gap-2 tactile magnetic touch-lg fill-primary text-sm font-semibold text-primary-foreground"
             >
               <Phone className="size-4" /> {settings.phone}
             </a>
@@ -277,16 +277,21 @@ function EnquiryForm({
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{content.sub}</p>
 
           {sent ? (
-            <div className="mt-6 rounded-xl border border-border bg-sage-soft p-6 text-center">
-              <CheckCircle2 className="mx-auto size-7 text-primary" />
-              <p className="mt-3 font-serif text-lg text-brand-deep">{content.successTitle}</p>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+            <div
+              role="status"
+              className="surface mt-6 bg-sage-soft p-7 text-center"
+            >
+              <span className="icon-pod mx-auto size-14 rounded-full">
+                <CheckCircle2 className="btn-check size-7" aria-hidden="true" />
+              </span>
+              <p className="mt-4 font-serif text-lg text-brand-deep">{content.successTitle}</p>
+              <p className="mt-2 text-pretty-body text-sm text-muted-foreground">
                 {content.successSub}
               </p>
               <button
                 type="button"
                 onClick={() => setSent(false)}
-                className="mt-4 text-xs font-semibold text-primary underline-offset-4 hover:underline"
+                className="mt-5 inline-flex min-h-11 items-center text-xs font-semibold text-primary underline-offset-4 hover:underline"
               >
                 {content.successAgainLabel}
               </button>
@@ -427,9 +432,20 @@ function EnquiryForm({
               <button
                 type="submit"
                 disabled={sending}
-                className="inline-flex items-center justify-center gap-2 tactile touch-lg fill-primary text-sm font-semibold text-primary-foreground disabled:opacity-60"
+                aria-busy={sending}
+                className={`tactile magnetic touch-lg fill-primary inline-flex items-center justify-center gap-2 text-sm font-semibold text-primary-foreground disabled:opacity-60 ${
+                  sending ? "btn-busy" : ""
+                }`}
               >
-                <Send className="size-4" /> {sending ? "Sending…" : content.submitLabel}
+                {sending ? (
+                  <>
+                    <span className="btn-spinner" aria-hidden="true" /> Sending…
+                  </>
+                ) : (
+                  <>
+                    <Send className="size-4" aria-hidden="true" /> {content.submitLabel}
+                  </>
+                )}
               </button>
               <p className="text-[0.68rem] leading-relaxed text-muted-foreground">
                 {content.disclaimer}

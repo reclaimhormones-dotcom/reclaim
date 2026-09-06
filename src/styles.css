@@ -534,6 +534,111 @@ html[data-loading="true"] {
   transition-duration: 0.1s;
 }
 
+/*
+ * Magnetic controls drift a few pixels toward the cursor. The offset arrives
+ * as custom properties from useMagneticButtons, so it composes with the
+ * hover-rise and press-scale below instead of overwriting them.
+ */
+@utility magnetic {
+  --magnet-x: 0px;
+  --magnet-y: 0px;
+  transition:
+    transform 0.4s var(--ease-premium),
+    box-shadow 0.35s var(--ease-premium);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .magnetic:hover {
+    transform: translate3d(var(--magnet-x), calc(var(--magnet-y) - 2px), 0);
+    transition-duration: 0.12s;
+  }
+  /* A magnetic control keeps following the cursor rather than taking the
+     flat `tactile` rise, so the two do not fight over `transform`. */
+  .tactile.magnetic:hover {
+    transform: translate3d(var(--magnet-x), calc(var(--magnet-y) - 2px), 0);
+  }
+}
+
+.tactile.magnetic:active {
+  transform: scale(0.97);
+}
+
+/* Buttons that report progress: the label swaps while work is in flight. */
+@utility btn-busy {
+  pointer-events: none;
+  opacity: 0.75;
+}
+
+.btn-spinner {
+  display: inline-block;
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 9999px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  animation: btn-spin 0.7s linear infinite;
+}
+
+@keyframes btn-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Success check draws itself once a submission lands. */
+.btn-check {
+  animation: btn-check-pop 0.45s var(--ease-premium) both;
+}
+
+@keyframes btn-check-pop {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ---------------------------- page transition ---------------------------- */
+
+/* Keyed on pathname in __root, so every navigation settles in. */
+.page-enter {
+  animation: page-enter 0.5s var(--ease-premium) both;
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-enter {
+    animation: none;
+  }
+  .magnetic:hover,
+  .tactile.magnetic:hover {
+    transform: none;
+  }
+  .btn-spinner {
+    animation-duration: 2s;
+  }
+  .btn-check {
+    animation: none;
+  }
+}
+
 /* Ripple ink, injected by the delegated pointer listener in __root. */
 .ripple-ink {
   position: absolute;

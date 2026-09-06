@@ -94,7 +94,7 @@ function GalleryHero({
           <div className="mt-6 flex flex-wrap gap-3">
             <a
               href="#photos"
-              className="inline-flex items-center gap-2 tactile touch-lg fill-primary text-sm font-semibold text-primary-foreground"
+              className="inline-flex items-center gap-2 tactile magnetic touch-lg fill-primary text-sm font-semibold text-primary-foreground"
             >
               <Images className="size-4" /> {hero.primaryLabel}
             </a>
@@ -484,7 +484,7 @@ function GalleryCta({ content }: { content: GalleryPageContent["cta"] }) {
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <Link
               to="/contact"
-              className="inline-flex items-center gap-2 tactile touch-lg fill-primary text-sm font-semibold text-primary-foreground"
+              className="inline-flex items-center gap-2 tactile magnetic touch-lg fill-primary text-sm font-semibold text-primary-foreground"
             >
               <CalendarCheck className="size-4" /> {content.primaryLabel}
             </Link>

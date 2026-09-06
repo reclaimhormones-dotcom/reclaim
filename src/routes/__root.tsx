@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -13,6 +14,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { ConsultPopup } from "@/components/site/ConsultPopup";
 import { SiteLoader } from "@/components/site/SiteLoader";
 import { useGlobalRipple } from "@/hooks/useRipple";
+import { useMagneticButtons } from "@/hooks/useMagnetic";
 import { ReactLenis } from "lenis/react";
 
 import appCss from "../styles.css?url";
@@ -135,14 +137,20 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
   useGlobalRipple();
+  useMagneticButtons();
 
   return (
     <QueryClientProvider client={queryClient}>
       {/* Lenis easing tuned to match --ease-premium: long, calm deceleration. */}
       <ReactLenis root options={{ duration: 1.15, smoothWheel: true, touchMultiplier: 1.6 }}>
+        {/* Keying on the path restarts the enter animation on every navigation,
+            so pages settle in rather than snapping. */}
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <Outlet />
+        <div key={pathname} className="page-enter">
+          <Outlet />
+        </div>
         <SiteLoader />
         <ConsultPopup />
         <Toaster position="top-center" richColors />
