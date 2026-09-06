@@ -67,7 +67,7 @@ export const Route = createFileRoute("/assessment")({
 });
 
 const field =
-  "w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/70 focus:border-primary focus:ring-2 focus:ring-primary/15";
+  "w-full min-h-14 rounded-2xl border border-border bg-background px-4 py-3.5 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/70 focus:border-primary focus:ring-2 focus:ring-primary/15";
 
 const STEP_META = [
   { n: 1, label: "Your Details", icon: ClipboardList },
@@ -452,7 +452,7 @@ function PaymentStep({
               type="button"
               onClick={() => inputRef.current?.click()}
               disabled={uploading}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-background px-5 py-3 text-sm font-medium transition-colors hover:bg-accent disabled:opacity-60"
+              className="inline-flex w-full items-center justify-center gap-2 min-h-14 rounded-2xl border border-border bg-background px-5 py-3.5 text-sm font-medium transition-colors hover:bg-accent disabled:opacity-60"
             >
               {uploading ? (
                 <Loader2 className="size-4 animate-spin" />
@@ -478,7 +478,7 @@ function PaymentStep({
         <button
           type="button"
           onClick={onBack}
-          className="inline-flex items-center gap-2 rounded-xl border border-border bg-background px-5 py-3 text-sm font-medium transition-colors hover:bg-accent"
+          className="inline-flex items-center gap-2 min-h-14 rounded-2xl border border-border bg-background px-5 py-3.5 text-sm font-medium transition-colors hover:bg-accent"
         >
           <ArrowLeft className="size-4" /> Back
         </button>
@@ -753,7 +753,7 @@ function NutritionStep({
         <button
           type="button"
           onClick={onBack}
-          className="inline-flex items-center gap-2 rounded-xl border border-border bg-background px-5 py-3 text-sm font-medium transition-colors hover:bg-accent"
+          className="inline-flex items-center gap-2 min-h-14 rounded-2xl border border-border bg-background px-5 py-3.5 text-sm font-medium transition-colors hover:bg-accent"
         >
           <ArrowLeft className="size-4" /> Back
         </button>
@@ -761,7 +761,7 @@ function NutritionStep({
           type="button"
           onClick={() => void persist(false)}
           disabled={saving !== null}
-          className="inline-flex items-center gap-2 rounded-xl border border-border bg-background px-5 py-3 text-sm font-medium transition-colors hover:bg-accent disabled:opacity-60"
+          className="inline-flex items-center gap-2 min-h-14 rounded-2xl border border-border bg-background px-5 py-3.5 text-sm font-medium transition-colors hover:bg-accent disabled:opacity-60"
         >
           {saving === "draft" ? <Loader2 className="size-4 animate-spin" /> : null}
           Save draft

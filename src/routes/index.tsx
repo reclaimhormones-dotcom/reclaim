@@ -20,6 +20,8 @@ import { SiteFooter } from "@/components/site/SiteFooter";
 import { SiteLink } from "@/components/site/SiteLink";
 import { SmartImage } from "@/components/site/SmartImage";
 import { MobileCarousel } from "@/components/site/MobileCarousel";
+import { Reveal } from "@/components/site/Reveal";
+import { Rating } from "@/components/site/Rating";
 import { cldOptimize } from "@/lib/cloudinary";
 import { embedUrl, programSlug, publicPrograms } from "@/lib/content-types";
 import { ORGANIZATION_JSONLD, canonical, canonicalLink } from "@/lib/seo";
@@ -282,34 +284,39 @@ function DesktopHero({ hero, stats }: { hero: HomeContent["hero"]; stats: HomeCo
 function Philosophy({ content }: { content: HomeContent["philosophy"] }) {
   return (
     <section className="bg-cream-deep">
-      <div className="mx-auto max-w-7xl px-4 py-10 lg:px-8 lg:py-12">
-        <div className="rounded-2xl bg-sage-soft p-6 lg:grid lg:grid-cols-[1fr_2fr] lg:items-center lg:gap-10 lg:p-8">
+      <div className="mx-auto max-w-7xl px-4 py-12 lg:px-8 lg:py-16">
+        <Reveal className="surface-lg bg-sage-soft p-6 lg:grid lg:grid-cols-[1fr_2fr] lg:items-center lg:gap-10 lg:p-9">
           <div>
             <Eyebrow>{content.eyebrow}</Eyebrow>
-            <h2 className="mt-3 text-2xl text-foreground lg:text-[1.85rem]">{content.heading}</h2>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{content.sub}</p>
+            <h2 className="mt-3 text-balance-heading text-2xl text-foreground lg:text-[1.85rem]">
+              {content.heading}
+            </h2>
+            <p className="mt-3 text-pretty-body text-sm text-muted-foreground">{content.sub}</p>
           </div>
 
           <div className="mt-6 mobile-slider lg:mt-0 lg:grid lg:grid-cols-4 lg:gap-3">
-            {content.items.map((item) => {
+            {content.items.map((item, i) => {
               const Icon = icon(item.icon);
               return (
-                <div
+                <Reveal
                   key={item.title}
-                  className="flex items-center gap-3 rounded-xl bg-card p-4 transition-all duration-500 ease-out hover:-translate-y-1 hover:shadow-xl hover:shadow-brand/5 lg:flex-col lg:items-center lg:gap-2 lg:py-6 lg:text-center"
+                  delay={i * 80}
+                  className="flex items-center gap-4 surface lift p-5 lg:flex-col lg:items-center lg:gap-3 lg:py-7 lg:text-center"
                 >
-                  <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-sage">
-                    <Icon className="size-4 text-primary" />
+                  <span className="icon-pod size-12">
+                    <Icon className="size-[1.15rem]" />
                   </span>
-                  <div>
+                  <div className="min-w-0">
                     <p className="text-sm font-semibold text-foreground">{item.title}</p>
-                    <p className="text-xs leading-snug text-muted-foreground">{item.sub}</p>
+                    <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+                      {item.sub}
+                    </p>
                   </div>
-                </div>
+                </Reveal>
               );
             })}
           </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   );
@@ -367,52 +374,53 @@ function Programs({ content }: { content: HomeContent["programs"] }) {
 
           {items.length > 0 ? (
             <MobileCarousel containerClassName={gridColumns(items.length)} autoPlayDelay={4000}>
-              {items.map((p) => {
+              {items.map((p, i) => {
                 const Icon = icon(p.icon ?? "Leaf");
                 return (
-                  <Link
-                    key={p.id}
-                    to="/programs/$slug"
-                    params={{ slug: programSlug(p) }}
-                    className="group flex h-full overflow-hidden rounded-2xl border border-white/10 bg-card/80 shadow-xl shadow-brand/5 backdrop-blur-md transition-all duration-500 ease-out hover:-translate-y-1 hover:border-white/30 hover:shadow-2xl hover:shadow-brand/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transition-none motion-reduce:hover:translate-y-0 lg:flex-col"
-                  >
-                    <div className="relative w-2/5 shrink-0 overflow-hidden lg:w-full">
-                      <img
-                        src={cldOptimize(p.image, 800)}
-                        alt={p.title}
-                        loading="lazy"
-                        width={800}
-                        height={700}
-                        className="h-full w-full object-cover transition-transform duration-[2000ms] ease-out group-hover:scale-105 lg:h-40"
-                      />
-                      <div
-                        className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent lg:hidden"
-                        aria-hidden="true"
-                      />
-                      <span className="absolute left-2 top-2 flex size-8 items-center justify-center rounded-full bg-card/90 shadow-sm backdrop-blur-md">
-                        <Icon className="size-4 text-primary" />
-                      </span>
-                    </div>
-                    <div className="flex flex-1 flex-col p-4">
-                      <div className="flex items-start justify-between gap-2">
-                        <h3 className="text-[0.95rem] font-semibold leading-snug text-foreground">
-                          {p.title}
-                        </h3>
-                        <ArrowRight
-                          className="mt-0.5 size-4 shrink-0 text-primary opacity-50 transition-all group-hover:translate-x-1 group-hover:opacity-100"
+                  <Reveal key={p.id} delay={Math.min(i * 80, 400)} className="h-full">
+                    <Link
+                      to="/programs/$slug"
+                      params={{ slug: programSlug(p) }}
+                      className="group surface-glass lift flex h-full overflow-hidden lg:flex-col"
+                    >
+                      <div className="relative w-2/5 shrink-0 overflow-hidden lg:w-full">
+                        <SmartImage
+                          src={p.image}
+                          alt={p.title}
+                          width={800}
+                          sizes="(min-width: 1024px) 18rem, 40vw"
+                          className="size-full lg:h-44"
+                          imgClassName="transition-transform duration-[1400ms] ease-out group-hover:scale-[1.07] motion-reduce:group-hover:scale-100"
+                        />
+                        <div
+                          className="absolute inset-0 bg-gradient-to-t from-brand-deep/45 to-transparent lg:hidden"
                           aria-hidden="true"
                         />
+                        <span className="icon-pod absolute left-2.5 top-2.5 size-9 bg-card/90 backdrop-blur-md">
+                          <Icon className="size-4" />
+                        </span>
                       </div>
-                      <p className="mt-2 line-clamp-3 text-xs leading-relaxed text-muted-foreground">
-                        {p.description}
-                      </p>
-                      {p.duration ? (
-                        <p className="mt-auto pt-3 text-[0.7rem] font-semibold text-brand-deep">
-                          {p.duration}
+                      <div className="flex flex-1 flex-col p-5">
+                        <div className="flex items-start justify-between gap-2">
+                          <h3 className="text-[1rem] font-semibold leading-snug text-foreground">
+                            {p.title}
+                          </h3>
+                          <ArrowRight
+                            className="mt-0.5 size-4 shrink-0 text-primary opacity-50 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100"
+                            aria-hidden="true"
+                          />
+                        </div>
+                        <p className="mt-2 line-clamp-3 text-xs leading-relaxed text-muted-foreground">
+                          {p.description}
                         </p>
-                      ) : null}
-                    </div>
-                  </Link>
+                        {p.duration ? (
+                          <p className="mt-auto pt-4 text-[0.7rem] font-semibold text-brand-deep">
+                            {p.duration}
+                          </p>
+                        ) : null}
+                      </div>
+                    </Link>
+                  </Reveal>
                 );
               })}
             </MobileCarousel>
@@ -509,52 +517,65 @@ function Testimonials({ content }: { content: HomeContent["testimonials"] }) {
             autoPlayDelay={5000}
           >
             {items.map((t, i) => (
-              <figure
-                key={t.name}
-                className="rounded-2xl border border-white/40 bg-white/60 p-6 backdrop-blur-xl shadow-xl shadow-brand/5 transition-all duration-500 ease-out hover:-translate-y-1 hover:shadow-2xl hover:shadow-brand/15 hover:bg-white/90"
-              >
-                <div className="flex items-center gap-2">
-                  <Quote className="size-5 fill-sage text-sage" />
-                  <span className="hidden items-center gap-0.5 lg:flex">
-                    {Array.from({ length: t.rating }).map((_, s) => (
-                      <Star key={s} className="size-3.5 fill-gold text-gold" />
-                    ))}
-                  </span>
-                </div>
-                {t.video ? (
-                  <div className="mt-4 overflow-hidden rounded-xl border border-white/20 shadow-inner">
-                    <iframe
-                      src={t.video}
-                      title={`${t.name} video story`}
-                      loading="lazy"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"
-                      allowFullScreen
-                      className="aspect-video w-full"
-                    />
-                  </div>
-                ) : t.photo ? (
-                  <SmartImage
-                    src={t.photo}
-                    alt={`${t.name} — client story`}
-                    width={600}
-                    className="mt-4 aspect-[4/3] rounded-xl border border-white/20 shadow-inner"
-                  />
-                ) : null}
-                <blockquote className="mt-4 text-[0.95rem] leading-relaxed text-foreground/85">
-                  {t.quote}
-                </blockquote>
-                <figcaption className="mt-5 border-t border-border/50 pt-4">
-                  <p className="text-[0.9rem] font-semibold text-foreground">{t.name}</p>
-                  <div className="mt-1 flex items-center justify-between">
-                    <p className="text-[0.75rem] font-medium tracking-wide text-primary/80 uppercase">{t.program}</p>
-                    <span className="flex items-center gap-0.5 lg:hidden">
-                      {Array.from({ length: t.rating }).map((_, s) => (
-                        <Star key={s} className="size-3.5 fill-gold text-gold" />
-                      ))}
+              <Reveal key={t.name} delay={Math.min(i * 90, 360)} className="h-full">
+                <figure className="surface-glass lift flex h-full flex-col p-6 lg:p-7">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="icon-pod size-11">
+                      <Quote className="size-[1.05rem] fill-current" />
                     </span>
+                    <Rating value={t.rating} />
                   </div>
-                </figcaption>
-              </figure>
+
+                  {t.video ? (
+                    <div className="mt-5 overflow-hidden rounded-2xl border border-white/25 shadow-inner">
+                      <iframe
+                        src={t.video}
+                        title={`${t.name} video story`}
+                        loading="lazy"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"
+                        allowFullScreen
+                        className="aspect-video w-full"
+                      />
+                    </div>
+                  ) : t.photo ? (
+                    <SmartImage
+                      src={t.photo}
+                      alt={`${t.name} — client story`}
+                      width={600}
+                      zoom
+                      className="mt-5 aspect-[4/3] rounded-2xl border border-white/25 shadow-inner"
+                    />
+                  ) : null}
+
+                  <blockquote className="mt-5 text-pretty-body text-[0.95rem] text-foreground/85">
+                    {t.quote}
+                  </blockquote>
+
+                  <figcaption className="mt-auto pt-6">
+                    <hr className="rule-soft" />
+                    <div className="mt-4 flex items-center gap-3">
+                      {t.photo ? (
+                        <SmartImage
+                          src={t.photo}
+                          alt=""
+                          width={120}
+                          className="size-12 shrink-0 rounded-full ring-2 ring-white/70"
+                        />
+                      ) : (
+                        <span className="icon-pod size-12 rounded-full font-serif text-base text-brand-deep">
+                          {t.name.replace(/^—\s*/, "").charAt(0)}
+                        </span>
+                      )}
+                      <div className="min-w-0">
+                        <p className="text-[0.92rem] font-semibold text-foreground">{t.name}</p>
+                        <p className="mt-0.5 text-[0.72rem] font-medium uppercase tracking-wide text-primary/80">
+                          {t.program}
+                        </p>
+                      </div>
+                    </div>
+                  </figcaption>
+                </figure>
+              </Reveal>
             ))}
           </MobileCarousel>
         </div>
@@ -579,16 +600,17 @@ function Journey({ content }: { content: HomeContent["journey"] }) {
             containerClassName="lg:grid-cols-3 lg:gap-6"
             autoPlayDelay={4500}
           >
-            {content.steps.map((step) => {
+            {content.steps.map((step, i) => {
               const Icon = icon(step.icon);
               return (
-                <div
+                <Reveal
                   key={step.n + step.title}
-                  className="group relative flex gap-5 rounded-2xl border border-white/40 bg-white/60 p-6 backdrop-blur-xl shadow-lg shadow-brand/5 transition-all duration-500 ease-out hover:-translate-y-1 hover:shadow-2xl hover:shadow-brand/15 hover:bg-white/90 lg:flex-col lg:items-start"
+                  delay={Math.min(i * 90, 360)}
+                  className="group surface-glass lift relative flex h-full gap-5 p-6 lg:flex-col lg:items-start lg:p-7"
                 >
-                  <div className="relative shrink-0 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-3">
-                    <span className="flex size-14 items-center justify-center rounded-full bg-sage-soft shadow-inner">
-                      <Icon className="size-6 text-primary" />
+                  <div className="relative shrink-0 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-3 motion-reduce:group-hover:scale-100 motion-reduce:group-hover:rotate-0">
+                    <span className="icon-pod size-14 rounded-full">
+                      <Icon className="size-6" />
                     </span>
                     <span className="absolute -right-1 -top-1 flex size-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground shadow-md">
                       {step.n}
@@ -596,9 +618,11 @@ function Journey({ content }: { content: HomeContent["journey"] }) {
                   </div>
                   <div className="flex flex-col justify-center lg:justify-start">
                     <h3 className="text-[1.05rem] font-semibold text-foreground">{step.title}</h3>
-                    <p className="mt-2 text-[0.85rem] leading-relaxed text-muted-foreground">{step.sub}</p>
+                    <p className="mt-2 text-pretty-body text-[0.85rem] text-muted-foreground">
+                      {step.sub}
+                    </p>
                   </div>
-                </div>
+                </Reveal>
               );
             })}
           </MobileCarousel>
@@ -619,33 +643,42 @@ function Journey({ content }: { content: HomeContent["journey"] }) {
 
 function Gallery({ content }: { content: HomeContent["gallery"] }) {
   const { data: live } = useGallery();
+  /* Raw URLs — SmartImage applies the Cloudinary transform and the blurred
+     placeholder itself, so optimising here would chain transforms twice. */
   const images =
     live.length > 0
-      ? live.slice(0, 5).map((g) => ({ src: cldOptimize(g.url, 800), alt: g.caption || "" }))
-      : content.images.map((g) => ({ src: cldOptimize(g.img, 800), alt: g.alt }));
+      ? live.slice(0, 5).map((g) => ({ src: g.url, alt: g.caption || "" }))
+      : content.images.map((g) => ({ src: g.img, alt: g.alt }));
   return (
     <section className="bg-background">
       <div className="mx-auto max-w-7xl px-4 py-10 lg:px-8 lg:py-14">
         <div className="flex flex-col items-center text-center">
           <Eyebrow>{content.eyebrow}</Eyebrow>
         </div>
-        <div className="mt-6 grid gap-4 lg:grid-cols-5">
+        <div className="mt-7 grid grid-cols-2 gap-3 lg:grid-cols-5 lg:gap-4">
           {images.map((g, i) => (
-            <img
+            <Reveal
               key={i}
-              src={g.src}
-              alt={g.alt || `Reclaim Hormones community session ${i + 1}`}
-              loading="lazy"
-              width={800}
-              height={600}
-              className="h-40 w-full rounded-xl object-cover lg:h-32"
-            />
+              delay={Math.min(i * 80, 400)}
+              className={`overflow-hidden rounded-2xl shadow-[var(--shadow-e1)] ${
+                i === 0 ? "col-span-2 lg:col-span-1" : ""
+              }`}
+            >
+              <SmartImage
+                src={g.src}
+                alt={g.alt || `Reclaim Hormones community session ${i + 1}`}
+                width={800}
+                zoom
+                sizes="(min-width: 1024px) 15rem, 45vw"
+                className={i === 0 ? "aspect-[2/1] lg:aspect-[4/3]" : "aspect-[4/3]"}
+              />
+            </Reveal>
           ))}
         </div>
-        <div className="mt-6 flex justify-center">
+        <div className="mt-8 flex justify-center">
           <Link
             to="/gallery"
-            className="inline-flex w-full items-center justify-between gap-6 rounded-md bg-primary px-6 py-3.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-brand-deep sm:w-auto sm:gap-3"
+            className="tactile touch-lg fill-primary inline-flex w-full items-center justify-center gap-3 text-sm sm:w-auto"
           >
             {content.ctaLabel} <ArrowRight className="size-4" />
           </Link>
@@ -669,10 +702,10 @@ function CtaBand({ content }: { content: HomeContent["cta"] }) {
           </p>
         </div>
 
-        <div className="mt-6 lg:mt-0 lg:w-80">
+        <div className="mt-7 lg:mt-0 lg:w-80">
           <Link
             to="/assessment"
-            className="flex items-center justify-between gap-4 rounded-md bg-card px-5 py-3.5 text-sm font-medium text-primary transition-colors hover:bg-cream"
+            className="tactile touch-lg fill-surface flex items-center justify-between gap-4 text-sm text-primary"
           >
             {content.primaryLabel} <ArrowRight className="size-4" />
           </Link>
@@ -681,7 +714,7 @@ function CtaBand({ content }: { content: HomeContent["cta"] }) {
             href={whatsappLink(settings.whatsapp)}
             target="_blank"
             rel="noreferrer noopener"
-            className="flex items-center justify-center gap-2 rounded-md border border-primary-foreground/30 px-5 py-3.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-brand-deep"
+            className="tactile touch-lg flex items-center justify-center gap-2 border border-primary-foreground/35 text-sm text-primary-foreground transition-colors hover:bg-primary-foreground/10"
           >
             <MessageCircle className="size-4" />
             {content.whatsappLabel}
@@ -703,23 +736,23 @@ function MobileContact({ content }: { content: HomeContent["mobileContact"] }) {
     { icon: Clock, title: content.timingsLabel, value: settings.hours },
   ];
   return (
-    <section id="contact" className="bg-background px-4 py-10 lg:hidden">
-      <div className="space-y-4">
-        {contact.map(({ icon: Icon, title, value }) => (
-          <div key={title} className="flex items-center gap-3">
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-sage">
-              <Icon className="size-4 text-primary" />
+    <section id="contact" className="bg-background px-4 py-12 lg:hidden">
+      <div className="surface divide-y divide-border/60 overflow-hidden">
+        {contact.map(({ icon: Icon, title, value }, i) => (
+          <Reveal key={title} delay={i * 70} className="flex items-center gap-4 p-4">
+            <span className="icon-pod size-11">
+              <Icon className="size-[1.05rem]" />
             </span>
-            <div>
+            <div className="min-w-0">
               <p className="text-sm font-semibold text-foreground">{title}</p>
-              <p className="text-xs text-muted-foreground">{value}</p>
+              <p className="mt-0.5 break-words text-xs text-muted-foreground">{value}</p>
             </div>
-          </div>
+          </Reveal>
         ))}
       </div>
 
-      <h3 className="mt-8 text-lg text-foreground">{content.socialHeading}</h3>
-      <div className="mt-3 flex items-center gap-3">
+      <h3 className="mt-10 text-lg text-foreground">{content.socialHeading}</h3>
+      <div className="mt-4 flex items-center gap-3">
         {socials.map(({ Icon, href, label }) => (
           <a
             key={label}
@@ -727,9 +760,9 @@ function MobileContact({ content }: { content: HomeContent["mobileContact"] }) {
             target="_blank"
             rel="noreferrer noopener"
             aria-label={label}
-            className="flex size-10 items-center justify-center rounded-full bg-sage text-primary"
+            className="icon-pod tactile size-12 rounded-full"
           >
-            <Icon className="size-4" />
+            <Icon className="size-[1.05rem]" />
           </a>
         ))}
       </div>

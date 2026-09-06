@@ -79,7 +79,7 @@ function Eyebrow({ children, center = false }: { children: string; center?: bool
 }
 
 const fieldClass =
-  "w-full rounded-lg border border-input bg-card px-3.5 py-2.5 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/70 focus:border-ring focus:ring-2 focus:ring-ring/20";
+  "w-full min-h-13 rounded-2xl border border-input bg-card px-4 py-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/70 focus:border-ring focus:ring-2 focus:ring-ring/20";
 
 /* -------------------------------- sections ------------------------------- */
 
@@ -100,7 +100,7 @@ function ContactHero({ hero }: { hero: ContactPageContent["hero"] }) {
           <div className="mt-6 flex flex-wrap gap-3">
             <a
               href={telLink(settings.phone)}
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-brand-deep"
+              className="inline-flex items-center gap-2 tactile touch-lg fill-primary text-sm font-semibold text-primary-foreground"
             >
               <Phone className="size-4" /> {settings.phone}
             </a>
@@ -183,7 +183,7 @@ function ContactCards({ content }: { content: ContactPageContent["cards"] }) {
           {cards.map(({ icon: Icon, title, lines, action }) => (
             <div
               key={title}
-              className="rounded-2xl border border-border bg-card p-5 shadow-[0_1px_2px_oklch(0.35_0.048_142/4%),0_10px_28px_-22px_oklch(0.35_0.048_142/22%)]"
+              className="surface lift p-5 shadow-[0_1px_2px_oklch(0.35_0.048_142/4%),0_10px_28px_-22px_oklch(0.35_0.048_142/22%)]"
             >
               <span className="flex size-10 items-center justify-center rounded-full bg-sage-soft">
                 <Icon className="size-4 text-primary" />
@@ -269,7 +269,7 @@ function EnquiryForm({
   return (
     <section className="bg-background">
       <div className="mx-auto max-w-7xl px-4 py-12 lg:grid lg:grid-cols-[1.15fr_1fr] lg:gap-10 lg:px-8 lg:py-16">
-        <div className="rounded-2xl border border-border bg-card p-5 sm:p-7">
+        <div className="surface lift p-5 sm:p-7">
           <Eyebrow>{content.eyebrow}</Eyebrow>
           <h2 className="mt-3 text-[1.5rem] leading-snug text-foreground lg:text-[1.85rem]">
             {content.heading}
@@ -427,7 +427,7 @@ function EnquiryForm({
               <button
                 type="submit"
                 disabled={sending}
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-brand-deep disabled:opacity-60"
+                className="inline-flex items-center justify-center gap-2 tactile touch-lg fill-primary text-sm font-semibold text-primary-foreground disabled:opacity-60"
               >
                 <Send className="size-4" /> {sending ? "Sending…" : content.submitLabel}
               </button>
@@ -439,7 +439,7 @@ function EnquiryForm({
         </div>
 
         <div className="mt-8 lg:mt-0">
-          <div className="overflow-hidden rounded-2xl border border-border bg-card">
+          <div className="overflow-hidden surface lift">
             <img
               src={cldOptimize(side.image, 1200)}
               alt={side.imageAlt}

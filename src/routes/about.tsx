@@ -168,7 +168,7 @@ function MissionStory({ content }: { content: AboutContent["mission"] }) {
           </div>
         </div>
 
-        <div className="mt-8 rounded-2xl border border-border bg-card p-6 lg:mt-0 lg:p-8">
+        <div className="mt-8 surface lift p-6 lg:mt-0 lg:p-8">
           <h3 className="text-center font-serif text-lg text-brand">{content.specialityHeading}</h3>
           <div className="mt-6 grid gap-6 sm:grid-cols-2">
             {content.specialities.map((item) => {
@@ -244,7 +244,7 @@ function Story({ content }: { content: AboutContent["story"] }) {
           {cards.map((card) => (
             <div
               key={card.title}
-              className="flex flex-col items-center rounded-2xl border border-border bg-card p-6 text-center transition-all duration-500 ease-out hover:-translate-y-1 hover:shadow-xl hover:shadow-brand/5"
+              className="flex flex-col items-center surface lift p-6 text-center"
             >
               <IconBubble icon={icon(card.icon)} />
               <p className="mt-4 text-xs font-semibold uppercase tracking-[0.16em] text-brand">
@@ -272,7 +272,7 @@ function Philosophy({ content }: { content: AboutContent["philosophy"] }) {
             return (
               <div
                 key={item.title}
-                className="flex gap-3 rounded-xl border border-border bg-card p-4 transition-all duration-500 ease-out hover:-translate-y-1 hover:shadow-xl hover:shadow-brand/5 lg:p-5"
+                className="flex gap-3 rounded-xl border border-border bg-card p-4 lg:p-5"
               >
                 <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-sage-soft">
                   <Icon className="size-4 text-primary" />
@@ -302,7 +302,7 @@ function Experts({ content }: { content: AboutContent["experts"] }) {
           {content.items.map(({ img, name, degree, role }) => (
             <article
               key={name}
-              className="flex flex-col items-center rounded-2xl border border-border bg-card p-4 text-center lg:p-6"
+              className="flex flex-col items-center surface lift p-4 text-center lg:p-6"
             >
               <img
                 src={cldOptimize(img, 500)}
@@ -348,7 +348,7 @@ function Process({ content }: { content: AboutContent["process"] }) {
             return (
               <li
                 key={item.n}
-                className="relative rounded-2xl border border-border bg-card p-5 transition-all duration-500 ease-out hover:-translate-y-1 hover:shadow-xl hover:shadow-brand/5 lg:p-6"
+                className="relative surface lift p-5 lg:p-6"
               >
                 <span className="mb-4 flex size-12 items-center justify-center rounded-full border border-border bg-card">
                   <Icon className="size-5 text-primary" />
@@ -414,7 +414,7 @@ function ClinicExperience({ content }: { content: AboutContent["clinic"] }) {
           {content.items.map(({ img, caption }) => (
             <figure
               key={caption}
-              className="overflow-hidden rounded-2xl border border-border bg-card"
+              className="overflow-hidden surface lift"
             >
               <img
                 src={cldOptimize(img, 900)}
@@ -444,7 +444,7 @@ function Values({ content }: { content: AboutContent["values"] }) {
           {content.items.map((item, i) => (
             <div
               key={item.title}
-              className={`flex flex-col items-center rounded-2xl border border-border bg-card p-4 text-center transition-all duration-500 ease-out hover:-translate-y-1 hover:shadow-xl hover:shadow-brand/5 lg:rounded-none lg:border-0 lg:bg-transparent lg:px-6 lg:hover:translate-y-0 lg:hover:shadow-none ${
+              className={`flex flex-col items-center surface p-4 text-center lg:rounded-none lg:border-0 lg:bg-transparent lg:px-6 lg:shadow-none ${
                 i !== content.items.length - 1 ? "lg:border-r lg:border-border" : ""
               }`}
             >
@@ -558,7 +558,7 @@ function Testimonials({ content }: { content: AboutContent["testimonials"] }) {
           {content.items.map((t, i) => (
             <figure
               key={t.name}
-              className={`rounded-2xl border border-border bg-card p-5 lg:block ${
+              className={`surface lift p-5 lg:block ${
                 i === active ? "block" : "hidden"
               }`}
             >

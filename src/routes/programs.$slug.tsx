@@ -9,10 +9,12 @@ import {
   Leaf,
   MessageCircle,
   Share2,
-  Star,
 } from "lucide-react";
 
+import { Accordion } from "@/components/site/Accordion";
 import { MobilePageHero } from "@/components/site/MobilePageHero";
+import { Rating } from "@/components/site/Rating";
+import { Reveal } from "@/components/site/Reveal";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { usePrograms, useSettings, useTestimonials, whatsappLink } from "@/hooks/useSiteContent";
@@ -245,13 +247,13 @@ function ProgramDetailPage() {
             <div className="mt-7 flex flex-wrap gap-3">
               <Link
                 to="/contact"
-                className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-brand-deep"
+                className="inline-flex items-center gap-2 tactile touch-lg fill-primary text-sm font-semibold text-primary-foreground"
               >
                 <CalendarCheck className="size-4" /> Book Consultation
               </Link>
               <Link
                 to="/assessment"
-                className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-accent"
+                className="inline-flex items-center gap-2 tactile touch-lg fill-surface text-sm font-semibold text-foreground"
               >
                 <ClipboardList className="size-4" /> Start Assessment
               </Link>
@@ -260,7 +262,7 @@ function ProgramDetailPage() {
                   href={whatsappLink(settings.whatsapp, waMessage)}
                   target="_blank"
                   rel="noreferrer noopener"
-                  className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-accent"
+                  className="inline-flex items-center gap-2 tactile touch-lg fill-surface text-sm font-semibold text-foreground"
                 >
                   <MessageCircle className="size-4 text-brand" /> WhatsApp
                 </a>
@@ -268,7 +270,7 @@ function ProgramDetailPage() {
               <button
                 type="button"
                 onClick={handleShare}
-                className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-accent"
+                className="inline-flex items-center gap-2 tactile touch-lg fill-surface text-sm font-semibold text-foreground"
               >
                 <Share2 className="size-4 text-brand" /> Share Program
               </button>
@@ -297,11 +299,13 @@ function ProgramDetailPage() {
               What this program <span className="text-brand">improves</span>
             </h2>
             <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {points.map((p) => (
-                <div key={p} className="rounded-2xl border border-border bg-card p-5">
-                  <CheckCircle2 className="size-5 text-brand" />
-                  <p className="mt-3 text-sm font-semibold text-foreground">{p}</p>
-                </div>
+              {points.map((p, i) => (
+                <Reveal key={p} delay={Math.min(i * 80, 400)} className="surface lift p-6">
+                  <span className="icon-pod size-11">
+                    <CheckCircle2 className="size-[1.15rem]" />
+                  </span>
+                  <p className="mt-4 text-sm font-semibold text-foreground">{p}</p>
+                </Reveal>
               ))}
             </div>
           </div>
@@ -311,7 +315,7 @@ function ProgramDetailPage() {
       {/* Who is it for + process */}
       <section className="bg-cream-deep">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 lg:grid-cols-2 lg:px-8 lg:py-16">
-          <div className="rounded-[1.75rem] bg-background p-6 lg:p-8">
+          <Reveal className="surface surface-lg bg-background p-6 lg:p-9">
             <h2 className="text-[1.4rem] text-foreground lg:text-[1.75rem]">
               Who is it <span className="text-brand">for?</span>
             </h2>
@@ -323,8 +327,8 @@ function ProgramDetailPage() {
                 </li>
               ))}
             </ul>
-          </div>
-          <div className="rounded-[1.75rem] bg-background p-6 lg:p-8">
+          </Reveal>
+          <Reveal delay={120} className="surface surface-lg bg-background p-6 lg:p-9">
             <h2 className="text-[1.4rem] text-foreground lg:text-[1.75rem]">
               How it <span className="text-brand">works</span>
             </h2>
@@ -338,7 +342,7 @@ function ProgramDetailPage() {
                 </li>
               ))}
             </ol>
-          </div>
+          </Reveal>
         </div>
       </section>
 
@@ -350,23 +354,27 @@ function ProgramDetailPage() {
               Success <span className="text-brand">stories</span>
             </h2>
             <div className="mt-7 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {stories.map((t) => (
-                <figure key={t.id} className="rounded-2xl border border-border bg-card p-5">
-                  <div className="flex gap-0.5">
-                    {Array.from({ length: Math.max(1, Math.min(5, t.rating || 5)) }).map((_, i) => (
-                      <Star key={i} className="size-3.5 fill-gold text-gold" />
-                    ))}
-                  </div>
-                  <blockquote className="mt-3 text-sm leading-relaxed text-muted-foreground">
+              {stories.map((t, i) => (
+                <Reveal
+                  key={t.id}
+                  as="figure"
+                  delay={Math.min(i * 90, 360)}
+                  className="surface lift flex h-full flex-col p-6"
+                >
+                  <Rating value={t.rating || 5} />
+                  <blockquote className="mt-4 text-pretty-body text-sm text-muted-foreground">
                     “{t.review}”
                   </blockquote>
-                  <figcaption className="mt-3 text-xs font-semibold text-brand-deep">
-                    {t.name}
-                    {t.program ? (
-                      <span className="font-normal text-muted-foreground"> · {t.program}</span>
-                    ) : null}
+                  <figcaption className="mt-auto pt-5">
+                    <hr className="rule-soft" />
+                    <p className="mt-4 text-xs font-semibold text-brand-deep">
+                      {t.name}
+                      {t.program ? (
+                        <span className="font-normal text-muted-foreground"> · {t.program}</span>
+                      ) : null}
+                    </p>
                   </figcaption>
-                </figure>
+                </Reveal>
               ))}
             </div>
           </div>
@@ -379,19 +387,7 @@ function ProgramDetailPage() {
           <h2 className="text-center text-[1.6rem] text-foreground lg:text-[2rem]">
             Frequently asked <span className="text-brand">questions</span>
           </h2>
-          <div className="mt-6 space-y-3">
-            {faqs.map((f) => (
-              <details
-                key={f.question}
-                className="group rounded-2xl border border-border bg-background px-5 py-4"
-              >
-                <summary className="cursor-pointer list-none text-sm font-semibold text-foreground">
-                  {f.question}
-                </summary>
-                <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground">{f.answer}</p>
-              </details>
-            ))}
-          </div>
+          <Accordion items={faqs} defaultOpen={0} className="mt-7" />
         </div>
       </section>
 
@@ -408,13 +404,13 @@ function ProgramDetailPage() {
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <Link
               to="/contact"
-              className="inline-flex items-center gap-2 rounded-full bg-primary-foreground px-6 py-3 text-sm font-semibold text-brand-deep"
+              className="tactile touch-lg fill-surface inline-flex items-center gap-2 text-sm"
             >
               <CalendarCheck className="size-4" /> Book Consultation
             </Link>
             <Link
               to="/assessment"
-              className="inline-flex items-center gap-2 rounded-full border border-primary-foreground/40 px-6 py-3 text-sm font-semibold"
+              className="tactile touch-lg inline-flex items-center gap-2 border border-primary-foreground/40 text-sm transition-colors hover:bg-primary-foreground/10"
             >
               <ClipboardList className="size-4" /> Start Assessment
             </Link>
@@ -423,7 +419,7 @@ function ProgramDetailPage() {
                 href={whatsappLink(settings.whatsapp, waMessage)}
                 target="_blank"
                 rel="noreferrer noopener"
-                className="inline-flex items-center gap-2 rounded-full border border-primary-foreground/40 px-6 py-3 text-sm font-semibold"
+                className="tactile touch-lg inline-flex items-center gap-2 border border-primary-foreground/40 text-sm transition-colors hover:bg-primary-foreground/10"
               >
                 <MessageCircle className="size-4" /> WhatsApp
               </a>

@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { ConsultPopup } from "@/components/site/ConsultPopup";
 import { SiteLoader } from "@/components/site/SiteLoader";
+import { useGlobalRipple } from "@/hooks/useRipple";
 import { ReactLenis } from "lenis/react";
 
 import appCss from "../styles.css?url";
@@ -134,10 +135,12 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  useGlobalRipple();
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ReactLenis root>
+      {/* Lenis easing tuned to match --ease-premium: long, calm deceleration. */}
+      <ReactLenis root options={{ duration: 1.15, smoothWheel: true, touchMultiplier: 1.6 }}>
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Outlet />
         <SiteLoader />

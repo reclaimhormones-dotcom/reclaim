@@ -25,6 +25,7 @@ import { SiteHeader } from "@/components/site/SiteHeader";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { MobilePageHero } from "@/components/site/MobilePageHero";
 import { SmartImage } from "@/components/site/SmartImage";
+import { Reveal } from "@/components/site/Reveal";
 
 import { canonical, canonicalLink, breadcrumbJsonLd } from "@/lib/seo";
 
@@ -127,7 +128,7 @@ function ProgramCard({
       to="/programs/$slug"
       params={{ slug: program.slug }}
       aria-label={`${program.title} — ${learnMoreLabel}`}
-      className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-border/70 bg-card shadow-[0_1px_2px_oklch(0.35_0.048_142/4%),0_12px_30px_-22px_oklch(0.35_0.048_142/28%)] transition-[transform,box-shadow,border-color] duration-500 ease-out hover:-translate-y-1.5 hover:border-brand/30 hover:shadow-[0_4px_10px_oklch(0.35_0.048_142/6%),0_28px_50px_-28px_oklch(0.35_0.048_142/38%)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+      className="group surface surface-lg lift relative flex h-full flex-col overflow-hidden hover:border-brand/30"
     >
       <div className="relative aspect-[4/3] overflow-hidden">
         <SmartImage
@@ -294,8 +295,10 @@ function ProgramGrid({
         </h2>
       ) : null}
       <div className={`mx-auto mt-7 grid gap-5 lg:gap-6 ${gridClass(items.length)}`}>
-        {items.map((p) => (
-          <ProgramCard key={p.id} program={p} learnMoreLabel={learnMoreLabel} />
+        {items.map((p, i) => (
+          <Reveal key={p.id} delay={Math.min(i * 80, 480)} className="h-full">
+            <ProgramCard program={p} learnMoreLabel={learnMoreLabel} />
+          </Reveal>
         ))}
       </div>
     </div>
@@ -326,19 +329,21 @@ function CatalogueSkeleton() {
 
 function CatalogueEmpty({ content }: { content: ProgramsPageContent["sections"] }) {
   return (
-    <div className="mx-auto mt-9 max-w-lg rounded-3xl border border-dashed border-border bg-card/60 px-6 py-12 text-center">
-      <span className="mx-auto flex size-14 items-center justify-center rounded-full bg-sage-soft">
-        <Compass className="size-6 text-primary" aria-hidden="true" />
+    <Reveal className="surface surface-lg mx-auto mt-9 max-w-lg border-dashed bg-card/60 px-6 py-14 text-center">
+      <span className="icon-pod mx-auto size-16 rounded-full">
+        <Compass className="size-6" aria-hidden="true" />
       </span>
-      <h3 className="mt-5 font-serif text-xl text-brand-deep">{content.emptyHeading}</h3>
-      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{content.emptyBody}</p>
+      <h3 className="mt-6 font-serif text-xl text-brand-deep">{content.emptyHeading}</h3>
+      <p className="mx-auto mt-3 max-w-sm text-pretty-body text-sm text-muted-foreground">
+        {content.emptyBody}
+      </p>
       <Link
         to="/contact"
-        className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-brand-deep"
+        className="tactile touch-lg fill-primary mt-7 inline-flex items-center gap-2 text-sm"
       >
         {content.emptyCtaLabel} <ArrowRight className="size-4" />
       </Link>
-    </div>
+    </Reveal>
   );
 }
 
@@ -393,10 +398,8 @@ function ProgramsSections({ content }: { content: ProgramsPageContent["sections"
                   type="button"
                   aria-pressed={isActive}
                   onClick={() => setFilter(f.id)}
-                  className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-[0.78rem] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
-                    isActive
-                      ? "bg-brand-deep text-primary-foreground"
-                      : "border border-border bg-card text-foreground hover:border-brand/40 hover:bg-secondary"
+                  className={`tactile inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-[0.78rem] font-semibold ${
+                    isActive ? "fill-primary" : "fill-surface text-foreground"
                   }`}
                 >
                   {f.label}

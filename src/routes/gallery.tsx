@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowRight,
   CalendarCheck,
@@ -21,6 +21,7 @@ import { SiteHeader } from "@/components/site/SiteHeader";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { MobilePageHero } from "@/components/site/MobilePageHero";
 import { Skeleton, SmartImage } from "@/components/site/SmartImage";
+import { Reveal } from "@/components/site/Reveal";
 
 import { canonical, canonicalLink, breadcrumbJsonLd } from "@/lib/seo";
 
@@ -93,7 +94,7 @@ function GalleryHero({
           <div className="mt-6 flex flex-wrap gap-3">
             <a
               href="#photos"
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-brand-deep"
+              className="inline-flex items-center gap-2 tactile touch-lg fill-primary text-sm font-semibold text-primary-foreground"
             >
               <Images className="size-4" /> {hero.primaryLabel}
             </a>
@@ -150,6 +151,11 @@ function Lightbox({
   onClose: () => void;
   onMove: (dir: -1 | 1) => void;
 }) {
+  const closeRef = useRef<HTMLButtonElement | null>(null);
+  /* Horizontal drag distance while a swipe is in progress. */
+  const [drag, setDrag] = useState(0);
+  const swipe = useRef<{ x: number; y: number; active: boolean } | null>(null);
+
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") onClose();
@@ -157,60 +163,102 @@ function Lightbox({
       if (e.key === "ArrowLeft") onMove(-1);
     }
     window.addEventListener("keydown", onKey);
+
+    /* Lock the page behind the overlay and hand focus to the dialog, then
+       give it back to the page when the lightbox closes. */
+    const restoreFocus = document.activeElement as HTMLElement | null;
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    closeRef.current?.focus();
+
     return () => {
       window.removeEventListener("keydown", onKey);
       document.body.style.overflow = prev;
+      restoreFocus?.focus?.();
     };
   }, [onClose, onMove]);
 
+  /* Reset any in-flight drag when the visible photo changes. */
+  useEffect(() => setDrag(0), [index]);
+
   const photo = photos[index];
   if (!photo) return null;
+
+  function onPointerDown(e: React.PointerEvent) {
+    swipe.current = { x: e.clientX, y: e.clientY, active: true };
+  }
+
+  function onPointerMove(e: React.PointerEvent) {
+    const start = swipe.current;
+    if (!start?.active) return;
+    const dx = e.clientX - start.x;
+    /* Ignore mostly-vertical gestures so the caption stays scrollable. */
+    if (Math.abs(dx) < Math.abs(e.clientY - start.y)) return;
+    setDrag(dx);
+  }
+
+  function onPointerUp() {
+    const dx = drag;
+    swipe.current = null;
+    setDrag(0);
+    if (Math.abs(dx) > 60) onMove(dx < 0 ? 1 : -1);
+  }
 
   return (
     <div
       role="dialog"
       aria-modal="true"
       aria-label={photo.caption || "Gallery photo"}
-      className="fixed inset-0 z-[60] flex flex-col items-center justify-center bg-brand-deep/90 p-4 backdrop-blur-sm animate-in fade-in duration-300"
+      className="fixed inset-0 z-[60] flex flex-col items-center justify-center bg-brand-deep/92 p-4 backdrop-blur-md animate-in fade-in duration-300"
       onClick={onClose}
     >
       <button
+        ref={closeRef}
         type="button"
         aria-label="Close gallery"
         onClick={onClose}
-        className="absolute right-4 top-4 rounded-full border border-primary-foreground/30 p-2 text-primary-foreground/90 transition-colors hover:bg-primary-foreground/10"
+        className="tactile absolute right-4 top-4 flex size-12 items-center justify-center rounded-full border border-primary-foreground/30 text-primary-foreground/90 transition-colors hover:bg-primary-foreground/10"
       >
         <X className="size-5" />
       </button>
 
       <figure
-        className="max-h-[82vh] w-full max-w-4xl animate-in zoom-in-95 duration-400 ease-out"
+        className="max-h-[82vh] w-full max-w-4xl touch-pan-y animate-in zoom-in-95 duration-500 ease-out"
         onClick={(e) => e.stopPropagation()}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
       >
         <img
+          key={photo.img}
           src={cldOptimize(photo.img, 1600)}
           alt={photo.alt}
-          className="mx-auto max-h-[72vh] w-auto rounded-2xl object-contain"
+          draggable={false}
+          style={{
+            transform: `translate3d(${drag}px, 0, 0)`,
+            transition: drag === 0 ? "transform 0.35s var(--ease-premium)" : "none",
+            opacity: 1 - Math.min(Math.abs(drag) / 400, 0.4),
+          }}
+          className="mx-auto max-h-[72vh] w-auto select-none rounded-3xl object-contain shadow-2xl"
         />
-        <figcaption className="mt-3 text-center text-sm text-primary-foreground/85">
+        <figcaption className="mt-4 text-center text-sm text-primary-foreground/85">
           {photo.caption}
           <span className="ml-2 text-xs uppercase tracking-[0.12em] text-primary-foreground/60">
             {photo.cat}
           </span>
-          <span className="ml-2 text-xs text-primary-foreground/50">
+          <span className="ml-2 text-xs tabular-nums text-primary-foreground/50">
             {index + 1} / {photos.length}
           </span>
         </figcaption>
       </figure>
 
-      <div className="mt-4 flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
+      <div className="mt-5 flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
         <button
           type="button"
           aria-label="Previous photo"
           onClick={() => onMove(-1)}
-          className="flex size-11 items-center justify-center rounded-full border border-primary-foreground/30 text-primary-foreground transition-colors hover:bg-primary-foreground/10"
+          className="tactile flex size-12 items-center justify-center rounded-full border border-primary-foreground/30 text-primary-foreground transition-colors hover:bg-primary-foreground/10"
         >
           <ChevronLeft className="size-5" />
         </button>
@@ -218,7 +266,7 @@ function Lightbox({
           type="button"
           aria-label="Next photo"
           onClick={() => onMove(1)}
-          className="flex size-11 items-center justify-center rounded-full border border-primary-foreground/30 text-primary-foreground transition-colors hover:bg-primary-foreground/10"
+          className="tactile flex size-12 items-center justify-center rounded-full border border-primary-foreground/30 text-primary-foreground transition-colors hover:bg-primary-foreground/10"
         >
           <ChevronRight className="size-5" />
         </button>
@@ -253,7 +301,7 @@ function PhotoGrid({ content }: { content: GalleryPageContent["grid"] }) {
           {content.heading} <span className="text-brand">{content.headingAccent}</span>
         </h2>
 
-        <div className="-mx-4 mt-7 overflow-x-auto px-4 pb-1 lg:mx-0 lg:overflow-visible lg:px-0">
+        <div className="no-scrollbar -mx-4 mt-8 overflow-x-auto px-4 pb-1 lg:mx-0 lg:overflow-visible lg:px-0">
           <div className="flex min-w-max justify-start gap-2 lg:min-w-0 lg:justify-center">
             {CATEGORIES.map((c) => (
               <button
@@ -261,10 +309,10 @@ function PhotoGrid({ content }: { content: GalleryPageContent["grid"] }) {
                 type="button"
                 onClick={() => setActive(c)}
                 aria-pressed={active === c}
-                className={`shrink-0 rounded-full px-4 py-2 text-xs font-medium transition-colors ${
+                className={`tactile shrink-0 rounded-full px-5 py-2.5 text-xs font-semibold ${
                   active === c
-                    ? "bg-primary text-primary-foreground"
-                    : "border border-border bg-card text-muted-foreground hover:bg-sage-soft hover:text-brand-deep"
+                    ? "fill-primary"
+                    : "fill-surface text-muted-foreground hover:text-brand-deep"
                 }`}
               >
                 {c}
@@ -280,24 +328,27 @@ function PhotoGrid({ content }: { content: GalleryPageContent["grid"] }) {
             ))}
           </div>
         ) : (
-          <div className="mt-7 columns-2 gap-4 [column-fill:_balance] lg:columns-3">
+          <div className="mt-8 columns-2 gap-4 [column-fill:_balance] lg:columns-3 lg:gap-5">
             {shown.map((photo, i) => (
-              <figure
+              <Reveal
                 key={`${photo.img}-${i}`}
-                className="group mb-4 break-inside-avoid overflow-hidden rounded-2xl border border-border bg-card transition-all duration-500 ease-out hover:-translate-y-1 hover:shadow-xl hover:shadow-brand/5"
+                as="figure"
+                delay={Math.min((i % 6) * 80, 400)}
+                className="group surface lift mb-4 break-inside-avoid overflow-hidden lg:mb-5"
               >
                 <button
                   type="button"
                   onClick={() => setOpen(i)}
                   aria-label={`Open ${photo.caption || "gallery photo"}`}
-                  className="block w-full text-left"
+                  className="block w-full cursor-zoom-in text-left"
                 >
                   <SmartImage
                     src={photo.img}
                     alt={photo.alt}
                     width={900}
+                    sizes="(min-width: 1024px) 24rem, 45vw"
                     className={i % 3 === 0 ? "h-64 lg:h-80" : "h-48 lg:h-56"}
-                    imgClassName="transition-transform duration-500 group-hover:scale-105"
+                    imgClassName="transition-transform duration-[900ms] ease-out group-hover:scale-[1.06] motion-reduce:group-hover:scale-100"
                   />
                 </button>
                 <figcaption className="flex items-center justify-between gap-3 p-4">
@@ -308,7 +359,7 @@ function PhotoGrid({ content }: { content: GalleryPageContent["grid"] }) {
                     {photo.cat}
                   </span>
                 </figcaption>
-              </figure>
+              </Reveal>
             ))}
           </div>
         )}
@@ -381,31 +432,36 @@ function Stories({ content }: { content: GalleryPageContent["stories"] }) {
         </p>
 
         <div className="mt-8 mobile-slider lg:grid lg:grid-cols-3 lg:gap-5">
-          {content.items.map(({ name, tag, result, quote, img }) => (
-            <article
+          {content.items.map(({ name, tag, result, quote, img }, i) => (
+            <Reveal
               key={name}
-              className="flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all duration-500 ease-out hover:-translate-y-1 hover:shadow-xl hover:shadow-brand/5"
+              as="article"
+              delay={Math.min(i * 90, 360)}
+              className="group surface lift flex h-full flex-col overflow-hidden"
             >
-              <img
-                src={cldOptimize(img, 1000)}
+              <SmartImage
+                src={img}
                 alt={`${name} — ${tag} transformation`}
-                loading="lazy"
                 width={1000}
-                height={750}
-                className="h-44 w-full object-cover"
+                zoom
+                sizes="(min-width: 1024px) 22rem, 85vw"
+                className="aspect-[4/3] w-full lg:aspect-[16/10]"
               />
-              <div className="flex flex-1 flex-col p-5">
+              <div className="flex flex-1 flex-col p-5 lg:p-6">
                 <span className="inline-flex w-fit rounded-full bg-sage-soft px-3 py-1 text-[0.65rem] font-medium uppercase tracking-[0.08em] text-brand-deep">
                   {tag}
                 </span>
-                <Quote className="mt-3 size-5 text-gold" />
-                <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">{quote}</p>
-                <div className="mt-4 border-t border-border pt-3">
-                  <p className="text-sm font-semibold text-foreground">{name}</p>
+                <span className="icon-pod mt-4 size-10">
+                  <Quote className="size-4 fill-current" />
+                </span>
+                <p className="mt-3 flex-1 text-pretty-body text-sm text-muted-foreground">{quote}</p>
+                <div className="mt-5">
+                  <hr className="rule-soft" />
+                  <p className="mt-4 text-sm font-semibold text-foreground">{name}</p>
                   <p className="mt-0.5 text-xs text-primary">{result}</p>
                 </div>
               </div>
-            </article>
+            </Reveal>
           ))}
         </div>
       </div>
@@ -428,7 +484,7 @@ function GalleryCta({ content }: { content: GalleryPageContent["cta"] }) {
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <Link
               to="/contact"
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-brand-deep"
+              className="inline-flex items-center gap-2 tactile touch-lg fill-primary text-sm font-semibold text-primary-foreground"
             >
               <CalendarCheck className="size-4" /> {content.primaryLabel}
             </Link>

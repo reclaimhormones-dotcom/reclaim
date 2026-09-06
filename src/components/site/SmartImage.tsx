@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { cldOptimize } from "@/lib/cloudinary";
 
@@ -8,8 +8,13 @@ export function Skeleton({ className = "" }: { className?: string }) {
 }
 
 /**
- * Progressive image: a tiny blurred Cloudinary placeholder is shown first and
- * the full-quality image fades in once it has decoded.
+ * Progressive image.
+ *
+ * A tiny blurred Cloudinary placeholder holds the layout, then the full image
+ * cross-fades in once it has actually decoded — so a photo never flashes in
+ * half-painted. Set `zoom` for the slow settle-in scale used across the site;
+ * it rides the parent <Reveal> so the motion is tied to scroll position
+ * rather than to load timing.
  */
 export function SmartImage({
   src,
@@ -19,6 +24,7 @@ export function SmartImage({
   imgClassName = "",
   sizes,
   eager = false,
+  zoom = false,
 }: {
   src: string;
   alt: string;
@@ -27,12 +33,21 @@ export function SmartImage({
   imgClassName?: string;
   sizes?: string;
   eager?: boolean;
+  /** Soft scale-down as the image settles into view. */
+  zoom?: boolean;
 }) {
   const [loaded, setLoaded] = useState(false);
+  const imgRef = useRef<HTMLImageElement | null>(null);
   const full = cldOptimize(src, width);
   const tiny = src.includes("/upload/")
     ? src.replace("/upload/", "/upload/f_auto,q_10,w_40,e_blur:400/")
     : src;
+
+  /* A cached image can finish before React attaches onLoad, which would leave
+     the photo stuck at opacity 0. Reconcile against the DOM after mount. */
+  useEffect(() => {
+    if (imgRef.current?.complete) setLoaded(true);
+  }, [full]);
 
   return (
     <div className={`relative overflow-hidden bg-muted/40 ${className}`}>
@@ -45,6 +60,7 @@ export function SmartImage({
         />
       ) : null}
       <img
+        ref={imgRef}
         src={full}
         alt={alt}
         {...(sizes ? { sizes } : {})}
@@ -53,7 +69,7 @@ export function SmartImage({
         onLoad={() => setLoaded(true)}
         className={`size-full object-cover transition-opacity duration-700 ${
           loaded ? "opacity-100" : "opacity-0"
-        } ${imgClassName}`}
+        } ${zoom ? "img-zoom" : ""} ${imgClassName}`}
       />
     </div>
   );

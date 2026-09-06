@@ -402,3 +402,353 @@ html[data-loading="true"] {
     display: none;
   }
 }
+
+/* =========================================================================
+   PREMIUM UI LAYER
+   A shared surface / motion / typography vocabulary so every section reads as
+   one product. The brand tokens above remain the only source of colour —
+   nothing below introduces a new hue.
+   ========================================================================= */
+
+:root {
+  /* Layered, low-opacity shadows tinted with the brand green rather than
+     black, so cards lift off the cream ground without looking heavy. */
+  --shadow-e1: 0 1px 2px oklch(0.35 0.048 142 / 5%), 0 2px 8px -4px oklch(0.35 0.048 142 / 8%);
+  --shadow-e2:
+    0 1px 2px oklch(0.35 0.048 142 / 5%), 0 8px 20px -12px oklch(0.35 0.048 142 / 20%),
+    0 24px 48px -32px oklch(0.35 0.048 142 / 22%);
+  --shadow-e3:
+    0 2px 4px oklch(0.35 0.048 142 / 6%), 0 16px 32px -16px oklch(0.35 0.048 142 / 26%),
+    0 40px 72px -40px oklch(0.35 0.048 142 / 30%);
+  --hairline: inset 0 1px 0 oklch(1 0 0 / 60%);
+
+  /* Card radii — 20px on mobile, 28px from lg up. */
+  --radius-card: 1.25rem;
+  --radius-card-lg: 1.75rem;
+
+  /* One easing curve for the whole site: calm, decelerating, never bouncy. */
+  --ease-premium: cubic-bezier(0.22, 0.61, 0.24, 1);
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --radius-card: 1.5rem;
+  }
+}
+
+/* ------------------------------- surfaces -------------------------------- */
+
+@utility surface {
+  background: var(--card);
+  border: 1px solid oklch(0.9 0.014 120 / 70%);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-e1);
+}
+
+/* Frosted variant for cards over photography or tinted bands. */
+@utility surface-glass {
+  background: oklch(1 0 0 / 62%);
+  border: 1px solid oklch(1 0 0 / 55%);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-e2), var(--hairline);
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+}
+
+@utility surface-lg {
+  border-radius: var(--radius-card-lg);
+}
+
+/* Elegant icon container used beside headings and in feature rows. */
+@utility icon-pod {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 1rem;
+  background: linear-gradient(150deg, var(--sage-soft) 0%, oklch(1 0 0) 100%);
+  box-shadow: var(--shadow-e1), var(--hairline);
+  color: var(--primary);
+}
+
+/* Hairline divider that fades out at both ends. */
+@utility rule-soft {
+  height: 1px;
+  border: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    oklch(0.35 0.048 142 / 14%) 18%,
+    oklch(0.35 0.048 142 / 14%) 82%,
+    transparent
+  );
+}
+
+/* --------------------------- interaction feel ---------------------------- */
+
+/*
+ * `lift` is the shared card interaction: depth on hover for pointers, a
+ * gentle press on touch. Only transform and box-shadow animate, so it stays
+ * on the compositor.
+ */
+@utility lift {
+  transition:
+    transform 0.45s var(--ease-premium),
+    box-shadow 0.45s var(--ease-premium),
+    border-color 0.45s var(--ease-premium);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .lift:hover {
+    transform: translate3d(0, -6px, 0);
+    box-shadow: var(--shadow-e3);
+  }
+}
+
+.lift:active {
+  transform: scale(0.985);
+  transition-duration: 0.12s;
+}
+
+/* Buttons: a subtle rise on hover and a real press on tap. */
+@utility tactile {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transition:
+    transform 0.35s var(--ease-premium),
+    box-shadow 0.35s var(--ease-premium),
+    filter 0.35s var(--ease-premium);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .tactile:hover {
+    transform: translate3d(0, -2px, 0);
+    box-shadow: var(--shadow-e2);
+    filter: saturate(1.05);
+  }
+}
+
+.tactile:active {
+  transform: translate3d(0, 0, 0) scale(0.97);
+  transition-duration: 0.1s;
+}
+
+/* Ripple ink, injected by the delegated pointer listener in __root. */
+.ripple-ink {
+  position: absolute;
+  border-radius: 9999px;
+  transform: scale(0);
+  opacity: 0.4;
+  background: currentColor;
+  pointer-events: none;
+  z-index: 0;
+  animation: ripple-out 620ms var(--ease-premium) forwards;
+}
+
+@keyframes ripple-out {
+  to {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+/* Soft gradient fills — same brand greens, more depth. */
+@utility fill-primary {
+  background-image: linear-gradient(
+    145deg,
+    oklch(0.47 0.055 141) 0%,
+    oklch(0.44 0.052 140) 45%,
+    oklch(0.38 0.05 141) 100%
+  );
+  color: var(--primary-foreground);
+  box-shadow: var(--shadow-e1), inset 0 1px 0 oklch(1 0 0 / 14%);
+}
+
+@utility fill-surface {
+  background-image: linear-gradient(145deg, oklch(1 0 0) 0%, oklch(0.985 0.008 95) 100%);
+  color: var(--brand-deep);
+  border: 1px solid oklch(0.9 0.014 120 / 80%);
+  box-shadow: var(--shadow-e1);
+}
+
+/* Thumb-friendly primary control height. */
+@utility touch-lg {
+  min-height: 3.5rem;
+  padding-inline: 1.5rem;
+  border-radius: 9999px;
+  font-weight: 600;
+}
+
+/* ---------------------------- scroll reveal ------------------------------ */
+
+/*
+ * Elements start slightly low and transparent, then settle when the observer
+ * in <Reveal> flips data-reveal to "in". The hidden state only applies once
+ * the client marks the document ready, so SSR and no-JS visitors always see
+ * fully rendered content.
+ */
+html[data-reveal-ready="true"] [data-reveal] {
+  transition:
+    opacity 0.75s var(--ease-premium),
+    transform 0.75s var(--ease-premium);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+html[data-reveal-ready="true"] [data-reveal="out"] {
+  opacity: 0;
+  transform: translate3d(0, 18px, 0);
+}
+
+html[data-reveal-ready="true"] [data-reveal="in"] {
+  opacity: 1;
+  transform: none;
+}
+
+/* ------------------------------- rating ---------------------------------- */
+
+/*
+ * Stars are visible by default, so a rating outside a reveal (or with JS off)
+ * always renders. Only inside a not-yet-revealed card do they wait and pop.
+ */
+html[data-reveal-ready="true"] [data-reveal="out"] .star-pop {
+  transform: scale(0.4);
+  opacity: 0;
+}
+
+html[data-reveal-ready="true"] [data-reveal="in"] .star-pop {
+  animation: star-pop 0.5s var(--ease-premium) backwards;
+}
+
+@keyframes star-pop {
+  60% {
+    transform: scale(1.18);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* --------------------------- image treatment ----------------------------- */
+
+/* Slow, subtle scale-down as a photo settles into view. */
+.img-zoom {
+  transition: transform 1.6s var(--ease-premium);
+  transform: scale(1.06);
+}
+
+[data-reveal="in"] .img-zoom {
+  transform: scale(1);
+}
+
+/* ------------------------------ typography ------------------------------- */
+
+@layer base {
+  p {
+    line-height: 1.7;
+  }
+
+  h1,
+  h2 {
+    letter-spacing: -0.015em;
+  }
+
+  h3 {
+    letter-spacing: -0.01em;
+  }
+}
+
+/* Balanced wrapping stops two-line headings orphaning a single word. */
+@utility text-balance-heading {
+  text-wrap: balance;
+}
+
+@utility text-pretty-body {
+  text-wrap: pretty;
+}
+
+/* ------------------------------ accordion -------------------------------- */
+
+@utility accordion-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  overflow: hidden;
+  transition:
+    grid-template-rows 0.45s var(--ease-premium),
+    opacity 0.35s var(--ease-premium);
+}
+
+.accordion-panel[data-open="true"] {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.accordion-panel > * {
+  min-height: 0;
+}
+
+/* ------------------------- focus & scrollbars ---------------------------- */
+
+:where(a, button, input, textarea, select, [tabindex]):focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+@media (min-width: 1024px) {
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: oklch(0.35 0.048 142 / 18%);
+    border-radius: 9999px;
+    border: 3px solid var(--background);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: oklch(0.35 0.048 142 / 32%);
+  }
+}
+
+/* Hide scrollbars on horizontal chip rails without losing scrollability. */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ------------------------- reduced motion guard -------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-reveal-ready="true"] [data-reveal="out"] {
+    opacity: 1;
+    transform: none;
+  }
+  .img-zoom,
+  [data-reveal="in"] .img-zoom {
+    transform: none;
+  }
+  .lift:hover,
+  .tactile:hover,
+  .lift:active,
+  .tactile:active {
+    transform: none;
+  }
+  .ripple-ink {
+    display: none;
+  }
+  html[data-reveal-ready="true"] [data-reveal="out"] .star-pop,
+  html[data-reveal-ready="true"] [data-reveal="in"] .star-pop {
+    transform: none;
+    opacity: 1;
+    animation: none;
+  }
+}

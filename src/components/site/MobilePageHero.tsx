@@ -103,7 +103,7 @@ export function MobilePageHero({
 
         <ActionLink
           action={primary}
-          className="mt-6 inline-flex items-center justify-center gap-2.5 rounded-full bg-brand px-6 py-4 text-sm font-semibold tracking-wide text-primary-foreground shadow-[0_14px_34px_-16px_oklch(0.44_0.052_140/0.85)] transition-transform active:scale-[0.98]"
+          className="tactile touch-lg fill-primary mt-7 inline-flex items-center justify-center gap-2.5 text-sm tracking-wide shadow-[0_14px_34px_-16px_oklch(0.44_0.052_140/0.85)]"
         >
           {primary.label} <ArrowRight className="size-4" />
         </ActionLink>
@@ -111,7 +111,7 @@ export function MobilePageHero({
         {secondary && (
           <ActionLink
             action={secondary}
-            className="mt-3 inline-flex items-center justify-center gap-2 text-[0.78rem] font-medium tracking-wide text-brand-deep/70 underline decoration-brand/30 underline-offset-4"
+            className="mt-4 inline-flex min-h-11 items-center justify-center gap-2 text-[0.8rem] font-medium tracking-wide text-brand-deep/70 underline decoration-brand/30 underline-offset-4"
           >
             {secondary.label}
           </ActionLink>
@@ -120,7 +120,7 @@ export function MobilePageHero({
         <a
           href={`#${scrollTo}`}
           aria-label="Scroll to content"
-          className="mx-auto mt-6 flex size-9 items-center justify-center rounded-full border border-brand/25 text-brand"
+          className="icon-pod tactile mx-auto mt-6 size-11 rounded-full"
         >
           <ChevronDown className="size-4 motion-safe:animate-bounce" />
         </a>
