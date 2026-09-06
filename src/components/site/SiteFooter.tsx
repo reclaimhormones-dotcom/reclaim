@@ -1,4 +1,4 @@
-import { Clock, Heart, Mail, MapPin, Phone } from "lucide-react";
+import { Clock, Mail, MapPin, Phone } from "lucide-react";
 
 import { useFooterContent, useSettings, useSocialLinks } from "@/hooks/useSiteContent";
 import { SiteLink } from "./SiteLink";
@@ -109,9 +109,6 @@ export function SiteFooter() {
         <div className="border-t border-primary-foreground/15">
           <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-4 text-[0.7rem] text-primary-foreground/70 lg:flex-row lg:items-center lg:justify-between lg:px-8">
             <p>{copy.copyright}</p>
-            <p className="flex items-center gap-1">
-              <Heart className="size-3 fill-destructive text-destructive" /> {copy.credit}
-            </p>
             <p>
               Designed &amp; Developed by{" "}
               <a

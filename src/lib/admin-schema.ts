@@ -93,7 +93,6 @@ export const FOOTER_SPEC: DocSpec = {
     { key: "programLinks", label: "Program links", type: "strings" },
     { key: "contactHeading", label: "Contact heading", type: "text" },
     { key: "copyright", label: "Copyright", type: "text" },
-    { key: "credit", label: "Credit line", type: "text" },
   ],
 };
 

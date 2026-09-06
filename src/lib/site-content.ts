@@ -252,7 +252,6 @@ export type FooterContent = {
   programLinks: string[];
   contactHeading: string;
   copyright: string;
-  
 };
 
 export const FOOTER_DEFAULT: FooterContent = {
