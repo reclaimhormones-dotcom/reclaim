@@ -14,6 +14,7 @@ import type { LucideIcon } from "lucide-react";
 import { useAboutContent, useSettings, whatsappLink } from "@/hooks/useSiteContent";
 import { Reveal } from "@/components/site/Reveal";
 import { SiteHeader } from "@/components/site/SiteHeader";
+import { useConsultModal } from "@/hooks/useConsultModal";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { MobilePageHero } from "@/components/site/MobilePageHero";
 import { cldOptimize } from "@/lib/cloudinary";
@@ -610,6 +611,7 @@ function Testimonials({ content }: { content: AboutContent["testimonials"] }) {
 }
 
 function CtaBand({ content }: { content: AboutContent["cta"] }) {
+  const consult = useConsultModal();
   const { settings } = useSettings();
   return (
     <section className="bg-cream-deep pb-11 lg:pb-16">
@@ -626,12 +628,13 @@ function CtaBand({ content }: { content: AboutContent["cta"] }) {
           </div>
 
           <div className="mt-6 space-y-3 lg:mt-0 lg:ml-auto lg:w-80">
-            <Link
-              to="/assessment"
-              className="flex items-center justify-center gap-3 rounded-md bg-card px-5 py-3.5 text-sm font-medium text-primary transition-colors hover:bg-cream"
+            <button
+              type="button"
+              onClick={() => consult.open()}
+              className="tactile flex w-full items-center justify-center gap-3 rounded-md bg-card px-5 py-3.5 text-sm font-medium text-primary transition-colors hover:bg-cream"
             >
               {content.primaryLabel} <ArrowRight className="size-4" />
-            </Link>
+            </button>
             <p className="text-center text-xs text-primary-foreground/70">{content.orLabel}</p>
             <a
               href={whatsappLink(settings.whatsapp)}
@@ -650,6 +653,7 @@ function CtaBand({ content }: { content: AboutContent["cta"] }) {
 }
 
 function AboutPage() {
+  const consult = useConsultModal();
   const about = useAboutContent();
   const m = about.mobileHero;
   return (
@@ -664,7 +668,7 @@ function AboutPage() {
           titleAccent={m.titleAccent}
           subtitle={m.subtitle}
           primary={{ label: "Our Philosophy", to: "/about", hash: "philosophy" }}
-          secondary={{ label: m.secondaryLabel, to: "/contact" }}
+          secondary={{ label: m.secondaryLabel, onClick: () => consult.open() }}
           scrollTo="about-start"
           position={m.position}
         />

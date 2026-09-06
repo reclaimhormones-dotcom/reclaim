@@ -8,6 +8,8 @@ type Action = {
   /** Same-page anchor or external/tel/mailto href */
   href?: string;
   hash?: string;
+  /** In-place action (e.g. opening the consultation modal) instead of a link. */
+  onClick?: () => void;
 };
 
 export type MobilePageHeroProps = {
@@ -36,6 +38,13 @@ function ActionLink({
   className: string;
   children: React.ReactNode;
 }) {
+  if (action.onClick) {
+    return (
+      <button type="button" onClick={action.onClick} className={className}>
+        {children}
+      </button>
+    );
+  }
   if (action.to) {
     return (
       <Link to={action.to} {...(action.hash ? { hash: action.hash } : {})} className={className}>

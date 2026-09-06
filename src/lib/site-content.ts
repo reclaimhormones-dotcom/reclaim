@@ -521,8 +521,10 @@ export const HOME_DEFAULT: HomeContent = {
       {
         n: "2",
         icon: "CalendarCheck",
-        title: "Book Consultation",
-        sub: "Complete payment & book your 1:1 consultation with Dt. Kruthi.",
+        /* This step describes the paid assessment, so it must not reuse the
+           "Book Consultation" label, which is the free enquiry elsewhere. */
+        title: "Confirm & Pay",
+        sub: "Complete your assessment payment and lock in your 1:1 with Dt. Kruthi.",
       },
       {
         n: "3",

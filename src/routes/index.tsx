@@ -16,6 +16,7 @@ import {
 import { WhatsAppIcon } from "@/components/site/BrandIcons";
 
 import { SiteHeader } from "@/components/site/SiteHeader";
+import { useConsultModal } from "@/hooks/useConsultModal";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { SiteLink } from "@/components/site/SiteLink";
 import { SmartImage } from "@/components/site/SmartImage";
@@ -78,6 +79,7 @@ function Eyebrow({ children }: { children: string }) {
 }
 
 function MobileHero({ hero }: { hero: HomeContent["hero"] }) {
+  const consult = useConsultModal();
   const [active, setActive] = useState(0);
   const slides = hero.mobileSlides;
 
@@ -126,12 +128,13 @@ function MobileHero({ hero }: { hero: HomeContent["hero"] }) {
           {hero.mobileSubtitle}
         </p>
 
-        <a
-          href="#book"
-          className="mt-7 inline-flex items-center justify-center gap-2.5 rounded-full bg-brand px-6 py-4 text-sm font-semibold tracking-wide text-primary-foreground shadow-[0_14px_34px_-16px_oklch(0.44_0.052_140/0.85)] transition-transform active:scale-[0.98]"
+        <button
+          type="button"
+          onClick={() => consult.open()}
+          className="tactile mt-7 inline-flex items-center justify-center gap-2.5 rounded-full bg-brand px-6 py-4 text-sm font-semibold tracking-wide text-primary-foreground shadow-[0_14px_34px_-16px_oklch(0.44_0.052_140/0.85)]"
         >
           {hero.mobilePrimaryLabel} <ArrowRight className="size-4" />
-        </a>
+        </button>
 
         <Link
           to="/assessment"
@@ -160,6 +163,7 @@ function MobileHero({ hero }: { hero: HomeContent["hero"] }) {
 }
 
 function DesktopHero({ hero, stats }: { hero: HomeContent["hero"]; stats: HomeContent["stats"] }) {
+  const consult = useConsultModal();
   const [active, setActive] = useState(0);
   const slides = hero.desktopSlides;
 
@@ -215,12 +219,14 @@ function DesktopHero({ hero, stats }: { hero: HomeContent["hero"]; stats: HomeCo
         </p>
 
         <div className="mt-7 flex flex-wrap items-center gap-4">
-          <a
-            href="#book"
-            className="inline-flex items-center justify-center gap-2.5 rounded-full bg-brand px-8 py-4 text-sm font-semibold tracking-wide text-primary-foreground shadow-[0_18px_44px_-18px_oklch(0.44_0.052_140/0.85)] transition-transform hover:scale-[1.02]"
+          <button
+            type="button"
+            onClick={() => consult.open()}
+            className="tactile inline-flex items-center justify-center gap-2.5 rounded-full bg-brand px-8 py-4 text-sm font-semibold tracking-wide text-primary-foreground shadow-[0_18px_44px_-18px_oklch(0.44_0.052_140/0.85)]"
           >
             {hero.primaryLabel} <ArrowRight className="size-4" />
-          </a>
+          </button>
+          {/* The assessment keeps its own clearly-labelled entry point. */}
           <Link
             to="/assessment"
             className="inline-flex items-center justify-center gap-2.5 rounded-full border border-brand/25 bg-cream/75 px-8 py-4 text-sm font-medium text-brand-deep backdrop-blur-md transition-transform hover:scale-[1.02]"
@@ -696,6 +702,7 @@ function Gallery({ content }: { content: HomeContent["gallery"] }) {
 }
 
 function CtaBand({ content }: { content: HomeContent["cta"] }) {
+  const consult = useConsultModal();
   const { settings } = useSettings();
   return (
     <section id="book" className="bg-primary">
@@ -710,12 +717,13 @@ function CtaBand({ content }: { content: HomeContent["cta"] }) {
         </div>
 
         <div className="mt-7 lg:mt-0 lg:w-80">
-          <Link
-            to="/assessment"
-            className="tactile touch-lg fill-surface flex items-center justify-between gap-4 text-sm text-primary"
+          <button
+            type="button"
+            onClick={() => consult.open()}
+            className="tactile touch-lg fill-surface flex w-full items-center justify-between gap-4 text-sm text-primary"
           >
             {content.primaryLabel} <ArrowRight className="size-4" />
-          </Link>
+          </button>
           <p className="my-3 text-center text-xs text-primary-foreground/70">{content.orLabel}</p>
           <a
             href={whatsappLink(settings.whatsapp)}

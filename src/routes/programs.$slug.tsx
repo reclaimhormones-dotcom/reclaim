@@ -217,7 +217,7 @@ function ProgramDetailPage() {
         title={program.title}
         titleAccent={program.duration ?? ""}
         subtitle={program.description}
-        primary={{ label: "Book Consultation", to: "/contact" }}
+        primary={{ label: "Book Consultation", onClick: () => consult.open(program.title) }}
         secondary={{ label: "Start Assessment", to: "/assessment" }}
         scrollTo="program-details"
         position="object-top"
