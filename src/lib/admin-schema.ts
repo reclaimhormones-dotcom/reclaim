@@ -23,7 +23,7 @@ const slideFields: FieldSpec[] = [
     type: "text",
     hint: 'Tailwind object-position, e.g. object-[50%_12%]',
   },
-];
+]; 
 
 const mobileHeroFields: FieldSpec[] = [
   { key: "img", label: "Background image", type: "image" },
