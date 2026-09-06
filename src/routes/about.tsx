@@ -12,6 +12,7 @@ import { WhatsAppIcon } from "@/components/site/BrandIcons";
 import type { LucideIcon } from "lucide-react";
 
 import { useAboutContent, useSettings, whatsappLink } from "@/hooks/useSiteContent";
+import { Reveal } from "@/components/site/Reveal";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { MobilePageHero } from "@/components/site/MobilePageHero";
@@ -266,24 +267,27 @@ function Philosophy({ content }: { content: AboutContent["philosophy"] }) {
     <section className="bg-cream-deep">
       <div className="mx-auto max-w-7xl px-4 py-11 lg:px-8 lg:py-16">
         <Eyebrow>{content.eyebrow}</Eyebrow>
-        <div className="mt-6 mobile-slider lg:grid lg:grid-cols-2 lg:gap-4">
-          {content.items.map((item) => {
+        <div className="mt-6 grid gap-3 sm:grid-cols-2 sm:gap-4">
+          {content.items.map((item, i) => {
             const Icon = icon(item.icon);
             return (
-              <div
+              <Reveal
                 key={item.title}
-                className="flex gap-3 rounded-xl border border-border bg-card p-4 lg:p-5"
+                delay={Math.min(i * 70, 350)}
+                className="surface lift flex h-full gap-4 p-4 sm:p-5"
               >
-                <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-sage-soft">
-                  <Icon className="size-4 text-primary" />
+                <span className="icon-pod size-11 sm:size-12">
+                  <Icon className="size-5" />
                 </span>
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold text-foreground">{item.title}</p>
-                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground lg:text-sm">
+                  <p className="text-[0.9rem] font-semibold leading-snug text-foreground">
+                    {item.title}
+                  </p>
+                  <p className="mt-1 text-pretty-body text-xs text-muted-foreground lg:text-sm">
                     {item.sub}
                   </p>
                 </div>
-              </div>
+              </Reveal>
             );
           })}
         </div>
@@ -342,23 +346,29 @@ function Process({ content }: { content: AboutContent["process"] }) {
       <div className="mx-auto max-w-7xl px-4 py-11 lg:px-8 lg:py-16">
         <Eyebrow>{content.eyebrow}</Eyebrow>
 
-        <ol className="relative mt-8 mobile-slider lg:grid lg:grid-cols-5 lg:gap-6">
-          {content.items.map((item) => {
+        <ol className="relative mt-8 grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-5 lg:gap-6">
+          {content.items.map((item, i) => {
             const Icon = icon(item.icon);
             return (
-              <li
+              <Reveal
                 key={item.n}
-                className="relative surface lift p-5 lg:p-6"
+                as="li"
+                delay={Math.min(i * 70, 350)}
+                className="surface lift relative flex h-full gap-4 p-4 sm:flex-col sm:gap-0 sm:p-5 lg:p-6"
               >
-                <span className="mb-4 flex size-12 items-center justify-center rounded-full border border-border bg-card">
-                  <Icon className="size-5 text-primary" />
+                <span className="icon-pod size-12 sm:mb-4">
+                  <Icon className="size-5" />
                 </span>
-                <p className="text-xs font-semibold tracking-[0.16em] text-brand/70">{item.n}</p>
-                <p className="mt-1 text-sm font-semibold text-foreground">{item.title}</p>
-                <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground lg:text-sm">
-                  {item.sub}
-                </p>
-              </li>
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold tracking-[0.16em] text-brand/70">{item.n}</p>
+                  <p className="mt-1 text-[0.9rem] font-semibold leading-snug text-foreground">
+                    {item.title}
+                  </p>
+                  <p className="mt-1.5 text-pretty-body text-xs text-muted-foreground lg:text-sm">
+                    {item.sub}
+                  </p>
+                </div>
+              </Reveal>
             );
           })}
         </ol>
@@ -440,20 +450,23 @@ function Values({ content }: { content: AboutContent["values"] }) {
     <section className="bg-cream-deep">
       <div className="mx-auto max-w-7xl px-4 py-11 lg:px-8 lg:py-16">
         <Eyebrow center>{content.eyebrow}</Eyebrow>
-        <div className="mt-7 mobile-slider mobile-slider-peek lg:grid lg:grid-cols-5 lg:gap-0">
+        <div className="mt-7 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5 lg:gap-0">
           {content.items.map((item, i) => (
-            <div
+            <Reveal
               key={item.title}
-              className={`flex flex-col items-center surface p-4 text-center lg:rounded-none lg:border-0 lg:bg-transparent lg:px-6 lg:shadow-none ${
+              delay={Math.min(i * 70, 350)}
+              className={`surface flex h-full flex-col items-center p-4 text-center lg:rounded-none lg:border-0 lg:bg-transparent lg:px-6 lg:shadow-none ${
                 i !== content.items.length - 1 ? "lg:border-r lg:border-border" : ""
               }`}
             >
               <IconBubble icon={icon(item.icon)} />
-              <p className="mt-3 text-sm font-semibold text-foreground">{item.title}</p>
-              <p className="mt-2 text-[0.72rem] leading-relaxed text-muted-foreground lg:text-xs">
+              <p className="mt-3 text-[0.85rem] font-semibold leading-snug text-foreground">
+                {item.title}
+              </p>
+              <p className="mt-2 text-pretty-body text-[0.72rem] leading-relaxed text-muted-foreground lg:text-xs">
                 {item.sub}
               </p>
-            </div>
+            </Reveal>
           ))}
         </div>
       </div>

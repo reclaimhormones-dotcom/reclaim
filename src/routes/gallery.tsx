@@ -432,7 +432,7 @@ function Stories({ content }: { content: GalleryPageContent["stories"] }) {
           {content.sub}
         </p>
 
-        <div className="mt-8 mobile-slider lg:grid lg:grid-cols-3 lg:gap-5">
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
           {content.items.map(({ name, tag, result, quote, img }, i) => (
             <Reveal
               key={name}

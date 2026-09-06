@@ -294,21 +294,28 @@ function Philosophy({ content }: { content: HomeContent["philosophy"] }) {
             <p className="mt-3 text-pretty-body text-sm text-muted-foreground">{content.sub}</p>
           </div>
 
-          <div className="mt-6 mobile-slider lg:mt-0 lg:grid lg:grid-cols-4 lg:gap-3">
+          {/*
+           * Bento grid, not a scroller. Two columns from 320px up so nothing
+           * is ever clipped or hidden off-screen, and every tile is the same
+           * height regardless of how long its one-line description runs.
+           */}
+          <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-4 lg:mt-0 lg:grid-cols-4">
             {content.items.map((item, i) => {
               const Icon = icon(item.icon);
               return (
                 <Reveal
                   key={item.title}
                   delay={i * 80}
-                  className="flex items-center gap-4 surface lift p-5 lg:flex-col lg:items-center lg:gap-3 lg:py-7 lg:text-center"
+                  className="surface-glass lift flex h-full flex-col items-start gap-3 p-4 sm:p-5 lg:items-center lg:py-7 lg:text-center"
                 >
-                  <span className="icon-pod size-12">
-                    <Icon className="size-[1.15rem]" />
+                  <span className="icon-pod size-11 sm:size-12">
+                    <Icon className="size-5" />
                   </span>
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold text-foreground">{item.title}</p>
-                    <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+                    <p className="text-[0.9rem] font-semibold leading-snug text-foreground">
+                      {item.title}
+                    </p>
+                    <p className="mt-1 text-pretty-body text-[0.72rem] leading-relaxed text-muted-foreground sm:text-xs">
                       {item.sub}
                     </p>
                   </div>
