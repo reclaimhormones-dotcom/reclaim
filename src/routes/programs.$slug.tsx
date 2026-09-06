@@ -1,4 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { useEffect } from "react";
 import {
   ArrowRight,
   CalendarCheck,
@@ -16,18 +17,29 @@ import { SiteFooter } from "@/components/site/SiteFooter";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { usePrograms, useSettings, useTestimonials, whatsappLink } from "@/hooks/useSiteContent";
 import { cldOptimize } from "@/lib/cloudinary";
-import { programSlug, type ProgramDoc } from "@/lib/content-types";
-import { PROGRAM_SEED, icon } from "@/lib/site-content";
+import { programSlug, publicPrograms, showsPrice, type ProgramDoc } from "@/lib/content-types";
+import { icon } from "@/lib/site-content";
 import { canonical } from "@/lib/seo";
+
+/**
+ * Readable name for a slug, used for the initial document title. Programs live
+ * in Firestore and are only readable in the browser, so the real title is
+ * applied on the client once the document arrives (see ProgramDetailPage).
+ */
+function nameFromSlug(slug: string): string {
+  const words = slug
+    .split("-")
+    .filter(Boolean)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1));
+  return words.length > 0 ? words.join(" ") : "Program";
+}
 
 export const Route = createFileRoute("/programs/$slug")({
   head: ({ params }) => {
-    const seed = PROGRAM_SEED.find((p) => programSlug({ ...p, id: p.title }) === params.slug);
-    const name = seed?.title ?? "Program";
+    const name = nameFromSlug(params.slug);
     const description =
-      seed?.description ??
       "Personalized, root-cause hormone care with expert nutrition guidance at Reclaim Hormones.";
-    const image = seed?.image ?? "";
+    const image = "";
     return {
       meta: [
         { title: `${name} — Reclaim Hormones` },
@@ -67,15 +79,8 @@ type Detail = Omit<ProgramDoc, "id"> & { id: string };
 
 function useProgram(slug: string): { program: Detail | null; loading: boolean } {
   const { data, loading } = usePrograms();
-  if (data.length > 0) {
-    const found = data.find((p) => programSlug(p) === slug);
-    return { program: found ? (found as Detail) : null, loading };
-  }
-  const seed = PROGRAM_SEED.find((p) => programSlug({ ...p, id: p.title }) === slug);
-  return {
-    program: seed ? ({ ...seed, id: seed.title } as Detail) : null,
-    loading,
-  };
+  const found = publicPrograms(data).find((p) => programSlug(p) === slug);
+  return { program: found ? (found as Detail) : null, loading };
 }
 
 function ProgramMissing() {
@@ -112,6 +117,11 @@ function ProgramDetailPage() {
   const { program, loading } = useProgram(slug);
   const { settings } = useSettings();
   const { data: reviews } = useTestimonials();
+
+  /* The server-rendered title is slug-derived; correct it once the doc lands. */
+  useEffect(() => {
+    if (program?.title) document.title = `${program.title} — Reclaim Hormones`;
+  }, [program?.title]);
 
   if (loading && !program) {
     return (
@@ -170,7 +180,7 @@ function ProgramDetailPage() {
           },
         ];
   const stories = reviews.slice(0, 3);
-  const showPrice = program.showPrice !== false && Boolean(program.price);
+  const showPrice = showsPrice(program);
   const waMessage = `Hello Reclaim Hormones,\n\nI would like to know more about the *${program.title}* program.\n\nSource: Website — Program page`;
 
   const handleShare = async () => {

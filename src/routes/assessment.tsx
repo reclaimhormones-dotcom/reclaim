@@ -25,6 +25,7 @@ import {
   EMPTY_NUTRITION_LOG,
   MEAL_SLOTS,
   phoneKey,
+  publicPrograms,
   type AssessmentDoc,
   type BasicDetails,
   type NutritionLog,
@@ -128,9 +129,9 @@ function BasicDetailsStep({
   const { data: programs } = usePrograms();
 
   const audience = value.gender === "Male" ? "men" : "women";
-  const options = programs
-    .filter((p) => p.active !== false)
-    .filter((p) => (value.gender ? p.category === audience : true));
+  const options = publicPrograms(programs).filter((p) =>
+    value.gender ? p.category === audience : true,
+  );
   const isFemale = value.gender === "Female" || value.gender === "Other" || value.gender === "";
 
   function set<K extends keyof BasicDetails>(key: K, v: BasicDetails[K]) {

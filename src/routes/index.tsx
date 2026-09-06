@@ -21,7 +21,7 @@ import { SiteLink } from "@/components/site/SiteLink";
 import { SmartImage } from "@/components/site/SmartImage";
 import { MobileCarousel } from "@/components/site/MobileCarousel";
 import { cldOptimize } from "@/lib/cloudinary";
-import { embedUrl } from "@/lib/content-types";
+import { embedUrl, programSlug, publicPrograms } from "@/lib/content-types";
 import { ORGANIZATION_JSONLD, canonical, canonicalLink } from "@/lib/seo";
 import { icon } from "@/lib/site-content";
 import type { HomeContent } from "@/lib/site-content";
@@ -29,6 +29,7 @@ import {
   useGallery,
   useHomeContent,
   useNavigationContent,
+  usePrograms,
   useSettings,
   useSocialLinks,
   useTestimonials,
@@ -314,7 +315,19 @@ function Philosophy({ content }: { content: HomeContent["philosophy"] }) {
   );
 }
 
+/** Desktop column count for the home preview, so 2 programs don't sit in a 5-wide row. */
+function gridColumns(count: number): string {
+  if (count <= 2) return "lg:mx-auto lg:max-w-3xl lg:grid-cols-2 lg:gap-4";
+  if (count === 3) return "lg:mx-auto lg:max-w-5xl lg:grid-cols-3 lg:gap-4";
+  if (count === 4) return "lg:grid-cols-4 lg:gap-4";
+  return "lg:grid-cols-5 lg:gap-4";
+}
+
+/** Home preview of the catalogue — the first few live programs, admin-ordered. */
 function Programs({ content }: { content: HomeContent["programs"] }) {
+  const { data, loading } = usePrograms();
+  const items = publicPrograms(data).slice(0, 5);
+
   return (
     <section className="bg-background">
       <div className="mx-auto max-w-7xl px-4 py-10 lg:px-8 lg:py-14">
@@ -335,44 +348,75 @@ function Programs({ content }: { content: HomeContent["programs"] }) {
         </div>
 
         <div className="mt-7">
-          <MobileCarousel
-            containerClassName="lg:grid-cols-5 lg:gap-4"
-            autoPlayDelay={4000}
-          >
-            {content.items.map((p) => {
-              const Icon = icon(p.icon);
-              return (
-                <article
-                  key={p.title}
-                  className="group flex overflow-hidden rounded-2xl border border-white/10 bg-card/80 backdrop-blur-md shadow-xl shadow-brand/5 transition-all duration-500 ease-out hover:-translate-y-1 hover:shadow-2xl hover:shadow-brand/15 hover:border-white/30 lg:flex-col"
-                >
-                  <div className="relative w-2/5 shrink-0 overflow-hidden lg:w-full">
-                    <img
-                      src={cldOptimize(p.img, 800)}
-                      alt={p.title}
-                      loading="lazy"
-                      width={800}
-                      height={700}
-                      className="h-full w-full object-cover transition-transform duration-[2000ms] ease-out group-hover:scale-105 lg:h-40"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent lg:hidden" />
-                    <span className="absolute left-2 top-2 flex size-8 items-center justify-center rounded-full bg-card/90 shadow-sm backdrop-blur-md">
-                      <Icon className="size-4 text-primary" />
-                    </span>
-                  </div>
-                  <div className="flex flex-1 flex-col p-4">
-                    <div className="flex items-start justify-between gap-2">
-                      <h3 className="text-[0.95rem] font-semibold leading-snug text-foreground">
-                        {p.title}
-                      </h3>
-                      <ArrowRight className="mt-0.5 size-4 shrink-0 text-primary opacity-50 transition-all group-hover:translate-x-1 group-hover:opacity-100" />
+          {loading && items.length === 0 ? (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="h-64 animate-pulse rounded-2xl border border-border/60 bg-muted/50"
+                />
+              ))}
+            </div>
+          ) : null}
+
+          {!loading && items.length === 0 ? (
+            <p className="rounded-2xl border border-dashed border-border bg-card/60 px-6 py-10 text-center text-sm text-muted-foreground">
+              {content.emptyLabel}
+            </p>
+          ) : null}
+
+          {items.length > 0 ? (
+            <MobileCarousel containerClassName={gridColumns(items.length)} autoPlayDelay={4000}>
+              {items.map((p) => {
+                const Icon = icon(p.icon ?? "Leaf");
+                return (
+                  <Link
+                    key={p.id}
+                    to="/programs/$slug"
+                    params={{ slug: programSlug(p) }}
+                    className="group flex h-full overflow-hidden rounded-2xl border border-white/10 bg-card/80 shadow-xl shadow-brand/5 backdrop-blur-md transition-all duration-500 ease-out hover:-translate-y-1 hover:border-white/30 hover:shadow-2xl hover:shadow-brand/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transition-none motion-reduce:hover:translate-y-0 lg:flex-col"
+                  >
+                    <div className="relative w-2/5 shrink-0 overflow-hidden lg:w-full">
+                      <img
+                        src={cldOptimize(p.image, 800)}
+                        alt={p.title}
+                        loading="lazy"
+                        width={800}
+                        height={700}
+                        className="h-full w-full object-cover transition-transform duration-[2000ms] ease-out group-hover:scale-105 lg:h-40"
+                      />
+                      <div
+                        className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent lg:hidden"
+                        aria-hidden="true"
+                      />
+                      <span className="absolute left-2 top-2 flex size-8 items-center justify-center rounded-full bg-card/90 shadow-sm backdrop-blur-md">
+                        <Icon className="size-4 text-primary" />
+                      </span>
                     </div>
-                    <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{p.sub}</p>
-                  </div>
-                </article>
-              );
-            })}
-          </MobileCarousel>
+                    <div className="flex flex-1 flex-col p-4">
+                      <div className="flex items-start justify-between gap-2">
+                        <h3 className="text-[0.95rem] font-semibold leading-snug text-foreground">
+                          {p.title}
+                        </h3>
+                        <ArrowRight
+                          className="mt-0.5 size-4 shrink-0 text-primary opacity-50 transition-all group-hover:translate-x-1 group-hover:opacity-100"
+                          aria-hidden="true"
+                        />
+                      </div>
+                      <p className="mt-2 line-clamp-3 text-xs leading-relaxed text-muted-foreground">
+                        {p.description}
+                      </p>
+                      {p.duration ? (
+                        <p className="mt-auto pt-3 text-[0.7rem] font-semibold text-brand-deep">
+                          {p.duration}
+                        </p>
+                      ) : null}
+                    </div>
+                  </Link>
+                );
+              })}
+            </MobileCarousel>
+          ) : null}
         </div>
       </div>
     </section>

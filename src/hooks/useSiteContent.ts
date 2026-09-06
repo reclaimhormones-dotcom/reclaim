@@ -42,8 +42,14 @@ export function useSettings(): { settings: SiteSettings; loading: boolean } {
   return { settings: { ...DEFAULT_SETTINGS, ...(data ?? {}) }, loading };
 }
 
+/**
+ * Every program document. Ordering is deliberately left to the client
+ * (`publicPrograms`): a Firestore `orderBy("order")` silently drops documents
+ * that are missing the field, which would hide a program from the website with
+ * no visible cause.
+ */
 export function usePrograms() {
-  return useCollectionData<ProgramDoc>("programs");
+  return useCollectionData<ProgramDoc>("programs", null);
 }
 
 export function useGallery() {

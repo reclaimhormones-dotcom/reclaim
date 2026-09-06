@@ -162,25 +162,14 @@ export const HOME_SPEC: DocSpec = {
     },
     {
       key: "programs",
-      label: "Programs preview",
+      label: "Programs preview (cards come from Programs)",
       type: "group",
       fields: [
         { key: "eyebrow", label: "Eyebrow", type: "text" },
         { key: "heading", label: "Heading", type: "text" },
         { key: "sub", label: "Description", type: "textarea" },
         { key: "ctaLabel", label: "Button label", type: "text" },
-        {
-          key: "items",
-          label: "Program cards",
-          type: "list",
-          itemLabel: "program",
-          fields: [
-            { key: "img", label: "Image", type: "image" },
-            { key: "icon", label: "Icon", type: "icon" },
-            { key: "title", label: "Title", type: "text" },
-            { key: "sub", label: "Description", type: "textarea" },
-          ],
-        },
+        { key: "emptyLabel", label: "Text when no programs are published", type: "textarea" },
       ],
     },
     {
@@ -526,11 +515,20 @@ export const PROGRAMS_PAGE_SPEC: DocSpec = {
       type: "group",
       fields: [
         { key: "eyebrow", label: "Eyebrow", type: "text" },
+        { key: "heading", label: "Heading", type: "text" },
+        { key: "headingAccent", label: "Heading accent", type: "text" },
+        { key: "sub", label: "Description", type: "textarea" },
+        { key: "allLabel", label: "Filter: all", type: "text" },
+        { key: "womenLabel", label: "Filter: women", type: "text" },
+        { key: "menLabel", label: "Filter: men", type: "text" },
         { key: "womenHeading", label: "Women heading", type: "text" },
         { key: "womenAccent", label: "Women accent", type: "text" },
         { key: "menHeading", label: "Men heading", type: "text" },
         { key: "menAccent", label: "Men accent", type: "text" },
         { key: "learnMoreLabel", label: "Card link label", type: "text" },
+        { key: "emptyHeading", label: "Empty state heading", type: "text" },
+        { key: "emptyBody", label: "Empty state text", type: "textarea" },
+        { key: "emptyCtaLabel", label: "Empty state button", type: "text" },
       ],
     },
     {

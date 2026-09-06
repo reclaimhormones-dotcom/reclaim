@@ -1,16 +1,30 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, CalendarCheck, ClipboardList, Leaf, MessageCircle } from "lucide-react";
+import { useMemo, useState } from "react";
+import {
+  ArrowRight,
+  CalendarCheck,
+  ClipboardList,
+  Clock,
+  Compass,
+  Leaf,
+  MessageCircle,
+} from "lucide-react";
 
 import { usePrograms, useProgramsPageContent, useSettings, whatsappLink } from "@/hooks/useSiteContent";
 import { cldOptimize } from "@/lib/cloudinary";
-import { programSlug } from "@/lib/content-types";
+import {
+  categoryLabel,
+  programSlug,
+  publicPrograms,
+  showsPrice,
+  type ProgramDoc,
+} from "@/lib/content-types";
 import { icon } from "@/lib/site-content";
 import type { ProgramsPageContent } from "@/lib/site-content";
-import { PROGRAM_SEED } from "@/lib/site-content";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { MobilePageHero } from "@/components/site/MobilePageHero";
-import { Skeleton, SmartImage } from "@/components/site/SmartImage";
+import { SmartImage } from "@/components/site/SmartImage";
 
 import { canonical, canonicalLink, breadcrumbJsonLd } from "@/lib/seo";
 
@@ -41,17 +55,45 @@ export const Route = createFileRoute("/programs/")({
   component: ProgramsPage,
 });
 
-type Program = {
-  icon: string;
-  img: string;
-  title: string;
-  sub: string;
-  points: string[];
+/** Everything a catalogue card needs, derived from a live program document. */
+type ProgramCardModel = {
+  id: string;
   slug: string;
-  price?: number | undefined;
-  showPrice?: boolean | undefined;
-  duration?: string | undefined;
+  title: string;
+  description: string;
+  image: string;
+  iconName: string;
+  category: ProgramDoc["category"];
+  points: string[];
+  duration: string;
+  price: number | null;
 };
+
+function toCardModel(p: ProgramDoc): ProgramCardModel {
+  return {
+    id: p.id,
+    slug: programSlug(p),
+    title: p.title,
+    description: p.description ?? "",
+    image: p.image ?? "",
+    iconName: p.icon ?? "Leaf",
+    category: p.category === "men" ? "men" : "women",
+    points: p.points ?? [],
+    duration: p.duration?.trim() ?? "",
+    price: showsPrice(p) ? (p.price ?? null) : null,
+  };
+}
+
+/**
+ * Keeps the grid looking deliberate at any catalogue size: a single program
+ * gets one centred card rather than one lonely column in a five-column row.
+ */
+function gridClass(count: number): string {
+  if (count <= 1) return "max-w-sm grid-cols-1";
+  if (count === 2) return "max-w-2xl grid-cols-1 sm:grid-cols-2";
+  if (count === 3) return "max-w-5xl grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
+  return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
+}
 
 /* -------------------------------- helpers -------------------------------- */
 
@@ -73,53 +115,97 @@ function ProgramCard({
   program,
   learnMoreLabel,
 }: {
-  program: Program;
+  program: ProgramCardModel;
   learnMoreLabel: string;
 }) {
-  const Icon = icon(program.icon);
+  const Icon = icon(program.iconName);
+  const visiblePoints = program.points.slice(0, 3);
+  const extraPoints = program.points.length - visiblePoints.length;
+
   return (
-    <article className="tilt-card flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-[0_1px_2px_oklch(0.35_0.048_142/4%),0_10px_28px_-20px_oklch(0.35_0.048_142/25%)] transition-shadow hover:shadow-[0_2px_4px_oklch(0.35_0.048_142/6%),0_16px_34px_-18px_oklch(0.35_0.048_142/28%)]">
-      <div className="relative">
+    <Link
+      to="/programs/$slug"
+      params={{ slug: program.slug }}
+      aria-label={`${program.title} — ${learnMoreLabel}`}
+      className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-border/70 bg-card shadow-[0_1px_2px_oklch(0.35_0.048_142/4%),0_12px_30px_-22px_oklch(0.35_0.048_142/28%)] transition-[transform,box-shadow,border-color] duration-500 ease-out hover:-translate-y-1.5 hover:border-brand/30 hover:shadow-[0_4px_10px_oklch(0.35_0.048_142/6%),0_28px_50px_-28px_oklch(0.35_0.048_142/38%)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+    >
+      <div className="relative aspect-[4/3] overflow-hidden">
         <SmartImage
-          src={program.img}
+          src={program.image}
           alt={program.title}
-          width={900}
-          className="h-40 sm:h-44"
-          imgClassName="object-top"
+          width={800}
+          sizes="(min-width: 1280px) 22rem, (min-width: 640px) 45vw, 85vw"
+          className="size-full"
+          imgClassName="object-center transition-transform duration-[1200ms] ease-out group-hover:scale-[1.07] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
         />
-        <span className="absolute left-3 top-3 flex size-10 items-center justify-center rounded-full bg-background/90 backdrop-blur">
-          <Icon className="size-4.5 text-primary" />
+        <div
+          className="absolute inset-0 bg-gradient-to-t from-brand-deep/60 via-brand-deep/5 to-transparent"
+          aria-hidden="true"
+        />
+        <span className="absolute left-4 top-4 flex size-10 items-center justify-center rounded-full bg-background/90 shadow-sm backdrop-blur">
+          <Icon className="size-[1.15rem] text-primary" />
         </span>
+        <span className="absolute right-4 top-4 rounded-full bg-background/85 px-2.5 py-1 text-[0.6rem] font-semibold uppercase tracking-[0.14em] text-brand-deep backdrop-blur">
+          {categoryLabel(program.category)}
+        </span>
+        {program.duration ? (
+          <span className="absolute bottom-4 left-4 inline-flex items-center gap-1.5 text-[0.7rem] font-semibold text-white drop-shadow">
+            <Clock className="size-3.5" aria-hidden="true" />
+            {program.duration}
+          </span>
+        ) : null}
       </div>
-      <div className="flex flex-1 flex-col p-4 sm:p-5">
-        <h3 className="text-base font-semibold leading-snug text-foreground">{program.title}</h3>
-        <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{program.sub}</p>
-        <ul className="mt-3 space-y-1.5 text-xs text-muted-foreground">
-          {program.points.map((p) => (
-            <li key={p} className="flex items-start gap-2">
-              <span className="mt-1.5 size-1 shrink-0 rounded-full bg-gold" />
-              <span className="min-w-0">{p}</span>
-            </li>
-          ))}
-        </ul>
-        {program.duration || (program.showPrice !== false && program.price) ? (
-          <p className="mt-3 text-xs font-semibold text-brand-deep">
-            {program.duration ? <span>{program.duration}</span> : null}
-            {program.duration && program.showPrice !== false && program.price ? " · " : ""}
-            {program.showPrice !== false && program.price
-              ? `₹${program.price.toLocaleString("en-IN")}`
-              : ""}
+
+      <div className="flex flex-1 flex-col p-5">
+        <h3 className="font-serif text-[1.15rem] leading-snug text-brand-deep">{program.title}</h3>
+        {program.description ? (
+          <p className="mt-2 line-clamp-3 text-[0.8rem] leading-relaxed text-muted-foreground">
+            {program.description}
           </p>
         ) : null}
-        <Link
-          to="/programs/$slug"
-          params={{ slug: program.slug }}
-          className="mt-4 inline-flex items-center gap-2 pt-1 text-xs font-semibold text-primary transition-colors hover:text-brand-deep"
-        >
-          {learnMoreLabel} <ArrowRight className="size-3.5" />
-        </Link>
+
+        {visiblePoints.length > 0 ? (
+          <ul className="mt-4 flex flex-wrap gap-1.5">
+            {visiblePoints.map((p) => (
+              <li
+                key={p}
+                className="rounded-full bg-sage-soft px-2.5 py-1 text-[0.65rem] font-medium text-brand-deep"
+              >
+                {p}
+              </li>
+            ))}
+            {extraPoints > 0 ? (
+              <li className="rounded-full px-1.5 py-1 text-[0.65rem] font-medium text-muted-foreground">
+                +{extraPoints} more
+              </li>
+            ) : null}
+          </ul>
+        ) : null}
+
+        <div className="mt-auto flex items-end justify-between gap-3 pt-5">
+          <div className="min-w-0">
+            {program.price !== null ? (
+              <p className="font-serif text-lg leading-none text-brand-deep">
+                ₹{program.price.toLocaleString("en-IN")}
+              </p>
+            ) : null}
+            <span
+              className={`text-[0.72rem] font-semibold text-primary ${
+                program.price !== null ? "mt-1.5 block" : ""
+              }`}
+            >
+              {learnMoreLabel}
+            </span>
+          </div>
+          <span
+            className="flex size-9 shrink-0 items-center justify-center rounded-full bg-sage-soft text-primary transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground"
+            aria-hidden="true"
+          >
+            <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-0.5" />
+          </span>
+        </div>
       </div>
-    </article>
+    </Link>
   );
 }
 
@@ -190,78 +276,170 @@ function ProgramGrid({
   items,
   id,
   learnMoreLabel,
+  showHeading,
 }: {
   title: string;
   accent: string;
-  items: Program[];
+  items: ProgramCardModel[];
   id?: string;
   learnMoreLabel: string;
+  showHeading: boolean;
 }) {
+  if (items.length === 0) return null;
   return (
-    <div id={id} className="scroll-mt-24">
-      <h2 className="text-center text-[1.6rem] leading-snug text-foreground lg:text-[2rem]">
-        {title} <span className="text-brand">{accent}</span>
-      </h2>
-      <div className="mt-7 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+    <div id={id} className="scroll-mt-28">
+      {showHeading ? (
+        <h2 className="text-center text-[1.5rem] leading-snug text-foreground lg:text-[1.9rem]">
+          {title} <span className="text-brand">{accent}</span>
+        </h2>
+      ) : null}
+      <div className={`mx-auto mt-7 grid gap-5 lg:gap-6 ${gridClass(items.length)}`}>
         {items.map((p) => (
-          <ProgramCard key={p.title} program={p} learnMoreLabel={learnMoreLabel} />
+          <ProgramCard key={p.id} program={p} learnMoreLabel={learnMoreLabel} />
         ))}
       </div>
     </div>
   );
 }
 
-function ProgramsSections({ content }: { content: ProgramsPageContent["sections"] }) {
-  const { data: live, loading } = usePrograms();
-  const source =
-    live.length > 0
-      ? live.filter((p) => p.active !== false)
-      : PROGRAM_SEED.map((p, i) => ({ ...p, id: String(i) }));
+function CatalogueSkeleton() {
+  return (
+    <div className="mx-auto mt-9 grid gap-5 lg:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div
+          key={i}
+          className="overflow-hidden rounded-3xl border border-border/70 bg-card"
+          aria-hidden="true"
+        >
+          <div className="aspect-[4/3] w-full animate-pulse bg-muted/60" />
+          <div className="space-y-3 p-5">
+            <div className="h-5 w-3/4 animate-pulse rounded-full bg-muted/60" />
+            <div className="h-3 w-full animate-pulse rounded-full bg-muted/60" />
+            <div className="h-3 w-5/6 animate-pulse rounded-full bg-muted/60" />
+            <div className="h-7 w-2/3 animate-pulse rounded-full bg-muted/60" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
-  const mapped = source.map((p) => ({
-    icon: p.icon ?? "Leaf",
-    img: p.image,
-    title: p.title,
-    sub: p.description,
-    points: p.points ?? [],
-    category: p.category,
-    slug: programSlug({ ...p, id: p.id }),
-    price: (p as { price?: number }).price,
-    showPrice: (p as { showPrice?: boolean }).showPrice,
-    duration: (p as { duration?: string }).duration,
-  }));
-  const women = mapped.filter((p) => p.category === "women");
-  const men = mapped.filter((p) => p.category === "men");
+function CatalogueEmpty({ content }: { content: ProgramsPageContent["sections"] }) {
+  return (
+    <div className="mx-auto mt-9 max-w-lg rounded-3xl border border-dashed border-border bg-card/60 px-6 py-12 text-center">
+      <span className="mx-auto flex size-14 items-center justify-center rounded-full bg-sage-soft">
+        <Compass className="size-6 text-primary" aria-hidden="true" />
+      </span>
+      <h3 className="mt-5 font-serif text-xl text-brand-deep">{content.emptyHeading}</h3>
+      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{content.emptyBody}</p>
+      <Link
+        to="/contact"
+        className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-brand-deep"
+      >
+        {content.emptyCtaLabel} <ArrowRight className="size-4" />
+      </Link>
+    </div>
+  );
+}
+
+type Filter = "all" | "women" | "men";
+
+function ProgramsSections({ content }: { content: ProgramsPageContent["sections"] }) {
+  const { data, loading } = usePrograms();
+  const [filter, setFilter] = useState<Filter>("all");
+
+  const programs = useMemo(() => publicPrograms(data).map(toCardModel), [data]);
+  const women = useMemo(() => programs.filter((p) => p.category === "women"), [programs]);
+  const men = useMemo(() => programs.filter((p) => p.category === "men"), [programs]);
+
+  /* Chips only earn their space once both audiences have something to show. */
+  const showFilters = women.length > 0 && men.length > 0;
+  const active: Filter = showFilters ? filter : "all";
+  const filters: { id: Filter; label: string; count: number }[] = [
+    { id: "all", label: content.allLabel, count: programs.length },
+    { id: "women", label: content.womenLabel, count: women.length },
+    { id: "men", label: content.menLabel, count: men.length },
+  ];
+
+  /* Split headings are only meaningful when both groups are on screen. */
+  const showGroupHeadings = active === "all" && showFilters;
+  const visibleWomen = active === "men" ? [] : women;
+  const visibleMen = active === "women" ? [] : men;
 
   return (
     <section className="bg-background">
       <div className="mx-auto max-w-7xl px-4 py-12 lg:px-8 lg:py-16">
         <Eyebrow center>{content.eyebrow}</Eyebrow>
-        {loading && live.length === 0 ? (
-          <div className="mt-7 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <Skeleton key={i} className="h-72 w-full rounded-2xl" />
-            ))}
+        <h2 className="mx-auto mt-3 max-w-2xl text-center text-[1.7rem] leading-snug text-foreground lg:text-[2.15rem]">
+          {content.heading} <span className="text-brand">{content.headingAccent}</span>
+        </h2>
+        {content.sub ? (
+          <p className="mx-auto mt-4 max-w-xl text-center text-sm leading-relaxed text-muted-foreground">
+            {content.sub}
+          </p>
+        ) : null}
+
+        {showFilters ? (
+          <div
+            role="group"
+            aria-label={content.eyebrow}
+            className="mt-8 flex flex-wrap items-center justify-center gap-2"
+          >
+            {filters.map((f) => {
+              const isActive = active === f.id;
+              return (
+                <button
+                  key={f.id}
+                  type="button"
+                  aria-pressed={isActive}
+                  onClick={() => setFilter(f.id)}
+                  className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-[0.78rem] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
+                    isActive
+                      ? "bg-brand-deep text-primary-foreground"
+                      : "border border-border bg-card text-foreground hover:border-brand/40 hover:bg-secondary"
+                  }`}
+                >
+                  {f.label}
+                  <span
+                    className={`rounded-full px-1.5 text-[0.65rem] font-semibold tabular-nums ${
+                      isActive ? "bg-primary-foreground/20" : "bg-secondary text-muted-foreground"
+                    }`}
+                  >
+                    {f.count}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         ) : null}
-        <div className="mt-5">
-          <ProgramGrid
-            id="women"
-            title={content.womenHeading}
-            accent={content.womenAccent}
-            items={women}
-            learnMoreLabel={content.learnMoreLabel}
-          />
-        </div>
-        <div className="mt-14">
-          <ProgramGrid
-            id="men"
-            title={content.menHeading}
-            accent={content.menAccent}
-            items={men}
-            learnMoreLabel={content.learnMoreLabel}
-          />
-        </div>
+
+        {loading && programs.length === 0 ? <CatalogueSkeleton /> : null}
+
+        {!loading && programs.length === 0 ? <CatalogueEmpty content={content} /> : null}
+
+        {programs.length > 0 ? (
+          <>
+            <ProgramGrid
+              id="women"
+              title={content.womenHeading}
+              accent={content.womenAccent}
+              items={visibleWomen}
+              learnMoreLabel={content.learnMoreLabel}
+              showHeading={showGroupHeadings}
+            />
+            {visibleWomen.length > 0 && visibleMen.length > 0 ? (
+              <div className="h-14" aria-hidden="true" />
+            ) : null}
+            <ProgramGrid
+              id="men"
+              title={content.menHeading}
+              accent={content.menAccent}
+              items={visibleMen}
+              learnMoreLabel={content.learnMoreLabel}
+              showHeading={showGroupHeadings}
+            />
+          </>
+        ) : null}
       </div>
     </section>
   );

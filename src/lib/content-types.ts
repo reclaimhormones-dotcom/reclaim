@@ -37,6 +37,27 @@ export function programSlug(p: Pick<ProgramDoc, "slug" | "title" | "id">): strin
   return p.slug?.trim() ? p.slug.trim() : slugify(p.title || p.id);
 }
 
+/**
+ * The programs a visitor may see, in the order the admin arranged them.
+ * Every public surface goes through here so the website and the admin list
+ * can never drift apart.
+ */
+export function publicPrograms(programs: ProgramDoc[]): ProgramDoc[] {
+  return programs
+    .filter((p) => p.active !== false && Boolean(p.title))
+    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+}
+
+/** True when the program's price should be shown to visitors. */
+export function showsPrice(p: Pick<ProgramDoc, "price" | "showPrice">): boolean {
+  return p.showPrice !== false && Boolean(p.price);
+}
+
+/** Human label for a program category. */
+export function categoryLabel(category: ProgramDoc["category"]): string {
+  return category === "men" ? "Men" : "Women";
+}
+
 export type GalleryDoc = {
   id: string;
   url: string;

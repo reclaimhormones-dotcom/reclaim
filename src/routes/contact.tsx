@@ -25,6 +25,7 @@ import {
   whatsappLink,
 } from "@/hooks/useSiteContent";
 import { cldOptimize } from "@/lib/cloudinary";
+import { publicPrograms } from "@/lib/content-types";
 import { buildLeadMessage, openWhatsApp } from "@/lib/whatsapp";
 import { icon } from "@/lib/site-content";
 import type { ContactPageContent } from "@/lib/site-content";
@@ -225,8 +226,8 @@ function EnquiryForm({
   const [gender, setGender] = useState<"female" | "male">("female");
   const { settings } = useSettings();
   const { data: livePrograms } = usePrograms();
-  const programOptions = livePrograms
-    .filter((p) => p.active !== false && p.category === (gender === "male" ? "men" : "women"))
+  const programOptions = publicPrograms(livePrograms)
+    .filter((p) => p.category === (gender === "male" ? "men" : "women"))
     .map((p) => p.title);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {

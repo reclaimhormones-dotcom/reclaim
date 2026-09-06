@@ -303,12 +303,16 @@ export type HomeContent = {
   };
   stats: { icon: string; title: string; sub: string }[];
   philosophy: { eyebrow: string; heading: string; sub: string; items: IconItem[] };
+  /**
+   * Headings only — the cards themselves are read live from the `programs`
+   * collection so the home page always matches Admin → Programs.
+   */
   programs: {
     eyebrow: string;
     heading: string;
     sub: string;
     ctaLabel: string;
-    items: { img: string; icon: string; title: string; sub: string }[];
+    emptyLabel: string;
   };
   about: {
     eyebrow: string;
@@ -444,38 +448,7 @@ export const HOME_DEFAULT: HomeContent = {
     heading: "Personalized Care for Every Hormone Journey",
     sub: "Evidence-based nutrition programs designed for real, sustainable results.",
     ctaLabel: "View All Programs",
-    items: [
-      {
-        img: IMG.programPcos,
-        icon: "Stethoscope",
-        title: "PCOS / PCOD",
-        sub: "Cycle regulation, hormonal balance & weight management.",
-      },
-      {
-        img: IMG.programDiabetes,
-        icon: "Droplets",
-        title: "Diabetes Care",
-        sub: "Sustainable blood sugar control through smart nutrition.",
-      },
-      {
-        img: IMG.programThyroid,
-        icon: "Activity",
-        title: "Thyroid Balance",
-        sub: "Boost energy, metabolism and overall well-being.",
-      },
-      {
-        img: IMG.programInfertility,
-        icon: "Baby",
-        title: "Infertility Support",
-        sub: "Nutrition for reproductive health in both women & men.",
-      },
-      {
-        img: IMG.programWeight,
-        icon: "Scale",
-        title: "Weight & Metabolic Health",
-        sub: "Sustainable weight management & long-term wellness.",
-      },
-    ],
+    emptyLabel: "Our programs are being updated — talk to us and we'll guide you to the right one.",
   },
   about: {
     eyebrow: "About Reclaim Hormones",
@@ -1055,11 +1028,22 @@ export type ProgramsPageContent = {
   };
   sections: {
     eyebrow: string;
+    heading: string;
+    headingAccent: string;
+    sub: string;
     womenHeading: string;
     womenAccent: string;
     menHeading: string;
     menAccent: string;
     learnMoreLabel: string;
+    /** Filter chips above the catalogue. */
+    allLabel: string;
+    womenLabel: string;
+    menLabel: string;
+    /** Shown when no program is published yet. */
+    emptyHeading: string;
+    emptyBody: string;
+    emptyCtaLabel: string;
   };
   approach: {
     eyebrow: string;
@@ -1113,11 +1097,21 @@ export const PROGRAMS_PAGE_DEFAULT: ProgramsPageContent = {
   },
   sections: {
     eyebrow: "Our Specialized Programs",
+    heading: "Find the program built for",
+    headingAccent: "your body",
+    sub: "Every plan is personalized after a consultation — these are the journeys we guide most often.",
     womenHeading: "Programs for",
     womenAccent: "Women",
     menHeading: "Programs for",
     menAccent: "Men",
     learnMoreLabel: "Learn More",
+    allLabel: "All Programs",
+    womenLabel: "For Women",
+    menLabel: "For Men",
+    emptyHeading: "New programs are on the way",
+    emptyBody:
+      "We're updating our program library right now. Tell us what you're struggling with and we'll guide you to the right plan personally.",
+    emptyCtaLabel: "Talk to our team",
   },
   approach: {
     eyebrow: "Our Approach",
