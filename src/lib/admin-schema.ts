@@ -18,7 +18,7 @@ const slideFields: FieldSpec[] = [
   { key: "alt", label: "Alt text", type: "text" },
   { key: "caption", label: "Caption", type: "text" },
   {
-    key: "position",
+    key: "position", 
     label: "Focal point",
     type: "text",
     hint: 'Tailwind object-position, e.g. object-[50%_12%]',
