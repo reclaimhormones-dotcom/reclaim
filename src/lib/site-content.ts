@@ -252,7 +252,7 @@ export type FooterContent = {
   programLinks: string[];
   contactHeading: string;
   copyright: string;
-  credit: string;
+  
 };
 
 export const FOOTER_DEFAULT: FooterContent = {
@@ -279,7 +279,6 @@ export const FOOTER_DEFAULT: FooterContent = {
   ],
   contactHeading: "Contact Us",
   copyright: "© 2025 Reclaim Hormones. All Rights Reserved.",
-  credit: "",
 };
 
 /* -------------------------------- home page ------------------------------- */
