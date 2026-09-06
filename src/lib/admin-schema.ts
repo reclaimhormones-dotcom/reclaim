@@ -11,7 +11,7 @@ const iconItemFields: FieldSpec[] = [
 const numberedItemFields: FieldSpec[] = [
   { key: "n", label: "Step number", type: "text" },
   ...iconItemFields,
-];
+]; 
 
 const slideFields: FieldSpec[] = [
   { key: "img", label: "Image", type: "image" },
