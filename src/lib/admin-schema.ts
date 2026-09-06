@@ -14,7 +14,7 @@ const numberedItemFields: FieldSpec[] = [
 ]; 
 
 const slideFields: FieldSpec[] = [
-  { key: "img", label: "Image", type: "image" },
+  { key: "img", label: "Image", type: "image" }, 
   { key: "alt", label: "Alt text", type: "text" },
   { key: "caption", label: "Caption", type: "text" },
   {
