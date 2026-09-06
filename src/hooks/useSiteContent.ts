@@ -35,6 +35,7 @@ import {
   type NavigationContent,
   type ProgramsPageContent,
 } from "@/lib/site-content";
+import { buildWebsiteEnquiryMessage } from "@/lib/whatsapp";
 
 /** Live site settings with sensible defaults until an admin saves them. */
 export function useSettings(): { settings: SiteSettings; loading: boolean } {
@@ -119,9 +120,14 @@ export function useContactPageContent(): ContactPageContent {
 
 /* ---------------------------------- links --------------------------------- */
 
+/**
+ * wa.me link for a raw phone value. Without an explicit message every entry
+ * point falls back to the one standard website enquiry template, so the clinic
+ * receives the same structured details from any button on the site.
+ */
 export function whatsappLink(whatsapp: string, message?: string): string {
-  const digits = whatsapp.replace(/\D/g, "");
-  const text = message ?? "Hi! I would like to know more about your hormone care programs.";
+  const digits = (whatsapp || DEFAULT_SETTINGS.whatsapp).replace(/\D/g, "");
+  const text = message ?? buildWebsiteEnquiryMessage();
   return `https://wa.me/${digits}?text=${encodeURIComponent(text)}`;
 }
 

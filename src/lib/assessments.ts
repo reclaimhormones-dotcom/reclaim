@@ -4,6 +4,7 @@ import {
   deleteDoc,
   doc,
   getDoc,
+  onSnapshot,
   serverTimestamp,
   setDoc,
   updateDoc,
@@ -71,30 +72,55 @@ export async function fetchAssessmentByPhone(phone: string): Promise<AssessmentD
   return { id: snap.id, ...(snap.data() as Omit<AssessmentDoc, "id">) };
 }
 
-/** Records a payment screenshot and moves the assessment to pending verification. */
+/**
+ * Human-readable reference the patient can quote to the clinic. Derived from
+ * the submission time and the assessment key so it is stable per submission
+ * and needs no extra round trip to allocate.
+ */
+export function paymentReference(key: string, submittedAt: number): string {
+  const tail = key.slice(-4).padStart(4, "0");
+  return `RH-${new Date(submittedAt).toISOString().slice(2, 10).replace(/-/g, "")}-${tail}`;
+}
+
+/**
+ * Records a payment screenshot and moves the assessment to pending
+ * verification. The patient stays locked on step 2 until an admin approves;
+ * see `reviewPayment` for the other half of the workflow.
+ */
 export async function submitPaymentProof(
   key: string,
   screenshotUrl: string,
   amount: number,
   note: string,
-): Promise<void> {
+): Promise<{ reference: string; submittedAt: number }> {
   const db = await getDb();
+  const submittedAt = Date.now();
+  const reference = paymentReference(key, submittedAt);
+
   await updateDoc(doc(db, "assessments", key), {
     paymentScreenshot: screenshotUrl,
     paymentStatus: "pending_verification",
     paymentAmount: amount,
     paymentNote: note,
+    paymentReference: reference,
+    paymentSubmittedAt: submittedAt,
+    /* Step stays at 2: approval is what advances the patient, not upload. */
+    step: 2,
     status: "awaiting_payment",
-    updatedAt: Date.now(),
+    updatedAt: submittedAt,
   });
+
   await addDoc(collection(db, "payments"), {
     assessmentId: key,
     screenshot: screenshotUrl,
     amount,
     note,
+    reference,
     status: "pending_verification",
-    createdAt: Date.now(),
+    createdAt: submittedAt,
   });
+
+  return { reference, submittedAt };
 }
 
 export async function saveNutritionLog(
@@ -128,14 +154,52 @@ export async function saveNutritionLog(
 
 /* ------------------------------ admin actions ----------------------------- */
 
+/**
+ * Approve or reject a submitted payment. Approving is the only thing that
+ * unlocks step 3 — the patient's open page picks the change up live through
+ * `watchAssessment`, so no refresh or re-entry is needed.
+ */
 export async function reviewPayment(key: string, approve: boolean, reason = ""): Promise<void> {
   const db = await getDb();
   await updateDoc(doc(db, "assessments", key), {
     paymentStatus: approve ? "approved" : "rejected",
     status: approve ? "payment_completed" : "awaiting_payment",
+    step: approve ? 3 : 2,
     paymentReviewNote: reason,
+    paymentReviewedAt: Date.now(),
     updatedAt: Date.now(),
   });
+}
+
+/**
+ * Live subscription to one assessment, so an admin approval unlocks step 3 on
+ * the patient's screen the moment it happens. Returns an unsubscribe function.
+ */
+export function watchAssessment(
+  key: string,
+  onChange: (doc: AssessmentDoc | null) => void,
+): () => void {
+  let unsub: (() => void) | undefined;
+  let cancelled = false;
+
+  void (async () => {
+    try {
+      const db = await getDb();
+      if (cancelled) return;
+      unsub = onSnapshot(doc(db, "assessments", key), (snap) => {
+        onChange(
+          snap.exists() ? ({ id: snap.id, ...(snap.data() as Omit<AssessmentDoc, "id">) }) : null,
+        );
+      });
+    } catch {
+      /* Offline or blocked: the page keeps whatever it last fetched. */
+    }
+  })();
+
+  return () => {
+    cancelled = true;
+    unsub?.();
+  };
 }
 
 export async function deleteAssessment(key: string): Promise<void> {

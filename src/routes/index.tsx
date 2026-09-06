@@ -5,7 +5,6 @@ import {
   ArrowLeft,
   Leaf,
   ClipboardList,
-  MessageCircle,
   ChevronRight,
   Quote,
   Star,
@@ -14,6 +13,7 @@ import {
   MapPin,
   Clock,
 } from "lucide-react";
+import { WhatsAppIcon } from "@/components/site/BrandIcons";
 
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { SiteFooter } from "@/components/site/SiteFooter";
@@ -716,7 +716,7 @@ function CtaBand({ content }: { content: HomeContent["cta"] }) {
             rel="noreferrer noopener"
             className="tactile touch-lg flex items-center justify-center gap-2 border border-primary-foreground/35 text-sm text-primary-foreground transition-colors hover:bg-primary-foreground/10"
           >
-            <MessageCircle className="size-4" />
+            <WhatsAppIcon className="size-4" />
             {content.whatsappLabel}
           </a>
         </div>

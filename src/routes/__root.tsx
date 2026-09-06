@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 
 import { Toaster } from "@/components/ui/sonner";
 import { ConsultPopup } from "@/components/site/ConsultPopup";
+import { ConsultModalProvider } from "@/components/site/ConsultModal";
 import { SiteLoader } from "@/components/site/SiteLoader";
 import { useGlobalRipple } from "@/hooks/useRipple";
 import { useMagneticButtons } from "@/hooks/useMagnetic";
@@ -148,9 +149,13 @@ function RootComponent() {
         {/* Keying on the path restarts the enter animation on every navigation,
             so pages settle in rather than snapping. */}
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <div key={pathname} className="page-enter">
-          <Outlet />
-        </div>
+        {/* Booking lives above the page wrapper so the modal is never affected
+            by the route transition, and every CTA can reach it. */}
+        <ConsultModalProvider>
+          <div key={pathname} className="page-enter">
+            <Outlet />
+          </div>
+        </ConsultModalProvider>
         <SiteLoader />
         <ConsultPopup />
         <Toaster position="top-center" richColors />

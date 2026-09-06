@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { MessageCircle, Phone, X } from "lucide-react";
+import { Phone, X } from "lucide-react";
+import { WhatsAppIcon } from "@/components/site/BrandIcons";
 
 import {
   Card,
@@ -162,7 +163,7 @@ function Detail({ p, whatsapp, onClose }: { p: Patient; whatsapp: string; onClos
               rel="noreferrer noopener"
               className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-brand-deep"
             >
-              <MessageCircle className="size-4" /> WhatsApp
+              <WhatsAppIcon className="size-4" /> WhatsApp
             </a>
           ) : null}
           {whatsapp ? null : null}

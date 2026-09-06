@@ -8,10 +8,10 @@ import {
   Leaf,
   Mail,
   MapPin,
-  MessageCircle,
   Phone,
   Send,
 } from "lucide-react";
+import { WhatsAppIcon } from "@/components/site/BrandIcons";
 
 import { toast } from "sonner";
 
@@ -110,7 +110,7 @@ function ContactHero({ hero }: { hero: ContactPageContent["hero"] }) {
               rel="noreferrer noopener"
               className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-5 py-3 text-sm font-semibold text-brand-deep transition-colors hover:bg-sage-soft"
             >
-              <MessageCircle className="size-4" /> {hero.whatsappLabel}
+              <WhatsAppIcon className="size-4" /> {hero.whatsappLabel}
             </a>
           </div>
 
@@ -158,7 +158,7 @@ function ContactCards({ content }: { content: ContactPageContent["cards"] }) {
       action: { label: content.callActionLabel, href: telLink(settings.phone) },
     },
     {
-      icon: MessageCircle,
+      icon: WhatsAppIcon,
       title: content.whatsappTitle,
       lines: [content.whatsappLine],
       action: { label: content.whatsappActionLabel, href: whatsappLink(settings.whatsapp) },

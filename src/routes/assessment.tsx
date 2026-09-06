@@ -6,6 +6,7 @@ import {
   BadgeCheck,
   CheckCircle2,
   ClipboardList,
+  Clock3,
   CreditCard,
   Loader2,
   QrCode,
@@ -13,12 +14,13 @@ import {
   Upload,
   Utensils,
 } from "lucide-react";
+import { WhatsAppIcon } from "@/components/site/BrandIcons";
 import { toast } from "sonner";
 
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { WhatsAppButton } from "@/components/site/WhatsAppButton";
-import { usePrograms, useSettings } from "@/hooks/useSiteContent";
+import { usePrograms, useSettings, whatsappLink } from "@/hooks/useSiteContent";
 import { cldOptimize, uploadImage } from "@/lib/cloudinary";
 import {
   EMPTY_BASIC_DETAILS,
@@ -34,8 +36,10 @@ import { buildPaymentMessage, openWhatsApp } from "@/lib/whatsapp";
 import {
   fetchAssessmentByPhone,
   saveBasicDetails,
+  paymentReference,
   saveNutritionLog,
   submitPaymentProof,
+  watchAssessment,
 } from "@/lib/assessments";
 
 import { canonical, canonicalLink } from "@/lib/seo";
@@ -294,6 +298,121 @@ function BasicDetailsStep({
 
 /* --------------------------------- step 2 -------------------------------- */
 
+/**
+ * The hold screen a patient sees between uploading proof of payment and an
+ * admin approving it. Step 3 is genuinely unreachable from here — there is no
+ * continue control — and the page's live subscription replaces this view the
+ * instant the admin approves.
+ */
+function VerificationLock({
+  assessment,
+  price,
+  details,
+  whatsapp,
+}: {
+  assessment: AssessmentDoc | null;
+  price: number;
+  details: BasicDetails;
+  whatsapp: string;
+}) {
+  const submittedAt = assessment?.paymentSubmittedAt;
+  const reference =
+    assessment?.paymentReference ??
+    (assessment?.id && submittedAt ? paymentReference(assessment.id, submittedAt) : "—");
+
+  const submittedLabel = submittedAt
+    ? new Date(submittedAt).toLocaleString("en-IN", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+      })
+    : "Just now";
+
+  const rows = [
+    { label: "Reference ID", value: reference },
+    { label: "Amount", value: `₹${(assessment?.paymentAmount ?? price).toLocaleString("en-IN")}` },
+    { label: "Submitted", value: submittedLabel },
+    ...(assessment?.paymentNote ? [{ label: "Transaction ref", value: assessment.paymentNote }] : []),
+  ];
+
+  return (
+    <div className="mx-auto max-w-2xl">
+      <div className="surface surface-lg overflow-hidden">
+        <div className="bg-gradient-to-b from-gold/15 to-card px-6 py-8 text-center">
+          <span className="icon-pod mx-auto size-16 rounded-full">
+            <Clock3 className="size-7 text-gold" aria-hidden="true" />
+          </span>
+          <p className="mt-4 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-gold">
+            Step 2 of 3
+          </p>
+          <h2 className="mt-2 font-serif text-2xl text-brand-deep">Payment Under Verification</h2>
+          <p className="mx-auto mt-3 max-w-sm text-pretty-body text-sm text-muted-foreground">
+            Your payment is being verified by our team. Step 3 will unlock automatically after
+            approval.
+          </p>
+        </div>
+
+        <dl className="divide-y divide-border/60 border-t border-border/60">
+          {rows.map((row) => (
+            <div key={row.label} className="flex items-center justify-between gap-4 px-6 py-4">
+              <dt className="text-xs uppercase tracking-[0.12em] text-muted-foreground">
+                {row.label}
+              </dt>
+              <dd className="min-w-0 break-words text-right text-sm font-semibold text-brand-deep">
+                {row.value}
+              </dd>
+            </div>
+          ))}
+        </dl>
+
+        {assessment?.paymentScreenshot ? (
+          <div className="border-t border-border/60 px-6 py-5">
+            <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">
+              Screenshot submitted
+            </p>
+            <img
+              src={cldOptimize(assessment.paymentScreenshot, 600)}
+              alt="The payment screenshot you submitted"
+              loading="lazy"
+              className="mt-3 max-h-64 w-auto rounded-2xl border border-border"
+            />
+          </div>
+        ) : null}
+
+        <div className="border-t border-border/60 px-6 py-5">
+          <p className="text-pretty-body text-xs text-muted-foreground">
+            Verification is usually completed within a few hours. You can message our team if you
+            need an update — please attach the same screenshot there.
+          </p>
+          <a
+            href={whatsappLink(
+              whatsapp,
+              buildPaymentMessage({
+                name: details.name,
+                phone: details.phone,
+                gender: details.gender,
+                program: details.program || "Health assessment",
+                amount: assessment?.paymentAmount ?? price,
+                reference,
+                ...(assessment?.paymentScreenshot
+                  ? { screenshotUrl: assessment.paymentScreenshot }
+                  : {}),
+              }),
+            )}
+            target="_blank"
+            rel="noreferrer noopener"
+            className="tactile touch-lg fill-surface mt-4 inline-flex items-center gap-2 text-sm"
+          >
+            <WhatsAppIcon className="size-4" /> Message our team
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function PaymentStep({
   assessmentKey,
   assessment,
@@ -327,15 +446,17 @@ function PaymentStep({
     setUploading(true);
     try {
       const { url } = await uploadImage(file, "reclaim/payments");
-      await submitPaymentProof(assessmentKey, url, price, note);
-      toast.success("Screenshot uploaded. Your payment is pending verification.");
+      const { reference } = await submitPaymentProof(assessmentKey, url, price, note);
+      toast.success("Payment submitted. Our team will verify it shortly.");
       openWhatsApp(
         settings.whatsapp,
         buildPaymentMessage({
           name: details.name,
           phone: details.phone,
+          gender: details.gender,
           program: details.program || "Health assessment",
           amount: price,
+          reference,
           screenshotUrl: url,
         }),
       );
@@ -346,6 +467,22 @@ function PaymentStep({
       setUploading(false);
       if (inputRef.current) inputRef.current.value = "";
     }
+  }
+
+  /*
+   * Once a screenshot is in, the patient is held here. Step 3 is not a button
+   * they can press past — an admin approval is what releases it, and the live
+   * subscription on the page swaps this screen out the moment that happens.
+   */
+  if (status === "pending_verification") {
+    return (
+      <VerificationLock
+        assessment={assessment}
+        price={price}
+        details={details}
+        whatsapp={settings.whatsapp}
+      />
+    );
   }
 
   return (
@@ -411,11 +548,8 @@ function PaymentStep({
           After paying, upload the screenshot so our team can verify it.
         </p>
 
-        {status === "pending_verification" ? (
-          <div className="mt-4 rounded-xl border border-gold/40 bg-gold/10 px-4 py-3 text-sm text-brand-deep">
-            Status: <strong>Pending Verification</strong> — our team is reviewing your payment.
-          </div>
-        ) : null}
+        {/* "pending_verification" never reaches here — VerificationLock takes
+            over the whole step while a payment is awaiting review. */}
         {status === "approved" ? (
           <div className="mt-4 flex items-center gap-2 rounded-xl border border-brand/30 bg-brand/10 px-4 py-3 text-sm text-brand-deep">
             <BadgeCheck className="size-4" /> Status: <strong>Payment Completed</strong>
@@ -482,16 +616,21 @@ function PaymentStep({
         >
           <ArrowLeft className="size-4" /> Back
         </button>
-        <button
-          type="button"
-          onClick={onNext}
-          className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-brand-deep"
-        >
-          Continue to Nutrition Log <ArrowRight className="size-4" />
-        </button>
+        {/* Only an approved payment opens step 3. */}
+        {status === "approved" ? (
+          <button
+            type="button"
+            onClick={onNext}
+            className="tactile touch-lg fill-primary inline-flex items-center gap-2 text-sm"
+          >
+            Continue to Nutrition Log <ArrowRight className="size-4" />
+          </button>
+        ) : null}
       </div>
       <p className="text-xs text-muted-foreground">
-        You can continue filling your nutrition log while your payment is being verified.
+        {status === "approved"
+          ? "Your payment is verified — you can continue to your nutrition log."
+          : "Upload your payment screenshot to continue. Step 3 unlocks once our team verifies it."}
       </p>
     </div>
   );
@@ -797,6 +936,27 @@ function AssessmentPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [step, completed]);
 
+  /*
+   * Live subscription to the patient's own assessment. This is what makes
+   * "step 3 unlocks automatically after approval" true: when an admin approves,
+   * the doc changes, this fires, and the verification lock is replaced without
+   * the patient reloading or re-entering their phone number.
+   */
+  useEffect(() => {
+    if (!key || key.length < 10) return;
+    return watchAssessment(key, (doc) => {
+      if (!doc) return;
+      setAssessment(doc);
+      if (doc.status === "completed") setCompleted(true);
+    });
+  }, [key]);
+
+  /* Approval releases the hold; a rejection or a fresh upload pulls it back. */
+  useEffect(() => {
+    if (!assessment) return;
+    if (assessment.paymentStatus === "pending_verification" && step > 2) setStep(2);
+  }, [assessment, step]);
+
   async function refresh() {
     if (!key) return;
     try {
@@ -820,6 +980,10 @@ function AssessmentPage() {
       setLog({ ...EMPTY_NUTRITION_LOG, ...(found.nutritionLog ?? {}) });
       if (found.status === "completed") {
         setCompleted(true);
+      } else if (found.paymentStatus === "pending_verification") {
+        /* Returning mid-verification always lands back on the hold screen,
+           however far the saved step says they got. */
+        setStep(2);
       } else {
         setStep(Math.min(3, Math.max(1, found.step ?? 1)));
       }

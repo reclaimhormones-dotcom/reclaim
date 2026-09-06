@@ -4,11 +4,11 @@ import {
   ArrowRight,
   Check,
   Leaf,
-  MessageCircle,
   Quote,
   Star,
   Instagram,
 } from "lucide-react";
+import { WhatsAppIcon } from "@/components/site/BrandIcons";
 import type { LucideIcon } from "lucide-react";
 
 import { useAboutContent, useSettings, whatsappLink } from "@/hooks/useSiteContent";
@@ -626,7 +626,7 @@ function CtaBand({ content }: { content: AboutContent["cta"] }) {
               rel="noreferrer noopener"
               className="flex items-center justify-center gap-2 rounded-md border border-primary-foreground/30 px-5 py-3.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-brand-deep"
             >
-              <MessageCircle className="size-4" />
+              <WhatsAppIcon className="size-4" />
               {content.whatsappLabel}
             </a>
           </div>

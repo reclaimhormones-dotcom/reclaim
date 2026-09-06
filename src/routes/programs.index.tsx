@@ -7,8 +7,8 @@ import {
   Clock,
   Compass,
   Leaf,
-  MessageCircle,
 } from "lucide-react";
+import { WhatsAppIcon } from "@/components/site/BrandIcons";
 
 import { usePrograms, useProgramsPageContent, useSettings, whatsappLink } from "@/hooks/useSiteContent";
 import { cldOptimize } from "@/lib/cloudinary";
@@ -22,6 +22,7 @@ import {
 import { icon } from "@/lib/site-content";
 import type { ProgramsPageContent } from "@/lib/site-content";
 import { SiteHeader } from "@/components/site/SiteHeader";
+import { useConsultModal } from "@/hooks/useConsultModal";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { MobilePageHero } from "@/components/site/MobilePageHero";
 import { SmartImage } from "@/components/site/SmartImage";
@@ -534,6 +535,7 @@ function Glimpses({ content }: { content: ProgramsPageContent["glimpses"] }) {
 }
 
 function CtaBand({ content }: { content: ProgramsPageContent["cta"] }) {
+  const consult = useConsultModal();
   const { settings } = useSettings();
   return (
     <section className="bg-background pb-12 lg:pb-16">
@@ -551,15 +553,16 @@ function CtaBand({ content }: { content: ProgramsPageContent["cta"] }) {
             </div>
 
             <div className="mt-6 grid gap-3 lg:mt-0 lg:w-72 lg:shrink-0">
-              <Link
-                to="/contact"
-                className="inline-flex items-center justify-between gap-2 rounded-lg bg-primary-foreground px-5 py-3 text-sm font-semibold text-brand-deep transition-opacity hover:opacity-90"
+              <button
+                type="button"
+                onClick={() => consult.open()}
+                className="tactile inline-flex items-center justify-between gap-2 rounded-lg bg-primary-foreground px-5 py-3 text-sm font-semibold text-brand-deep transition-opacity hover:opacity-90"
               >
                 <span className="inline-flex items-center gap-2">
                   {content.primaryLabel} <CalendarCheck className="size-4" />
                 </span>
                 <ArrowRight className="size-4" />
-              </Link>
+              </button>
               <Link
                 to="/assessment"
                 className="inline-flex items-center justify-between gap-2 rounded-lg border border-primary-foreground/40 px-5 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-foreground/10"
@@ -575,7 +578,7 @@ function CtaBand({ content }: { content: ProgramsPageContent["cta"] }) {
                 rel="noreferrer noopener"
                 className="inline-flex items-center justify-center gap-2 rounded-lg border border-primary-foreground/40 px-5 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-foreground/10 lg:hidden"
               >
-                <MessageCircle className="size-4" /> {content.whatsappLabel}
+                <WhatsAppIcon className="size-4" /> {content.whatsappLabel}
               </a>
             </div>
           </div>

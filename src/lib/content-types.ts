@@ -228,6 +228,11 @@ export type AssessmentDoc = {
   paymentScreenshot?: string;
   paymentAmount?: number;
   paymentNote?: string;
+  /* Verification trail shown to the patient while step 3 is locked. */
+  paymentReference?: string;
+  paymentSubmittedAt?: number;
+  paymentReviewNote?: string;
+  paymentReviewedAt?: number;
   step: number;
   createdAt?: number;
   updatedAt?: number;

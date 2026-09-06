@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 
 import { useNavigationContent, useSocialLinks } from "@/hooks/useSiteContent";
+import { useConsultModal } from "@/hooks/useConsultModal";
 import { SiteLink } from "./SiteLink";
 
 const NAV_ICONS = {
@@ -62,6 +63,7 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const socials = useSocialLinks();
   const nav = useNavigationContent();
+  const consult = useConsultModal();
 
   /*
    * Solid-vs-transparent and hide-vs-reveal both come off one rAF-throttled
@@ -179,13 +181,15 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
           })}
         </nav>
 
-        <SiteLink
-          to={nav.buttonTo}
-          className="hidden items-center gap-2 rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-brand-deep lg:inline-flex"
+        {/* Opens the booking modal in place rather than navigating away. */}
+        <button
+          type="button"
+          onClick={() => consult.open()}
+          className="tactile hidden items-center gap-2 rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-brand-deep lg:inline-flex"
         >
           <CalendarCheck className="size-4" />
           {nav.buttonLabel}
-        </SiteLink>
+        </button>
 
         <button
           type="button"

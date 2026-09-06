@@ -7,11 +7,12 @@ import {
   ClipboardList,
   Clock,
   Leaf,
-  MessageCircle,
   Share2,
 } from "lucide-react";
+import { WhatsAppIcon } from "@/components/site/BrandIcons";
 
 import { Accordion } from "@/components/site/Accordion";
+import { useConsultModal } from "@/hooks/useConsultModal";
 import { MobilePageHero } from "@/components/site/MobilePageHero";
 import { Rating } from "@/components/site/Rating";
 import { Reveal } from "@/components/site/Reveal";
@@ -119,6 +120,7 @@ function ProgramDetailPage() {
   const { program, loading } = useProgram(slug);
   const { settings } = useSettings();
   const { data: reviews } = useTestimonials();
+  const consult = useConsultModal();
 
   /* The server-rendered title is slug-derived; correct it once the doc lands. */
   useEffect(() => {
@@ -245,12 +247,13 @@ function ProgramDetailPage() {
               ))}
             </div>
             <div className="mt-7 flex flex-wrap gap-3">
-              <Link
-                to="/contact"
+              <button
+                type="button"
+                onClick={() => consult.open(program.title)}
                 className="inline-flex items-center gap-2 tactile magnetic touch-lg fill-primary text-sm font-semibold text-primary-foreground"
               >
                 <CalendarCheck className="size-4" /> Book Consultation
-              </Link>
+              </button>
               <Link
                 to="/assessment"
                 className="inline-flex items-center gap-2 tactile touch-lg fill-surface text-sm font-semibold text-foreground"
@@ -264,7 +267,7 @@ function ProgramDetailPage() {
                   rel="noreferrer noopener"
                   className="inline-flex items-center gap-2 tactile touch-lg fill-surface text-sm font-semibold text-foreground"
                 >
-                  <MessageCircle className="size-4 text-brand" /> WhatsApp
+                  <WhatsAppIcon className="size-4 text-brand" /> WhatsApp
                 </a>
               ) : null}
               <button
@@ -402,12 +405,13 @@ function ProgramDetailPage() {
             body, your reports and your routine.
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <Link
-              to="/contact"
+            <button
+              type="button"
+              onClick={() => consult.open(program.title)}
               className="tactile touch-lg fill-surface inline-flex items-center gap-2 text-sm"
             >
               <CalendarCheck className="size-4" /> Book Consultation
-            </Link>
+            </button>
             <Link
               to="/assessment"
               className="tactile touch-lg inline-flex items-center gap-2 border border-primary-foreground/40 text-sm transition-colors hover:bg-primary-foreground/10"
@@ -421,7 +425,7 @@ function ProgramDetailPage() {
                 rel="noreferrer noopener"
                 className="tactile touch-lg inline-flex items-center gap-2 border border-primary-foreground/40 text-sm transition-colors hover:bg-primary-foreground/10"
               >
-                <MessageCircle className="size-4" /> WhatsApp
+                <WhatsAppIcon className="size-4" /> WhatsApp
               </a>
             ) : null}
           </div>

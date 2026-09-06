@@ -21,6 +21,34 @@ function line(label: string, value?: string): string | null {
   return v ? `*${label}:* ${v}` : null;
 }
 
+/**
+ * The single message every WhatsApp entry point on the website sends.
+ *
+ * Details the site already knows are filled in; anything it does not know is
+ * left as a labelled blank so the visitor completes it in WhatsApp before
+ * sending, rather than the clinic receiving a message with "undefined" in it.
+ */
+export function buildWebsiteEnquiryMessage(lead: Partial<WhatsAppLead> = {}): string {
+  const detail = (label: string, value?: string) => `• ${label}: ${(value ?? "").trim()}`;
+
+  return [
+    "Hello *Reclaim Hormones Team* 🌿",
+    "",
+    "I visited your website and I'm interested in your hormone health programs.",
+    "",
+    "*My Details*",
+    detail("Name", lead.name),
+    detail("Gender", lead.gender),
+    detail("Phone Number", lead.phone),
+    detail("Program of Interest", lead.program),
+    ...(lead.concern?.trim() ? [detail("Main Health Concern", lead.concern)] : []),
+    "",
+    "I would like to book a consultation. Please guide me with the next steps.",
+    "",
+    "Thank you.",
+  ].join("\n");
+}
+
 export function buildLeadMessage(lead: WhatsAppLead): string {
   const rows = [
     line("Name", lead.name),
@@ -45,27 +73,39 @@ export function buildLeadMessage(lead: WhatsAppLead): string {
   ].join("\n");
 }
 
+/**
+ * Sent by the patient the moment a payment screenshot is uploaded. It carries
+ * every detail the clinic needs to verify the transfer, and closes by asking
+ * the patient to attach the same screenshot — WhatsApp cannot be handed an
+ * image through a deep link, so that step is theirs.
+ */
 export function buildPaymentMessage(input: {
   name: string;
   phone: string;
+  gender?: string;
   program: string;
   amount: number;
+  reference?: string;
   screenshotUrl?: string;
 }): string {
   return [
-    "Hello *Reclaim Hormones*,",
+    "Hello *Reclaim Hormones Team* 🌿",
     "",
-    "I have completed the payment for my assessment.",
+    "I have completed the payment for my health assessment.",
     "",
-    `*Name:* ${input.name}`,
-    `*Phone:* ${input.phone}`,
-    `*Program:* ${input.program}`,
-    `*Amount paid:* ₹${input.amount.toLocaleString("en-IN")}`,
-    ...(input.screenshotUrl ? [`*Payment screenshot:* ${input.screenshotUrl}`] : []),
+    "*Payment Details*",
+    `• Name: ${input.name}`,
+    ...(input.gender?.trim() ? [`• Gender: ${input.gender}`] : []),
+    `• Phone Number: ${input.phone}`,
+    `• Program: ${input.program}`,
+    `• Amount Paid: ₹${input.amount.toLocaleString("en-IN")}`,
+    ...(input.reference ? [`• Payment Reference: ${input.reference}`] : []),
+    "• Website Source: Assessment — Step 2 Payment",
+    ...(input.screenshotUrl ? ["", `*Screenshot:* ${input.screenshotUrl}`] : []),
     "",
-    "*Source:* Website — Assessment payment",
+    "📎 I am attaching the payment screenshot with this message.",
     "",
-    "Kindly verify my payment so I can continue with the health assessment.",
+    "Kindly verify my payment so Step 3 unlocks. Thank you.",
   ].join("\n");
 }
 

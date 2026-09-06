@@ -18,6 +18,7 @@ import { icon, GALLERY_SEED } from "@/lib/site-content";
 import type { GalleryPageContent } from "@/lib/site-content";
 import { GALLERY_CATEGORIES, type GalleryCategory } from "@/lib/content-types";
 import { SiteHeader } from "@/components/site/SiteHeader";
+import { useConsultModal } from "@/hooks/useConsultModal";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { MobilePageHero } from "@/components/site/MobilePageHero";
 import { Skeleton, SmartImage } from "@/components/site/SmartImage";
@@ -470,6 +471,7 @@ function Stories({ content }: { content: GalleryPageContent["stories"] }) {
 }
 
 function GalleryCta({ content }: { content: GalleryPageContent["cta"] }) {
+  const consult = useConsultModal();
   return (
     <section className="bg-background">
       <div className="mx-auto max-w-7xl px-4 py-12 lg:px-8 lg:py-16">
@@ -482,12 +484,13 @@ function GalleryCta({ content }: { content: GalleryPageContent["cta"] }) {
             {content.sub}
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <Link
-              to="/contact"
+            <button
+              type="button"
+              onClick={() => consult.open()}
               className="inline-flex items-center gap-2 tactile magnetic touch-lg fill-primary text-sm font-semibold text-primary-foreground"
             >
               <CalendarCheck className="size-4" /> {content.primaryLabel}
-            </Link>
+            </button>
             <Link
               to="/programs"
               className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-5 py-3 text-sm font-semibold text-brand-deep transition-colors hover:bg-background"
