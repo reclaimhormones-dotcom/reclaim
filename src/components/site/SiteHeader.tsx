@@ -48,42 +48,56 @@ function Sprig({ className }: { className?: string }) {
  * `overlay` = the page starts with a full-screen hero, so the bar floats
  * transparently until the user scrolls. Otherwise it is solid from the start.
  */
-/** Quiet time after the last scroll event before the bar comes back, in ms. */
-const SETTLE_MS = 180;
-/** Scroll depth below which the bar always stays put. */
+/** Scroll depth at which the bar turns solid. */
+const SOLID_AFTER = 60;
+/** Never tuck the bar away while it still overlaps the top of the page. */
 const HIDE_AFTER = 80;
+/** Movement below this is trackpad jitter or overscroll, not a direction. */
+const DELTA_MIN = 4;
 
 export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [scrolling, setScrolling] = useState(false);
+  const [hiddenByScroll, setHiddenByScroll] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const socials = useSocialLinks();
   const nav = useNavigationContent();
 
   /*
-   * The bar gets out of the way while the page is moving and comes back the
-   * moment scrolling settles. Every scroll event pushes the "settled" timer
-   * out, so it only reappears once the user has actually paused.
+   * Solid-vs-transparent and hide-vs-reveal both come off one rAF-throttled
+   * listener, so state changes at most once per frame. Direction is measured
+   * against the last committed position and small deltas are ignored, which is
+   * what stops the bar flickering during trackpad jitter or rubber-band
+   * overscroll.
    */
   useEffect(() => {
-    let idle: ReturnType<typeof setTimeout>;
+    let lastY = window.scrollY;
+    let queued = false;
+
+    const update = () => {
+      queued = false;
+      const y = Math.max(0, window.scrollY);
+      setScrolled(y > SOLID_AFTER);
+
+      const delta = y - lastY;
+      /* Hold `lastY` until the page has actually moved, so slow drags still
+         accumulate into a direction instead of being discarded. */
+      if (Math.abs(delta) < DELTA_MIN) return;
+
+      /* Down hides, up reveals immediately; near the top it always shows. */
+      setHiddenByScroll(y > HIDE_AFTER && delta > 0);
+      lastY = y;
+    };
 
     const onScroll = () => {
-      const y = window.scrollY;
-      setScrolled(y > 40);
-      /* Near the top there is nothing to get out of the way of. */
-      setScrolling(y > HIDE_AFTER);
-      clearTimeout(idle);
-      idle = setTimeout(() => setScrolling(false), SETTLE_MS);
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(update);
     };
 
-    onScroll();
+    update();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      clearTimeout(idle);
-    };
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   useEffect(() => {
@@ -101,30 +115,47 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
   }, [open]);
 
   const transparent = overlay && !scrolled;
-  /* The open menu is a child of this element, so the bar must stay put while
-     it is up — see the transform note below. */
-  const hidden = scrolling && !open;
+  /* The mobile menu is a child of this element, so the bar must stay put while
+     the menu is up — see the transform note on the header below. */
+  const hidden = hiddenByScroll && !open;
 
   return (
     <header
       /* Tabbing into the bar while it is tucked away brings it straight back,
          so keyboard users never chase an off-screen control. */
-      onFocusCapture={() => setScrolling(false)}
-      className={`fixed top-0 z-50 w-full border-b transition-all duration-300 ${
-        transparent
-          ? "border-transparent bg-gradient-to-b from-cream/90 via-cream/60 to-transparent"
-          : "border-border/70 bg-background/95 backdrop-blur"
-      } ${
+      onFocusCapture={() => setHiddenByScroll(false)}
+      className={`fixed top-0 z-50 w-full transition-transform duration-250 ease-[var(--ease-premium)] ${
         /*
          * The translate is applied ONLY while hidden — never a `translate-y-0`
          * resting state. Any transform here would make this element the
          * containing block for the full-screen mobile menu below, which is
          * `position: fixed` and would then be trapped inside the bar.
+         *
+         * Translating a fixed element also costs no reflow, so hiding and
+         * revealing never shifts the page underneath.
          */
         hidden ? "-translate-y-full" : ""
       }`}
     >
-      <div className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 py-3 lg:flex lg:justify-between lg:px-8 lg:py-4">
+      {/*
+       * Two stacked surfaces rather than one swapped background: a gradient
+       * cannot interpolate to a flat colour, so switching them directly pops.
+       * Cross-fading their opacity gives a genuinely smooth 250ms change.
+       */}
+      <div
+        aria-hidden="true"
+        className={`pointer-events-none absolute inset-0 border-b border-border/70 bg-background/92 transition-opacity duration-250 ${
+          transparent ? "opacity-0" : "opacity-100 backdrop-blur-xl"
+        } ${scrolled ? "shadow-[var(--shadow-e1)]" : ""}`}
+      />
+      <div
+        aria-hidden="true"
+        className={`pointer-events-none absolute inset-0 bg-gradient-to-b from-cream/90 via-cream/60 to-transparent transition-opacity duration-250 ${
+          transparent ? "opacity-100" : "opacity-0"
+        }`}
+      />
+
+      <div className="relative mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 py-3 lg:flex lg:justify-between lg:px-8 lg:py-4">
         <Link to="/" className="min-w-0">
           <img src={nav.logo} alt={nav.logoAlt} className="h-8 w-auto lg:h-10" />
         </Link>
