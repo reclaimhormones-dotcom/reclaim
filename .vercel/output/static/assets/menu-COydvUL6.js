@@ -1,1 +1,0 @@
-import{x as e}from"./firebase-ZN-0P-06.js";import{Dt as t,Et as n,Tt as r}from"./index-lss3HddG.js";function i(e){let i=t({warn:e?.router===void 0}),a=e?.router||i;return n(a.stores.__store,r(e,a))}var a=e(`menu`,[[`path`,{d:`M4 5h16`,key:`1tepv9`}],[`path`,{d:`M4 12h16`,key:`1lakjw`}],[`path`,{d:`M4 19h16`,key:`1djgab`}]]);export{i as n,a as t};

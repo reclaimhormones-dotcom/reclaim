@@ -31,3 +31,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Build artifacts / local platform state — never commit these.
+# A committed .vercel/output makes Vercel deploy that stale prebuilt bundle
+# instead of building the current source.
+.vercel
