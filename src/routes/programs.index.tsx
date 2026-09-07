@@ -27,6 +27,7 @@ import { SiteFooter } from "@/components/site/SiteFooter";
 import { MobilePageHero } from "@/components/site/MobilePageHero";
 import { SmartImage } from "@/components/site/SmartImage";
 import { Reveal } from "@/components/site/Reveal";
+import { ShareMenu } from "@/components/site/ShareMenu";
 
 import { canonical, canonicalLink, breadcrumbJsonLd } from "@/lib/seo";
 
@@ -125,12 +126,7 @@ function ProgramCard({
   const chips = program.points.slice(0, 3);
 
   return (
-    <Link
-      to="/programs/$slug"
-      params={{ slug: program.slug }}
-      aria-label={`${program.title} — ${learnMoreLabel}`}
-      className="group surface lift relative grid h-full overflow-hidden rounded-[1.5rem] hover:border-brand/30 sm:grid-cols-[40%_60%] sm:min-h-[15rem]"
-    >
+    <article className="group surface lift relative grid h-full overflow-hidden rounded-[1.5rem] hover:border-brand/30 sm:grid-cols-[40%_60%] sm:min-h-[15rem]">
       {/* Media — full width on mobile, the left 40% from sm up. */}
       <div className="relative aspect-[16/10] overflow-hidden sm:aspect-auto sm:h-full">
         <SmartImage
@@ -156,7 +152,16 @@ function ProgramCard({
       {/* Content — one line of description, three chips, meta, action. */}
       <div className="flex min-w-0 flex-col p-5 lg:p-6">
         <h3 className="font-serif text-[1.15rem] leading-snug text-brand-deep lg:text-[1.25rem]">
-          {program.title}
+          {/* Stretched link: covers the whole card so it stays one click
+              target, while the share control below can still sit above it. */}
+          <Link
+            to="/programs/$slug"
+            params={{ slug: program.slug }}
+            aria-label={`${program.title} — ${learnMoreLabel}`}
+            className="after:absolute after:inset-0 after:content-['']"
+          >
+            {program.title}
+          </Link>
         </h3>
         {program.description ? (
           <p className="mt-1.5 line-clamp-2 text-[0.82rem] leading-relaxed text-muted-foreground">
@@ -196,15 +201,27 @@ function ProgramCard({
               {learnMoreLabel}
             </span>
           </div>
-          <span
-            className="flex size-10 shrink-0 items-center justify-center rounded-full bg-sage-soft text-primary transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground"
-            aria-hidden="true"
-          >
-            <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-0.5" />
-          </span>
+          <div className="flex shrink-0 items-center gap-2">
+            {/* Above the stretched link, so sharing never navigates. */}
+            <ShareMenu
+              payload={{
+                url: canonical(`/programs/${program.slug}`),
+                title: `${program.title} — Reclaim Hormones`,
+                description: program.description || "Personalized, root-cause hormone care.",
+              }}
+              label=""
+              className="relative z-10"
+            />
+            <span
+              className="flex size-10 shrink-0 items-center justify-center rounded-full bg-sage-soft text-primary transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground"
+              aria-hidden="true"
+            >
+              <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-0.5" />
+            </span>
+          </div>
         </div>
       </div>
-    </Link>
+    </article>
   );
 }
 

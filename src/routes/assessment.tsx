@@ -67,6 +67,12 @@ export const Route = createFileRoute("/assessment")({
     ],
     links: canonicalLink("/assessment"),
   }),
+  /* A program page can hand its program straight through, so the visitor
+     never re-picks something they already chose. */
+  validateSearch: (search: Record<string, unknown>): { program?: string } => {
+    const program = typeof search["program"] === "string" ? search["program"].slice(0, 120) : "";
+    return program ? { program } : {};
+  },
   component: AssessmentPage,
 });
 
@@ -931,6 +937,13 @@ function AssessmentPage() {
   const [completed, setCompleted] = useState(false);
 
   const key = assessment?.id ?? phoneKey(details.phone);
+
+  /* Arriving from a program page pre-selects that program once. */
+  const { program: presetProgram } = Route.useSearch();
+  useEffect(() => {
+    if (!presetProgram) return;
+    setDetails((d) => (d.program ? d : { ...d, program: presetProgram }));
+  }, [presetProgram]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });

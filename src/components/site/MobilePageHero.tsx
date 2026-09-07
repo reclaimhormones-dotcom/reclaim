@@ -8,6 +8,8 @@ type Action = {
   /** Same-page anchor or external/tel/mailto href */
   href?: string;
   hash?: string;
+  /** Search params carried to the destination route. */
+  search?: Record<string, string>;
   /** In-place action (e.g. opening the consultation modal) instead of a link. */
   onClick?: () => void;
 };
@@ -47,7 +49,12 @@ function ActionLink({
   }
   if (action.to) {
     return (
-      <Link to={action.to} {...(action.hash ? { hash: action.hash } : {})} className={className}>
+      <Link
+        to={action.to}
+        {...(action.hash ? { hash: action.hash } : {})}
+        {...(action.search ? { search: action.search } : {})}
+        className={className}
+      >
         {children}
       </Link>
     );

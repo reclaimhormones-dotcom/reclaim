@@ -7,15 +7,18 @@ import {
   ClipboardList,
   Clock,
   Leaf,
-  Share2,
 } from "lucide-react";
 import { WhatsAppIcon } from "@/components/site/BrandIcons";
 
 import { Accordion } from "@/components/site/Accordion";
+import { BackButton } from "@/components/site/BackButton";
+import { ShareMenu } from "@/components/site/ShareMenu";
+import { SuggestedPrograms } from "@/components/site/SuggestedPrograms";
 import { useConsultModal } from "@/hooks/useConsultModal";
 import { MobilePageHero } from "@/components/site/MobilePageHero";
 import { Rating } from "@/components/site/Rating";
 import { Reveal } from "@/components/site/Reveal";
+import { SmartImage } from "@/components/site/SmartImage";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { usePrograms, useSettings, useTestimonials, whatsappLink } from "@/hooks/useSiteContent";
@@ -23,6 +26,7 @@ import { cldOptimize } from "@/lib/cloudinary";
 import { programSlug, publicPrograms, showsPrice, type ProgramDoc } from "@/lib/content-types";
 import { icon } from "@/lib/site-content";
 import { canonical } from "@/lib/seo";
+import { getProgramShareMeta } from "@/lib/program-share.functions";
 
 /**
  * Readable name for a slug, used for the initial document title. Programs live
@@ -38,11 +42,16 @@ function nameFromSlug(slug: string): string {
 }
 
 export const Route = createFileRoute("/programs/$slug")({
-  head: ({ params }) => {
-    const name = nameFromSlug(params.slug);
+  /* Fetched on the server so crawlers — which never run JS — see the real
+     title, description and image of the shared program. */
+  loader: ({ params }) => getProgramShareMeta({ data: params.slug }),
+  head: ({ params, loaderData }) => {
+    const meta = loaderData ?? null;
+    const name = meta?.title || nameFromSlug(params.slug);
     const description =
+      meta?.description ||
       "Personalized, root-cause hormone care with expert nutrition guidance at Reclaim Hormones.";
-    const image = "";
+    const image = meta?.image ? cldOptimize(meta.image, 1200) : "";
     return {
       meta: [
         { title: `${name} — Reclaim Hormones` },
@@ -187,28 +196,18 @@ function ProgramDetailPage() {
   const showPrice = showsPrice(program);
   const waMessage = `Hello Reclaim Hormones,\n\nI would like to know more about the *${program.title}* program.\n\nSource: Website — Program page`;
 
-  const handleShare = async () => {
-    const url = window.location.href;
-    const shareData = {
-      title: `${program.title} — Reclaim Hormones`,
-      text: program.description,
-      url,
-    };
-    if (navigator.share) {
-      try {
-        await navigator.share(shareData);
-      } catch (err) {
-        // user aborted or failed
-      }
-    } else {
-      await navigator.clipboard.writeText(url);
-      import("sonner").then((m) => m.toast.success("Link copied to clipboard"));
-    }
+  const sharePayload = {
+    url: canonical(`/programs/${slug}`),
+    title: `${program.title} — Reclaim Hormones`,
+    description: program.description || "Personalized, root-cause hormone care.",
   };
 
   return (
     <div className="bg-background">
       <SiteHeader />
+
+      {/* Sits below the fixed bar, above the hero on every breakpoint. */}
+      <BackButton />
 
       <MobilePageHero
         img={program.image}
@@ -218,7 +217,7 @@ function ProgramDetailPage() {
         titleAccent={program.duration ?? ""}
         subtitle={program.description}
         primary={{ label: "Book Consultation", onClick: () => consult.open(program.title) }}
-        secondary={{ label: "Start Assessment", to: "/assessment" }}
+        secondary={{ label: "Start Assessment", to: "/assessment", search: { program: program.title } }}
         scrollTo="program-details"
         position="object-top"
       />
@@ -256,6 +255,7 @@ function ProgramDetailPage() {
               </button>
               <Link
                 to="/assessment"
+                search={{ program: program.title }}
                 className="inline-flex items-center gap-2 tactile touch-lg fill-surface text-sm font-semibold text-foreground"
               >
                 <ClipboardList className="size-4" /> Start Assessment
@@ -270,13 +270,7 @@ function ProgramDetailPage() {
                   <WhatsAppIcon className="size-4 text-brand" /> WhatsApp
                 </a>
               ) : null}
-              <button
-                type="button"
-                onClick={handleShare}
-                className="inline-flex items-center gap-2 tactile touch-lg fill-surface text-sm font-semibold text-foreground"
-              >
-                <Share2 className="size-4 text-brand" /> Share Program
-              </button>
+              <ShareMenu payload={sharePayload} label="Share Program" />
             </div>
           </div>
           <div className="relative overflow-hidden rounded-[2rem]">
@@ -301,13 +295,19 @@ function ProgramDetailPage() {
             <h2 className="text-center text-[1.6rem] text-foreground lg:text-[2rem]">
               What this program <span className="text-brand">improves</span>
             </h2>
-            <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-8 grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
               {points.map((p, i) => (
-                <Reveal key={p} delay={Math.min(i * 80, 400)} className="surface lift p-6">
-                  <span className="icon-pod size-11">
-                    <CheckCircle2 className="size-[1.15rem]" />
+                <Reveal
+                  key={p}
+                  delay={Math.min(i * 80, 400)}
+                  className="surface lift flex h-full items-start gap-4 p-4 sm:flex-col sm:gap-0 sm:p-6"
+                >
+                  <span className="icon-pod size-12 sm:size-14">
+                    <CheckCircle2 className="size-5 sm:size-6" />
                   </span>
-                  <p className="mt-4 text-sm font-semibold text-foreground">{p}</p>
+                  <p className="min-w-0 text-pretty-body text-[0.9rem] font-semibold leading-snug text-foreground sm:mt-5 sm:text-[0.95rem]">
+                    {p}
+                  </p>
                 </Reveal>
               ))}
             </div>
@@ -356,27 +356,55 @@ function ProgramDetailPage() {
             <h2 className="text-center text-[1.6rem] text-foreground lg:text-[2rem]">
               Success <span className="text-brand">stories</span>
             </h2>
-            <div className="mt-7 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {/*
+             * Snap rail on touch, grid on desktop, and the column count follows
+             * however many stories exist so two never stretch across three.
+             */}
+            <div
+              className={`no-scrollbar -mx-4 mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:overflow-visible sm:px-0 sm:pb-0 ${
+                stories.length === 1
+                  ? "sm:mx-auto sm:max-w-md sm:grid-cols-1"
+                  : stories.length === 2
+                    ? "sm:mx-auto sm:max-w-3xl sm:grid-cols-2"
+                    : "sm:grid-cols-2 lg:grid-cols-3"
+              }`}
+            >
               {stories.map((t, i) => (
                 <Reveal
                   key={t.id}
                   as="figure"
                   delay={Math.min(i * 90, 360)}
-                  className="surface lift flex h-full flex-col p-6"
+                  className="surface lift flex h-full w-[80%] shrink-0 snap-start flex-col p-5 sm:w-auto sm:p-6"
                 >
-                  <Rating value={t.rating || 5} />
-                  <blockquote className="mt-4 text-pretty-body text-sm text-muted-foreground">
+                  <div className="flex items-center gap-3.5">
+                    {t.photo?.trim() ? (
+                      <SmartImage
+                        src={t.photo}
+                        alt={`${t.name}, Reclaim Hormones client`}
+                        width={160}
+                        className="size-16 shrink-0 rounded-full ring-2 ring-white/70"
+                      />
+                    ) : (
+                      <span className="icon-pod size-16 shrink-0 rounded-full font-serif text-xl text-brand-deep">
+                        {t.name.trim().charAt(0).toUpperCase() || "R"}
+                      </span>
+                    )}
+                    <div className="min-w-0">
+                      <p className="truncate text-[0.9rem] font-semibold text-brand-deep">
+                        {t.name}
+                      </p>
+                      {t.program ? (
+                        <p className="mt-0.5 truncate text-[0.68rem] font-medium uppercase tracking-wide text-primary/80">
+                          {t.program}
+                        </p>
+                      ) : null}
+                      <Rating value={t.rating || 5} className="mt-1.5" />
+                    </div>
+                  </div>
+
+                  <blockquote className="review-scroll mt-4 max-h-40 min-h-0 flex-1 overflow-y-auto overscroll-contain pr-2 text-pretty-body text-sm text-muted-foreground">
                     “{t.review}”
                   </blockquote>
-                  <figcaption className="mt-auto pt-5">
-                    <hr className="rule-soft" />
-                    <p className="mt-4 text-xs font-semibold text-brand-deep">
-                      {t.name}
-                      {t.program ? (
-                        <span className="font-normal text-muted-foreground"> · {t.program}</span>
-                      ) : null}
-                    </p>
-                  </figcaption>
                 </Reveal>
               ))}
             </div>
@@ -414,6 +442,7 @@ function ProgramDetailPage() {
             </button>
             <Link
               to="/assessment"
+              search={{ program: program.title }}
               className="tactile touch-lg inline-flex items-center gap-2 border border-primary-foreground/40 text-sm transition-colors hover:bg-primary-foreground/10"
             >
               <ClipboardList className="size-4" /> Start Assessment
@@ -431,6 +460,8 @@ function ProgramDetailPage() {
           </div>
         </div>
       </section>
+
+      <SuggestedPrograms current={program} />
 
       <SiteFooter />
     </div>

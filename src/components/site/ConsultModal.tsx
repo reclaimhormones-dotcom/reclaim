@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { WhatsAppIcon } from "@/components/site/BrandIcons";
 import { useSettings } from "@/hooks/useSiteContent";
 import { ConsultModalContext, type ConsultModalApi } from "@/hooks/useConsultModal";
+import { useScrollLock } from "@/hooks/useScrollLock";
 import { submitEnquiry } from "@/lib/contact-messages";
 import { buildWebsiteEnquiryMessage, openWhatsApp } from "@/lib/whatsapp";
 
@@ -53,8 +54,10 @@ export function ConsultModalProvider({ children }: { children: ReactNode }) {
   );
 }
 
+/* Deliberately compact: the whole form has to fit one screen without the
+   modal growing its own scrollbar. */
 const fieldClass =
-  "w-full min-h-13 rounded-2xl border border-input bg-card px-4 py-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/70 focus:border-ring focus:ring-2 focus:ring-ring/20";
+  "w-full min-h-11 rounded-xl border border-input bg-card px-3.5 py-2.5 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/70 focus:border-ring focus:ring-2 focus:ring-ring/20";
 
 function ConsultModal({ program, onClose }: { program: string; onClose: () => void }) {
   const { settings } = useSettings();
@@ -63,6 +66,9 @@ function ConsultModal({ program, onClose }: { program: string; onClose: () => vo
   const [done, setDone] = useState(false);
   const firstFieldRef = useRef<HTMLInputElement | null>(null);
   const closeRef = useRef<HTMLButtonElement | null>(null);
+
+  /* Nothing behind the modal may move while it is open. */
+  useScrollLock(true);
 
   /* Persist while typing so a refresh, or an accidental close, loses nothing. */
   useEffect(() => {
@@ -80,15 +86,12 @@ function ConsultModal({ program, onClose }: { program: string; onClose: () => vo
     window.addEventListener("keydown", onKey);
 
     const restoreFocus = document.activeElement as HTMLElement | null;
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
     /* Land on the first field on desktop; on touch let the sheet settle first. */
     const t = window.setTimeout(() => firstFieldRef.current?.focus(), 60);
 
     return () => {
       window.removeEventListener("keydown", onKey);
       window.clearTimeout(t);
-      document.body.style.overflow = prevOverflow;
       restoreFocus?.focus?.();
     };
   }, [onClose]);
@@ -154,7 +157,7 @@ function ConsultModal({ program, onClose }: { program: string; onClose: () => vo
       />
 
       {/* Full-screen sheet on mobile, centred card from sm up. */}
-      <div className="relative flex max-h-[100svh] w-full flex-col overflow-hidden rounded-t-[1.75rem] bg-card shadow-[0_30px_80px_-30px_oklch(0.35_0.048_142/45%)] animate-in slide-in-from-bottom-6 fade-in duration-300 sm:max-h-[92vh] sm:max-w-lg sm:rounded-[1.75rem] sm:zoom-in-95 sm:slide-in-from-bottom-0">
+      <div className="relative flex w-full flex-col overflow-hidden rounded-t-[1.75rem] bg-card shadow-[0_30px_80px_-30px_oklch(0.35_0.048_142/45%)] animate-in slide-in-from-bottom-6 fade-in duration-300 sm:max-w-2xl sm:rounded-[1.75rem] sm:zoom-in-95 sm:slide-in-from-bottom-0">
         <button
           ref={closeRef}
           type="button"
@@ -165,16 +168,16 @@ function ConsultModal({ program, onClose }: { program: string; onClose: () => vo
           <X className="size-4" />
         </button>
 
-        <div className="shrink-0 bg-gradient-to-b from-sage-soft to-card px-6 pb-5 pt-8 text-center">
-          <span className="icon-pod mx-auto size-12 rounded-full">
-            <Leaf className="size-5 text-gold" />
+        <div className="shrink-0 bg-gradient-to-b from-sage-soft to-card px-6 pb-4 pt-6 text-center">
+          <span className="icon-pod mx-auto size-10 rounded-full">
+            <Leaf className="size-[1.15rem] text-gold" />
           </span>
-          <p className="mt-3 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-primary">
+          <p className="mt-2 text-[0.66rem] font-semibold uppercase tracking-[0.18em] text-primary">
             Complimentary
           </p>
           <h2
             id="consult-modal-title"
-            className="mt-1.5 text-balance-heading text-[1.4rem] leading-snug text-foreground"
+            className="mt-1 text-balance-heading text-[1.3rem] leading-snug text-foreground"
           >
             Book your free <span className="text-brand">consultation</span>
           </h2>
@@ -206,9 +209,9 @@ function ConsultModal({ program, onClose }: { program: string; onClose: () => vo
         ) : (
           <form
             onSubmit={(e) => void handleSubmit(e)}
-            className="grid min-h-0 flex-1 gap-3 overflow-y-auto px-6 pb-8 pt-5"
+            className="grid gap-3 px-6 pb-6 pt-4 sm:grid-cols-2 sm:gap-x-4"
           >
-            <label className="grid gap-1.5">
+            <label className="grid gap-1">
               <span className="text-xs font-medium text-muted-foreground">Name</span>
               <input
                 ref={firstFieldRef}
@@ -220,26 +223,7 @@ function ConsultModal({ program, onClose }: { program: string; onClose: () => vo
               />
             </label>
 
-            <fieldset className="grid gap-1.5">
-              <legend className="text-xs font-medium text-muted-foreground">Gender</legend>
-              <div className="grid grid-cols-3 gap-2">
-                {(["Female", "Male", "Other"] as const).map((g) => (
-                  <button
-                    key={g}
-                    type="button"
-                    aria-pressed={draft.gender === g}
-                    onClick={() => set("gender", g)}
-                    className={`tactile min-h-12 rounded-2xl text-sm font-medium ${
-                      draft.gender === g ? "fill-primary" : "fill-surface"
-                    }`}
-                  >
-                    {g}
-                  </button>
-                ))}
-              </div>
-            </fieldset>
-
-            <label className="grid gap-1.5">
+            <label className="grid gap-1">
               <span className="text-xs font-medium text-muted-foreground">Phone number</span>
               <input
                 required
@@ -252,7 +236,26 @@ function ConsultModal({ program, onClose }: { program: string; onClose: () => vo
               />
             </label>
 
-            <label className="grid gap-1.5">
+            <fieldset className="grid gap-1">
+              <legend className="text-xs font-medium text-muted-foreground">Gender</legend>
+              <div className="grid grid-cols-3 gap-2">
+                {(["Female", "Male", "Other"] as const).map((g) => (
+                  <button
+                    key={g}
+                    type="button"
+                    aria-pressed={draft.gender === g}
+                    onClick={() => set("gender", g)}
+                    className={`tactile min-h-11 rounded-xl text-[0.8rem] font-medium ${
+                      draft.gender === g ? "fill-primary" : "fill-surface"
+                    }`}
+                  >
+                    {g}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
+
+            <label className="grid gap-1">
               <span className="text-xs font-medium text-muted-foreground">Email</span>
               <input
                 type="email"
@@ -263,25 +266,29 @@ function ConsultModal({ program, onClose }: { program: string; onClose: () => vo
               />
             </label>
 
-            <label className="grid gap-1.5">
-              <span className="text-xs font-medium text-muted-foreground">
-                Main health concern
-              </span>
-              <textarea
-                rows={3}
-                maxLength={80}
-                value={draft.concern}
-                onChange={(e) => set("concern", e.target.value)}
-                placeholder="e.g. PCOS, thyroid, weight, fertility"
-                className={`${fieldClass} resize-none`}
-              />
-            </label>
+            {/* Hidden when the visitor already picked a program — the page
+                they came from has already answered this. */}
+            {program ? null : (
+              <label className="grid gap-1 sm:col-span-2">
+                <span className="text-xs font-medium text-muted-foreground">
+                  Main health concern
+                </span>
+                <textarea
+                  rows={2}
+                  maxLength={80}
+                  value={draft.concern}
+                  onChange={(e) => set("concern", e.target.value)}
+                  placeholder="e.g. PCOS, thyroid, weight, fertility"
+                  className={`${fieldClass} resize-none`}
+                />
+              </label>
+            )}
 
             <button
               type="submit"
               disabled={sending}
               aria-busy={sending}
-              className={`tactile magnetic touch-lg fill-primary mt-1 inline-flex items-center justify-center gap-2 text-sm disabled:opacity-60 ${
+              className={`tactile magnetic touch-lg fill-primary mt-1 inline-flex items-center justify-center gap-2 text-sm disabled:opacity-60 sm:col-span-2 ${
                 sending ? "btn-busy" : ""
               }`}
             >
@@ -295,7 +302,7 @@ function ConsultModal({ program, onClose }: { program: string; onClose: () => vo
                 </>
               )}
             </button>
-            <p className="text-center text-[0.68rem] leading-relaxed text-muted-foreground">
+            <p className="text-center text-[0.68rem] leading-relaxed text-muted-foreground sm:col-span-2">
               We&apos;ll save your request and open WhatsApp so our team can reply faster.
             </p>
           </form>
