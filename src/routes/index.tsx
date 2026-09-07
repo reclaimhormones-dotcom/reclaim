@@ -23,7 +23,7 @@ import { SmartImage } from "@/components/site/SmartImage";
 import { MobileCarousel } from "@/components/site/MobileCarousel";
 import { Reveal } from "@/components/site/Reveal";
 import { Rating } from "@/components/site/Rating";
-import { TestimonialCard } from "@/components/site/TestimonialCard";
+import { TestimonialGrid } from "@/components/site/TestimonialGrid";
 import { cldOptimize } from "@/lib/cloudinary";
 import { programSlug, publicPrograms, type TestimonialDoc } from "@/lib/content-types";
 import { ORGANIZATION_JSONLD, canonical, canonicalLink } from "@/lib/seo";
@@ -530,14 +530,7 @@ function Testimonials({ content }: { content: HomeContent["testimonials"] }) {
           </h2>
         </div>
 
-        {/* Single column on mobile, 2–3 equal-height cards per row on desktop. */}
-        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
-          {items.map((t, i) => (
-            <Reveal key={t.id} delay={Math.min(i * 90, 360)} className="h-full">
-              <TestimonialCard testimonial={t} />
-            </Reveal>
-          ))}
-        </div>
+        <TestimonialGrid items={items} />
       </div>
     </section>
   );

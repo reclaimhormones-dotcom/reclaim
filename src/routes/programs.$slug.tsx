@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { WhatsAppIcon } from "@/components/site/BrandIcons";
 
+import { AdaptiveImage } from "@/components/site/AdaptiveImage";
 import { Accordion } from "@/components/site/Accordion";
 import { BackButton } from "@/components/site/BackButton";
 import { ShareMenu } from "@/components/site/ShareMenu";
@@ -273,13 +274,14 @@ function ProgramDetailPage() {
               <ShareMenu payload={sharePayload} label="Share Program" />
             </div>
           </div>
-          <div className="relative overflow-hidden rounded-[2rem]">
-            <img
-              src={cldOptimize(program.image, 1200)}
+          <div className="relative">
+            <AdaptiveImage
+              src={program.image}
               alt={program.title}
               width={1200}
-              height={900}
-              className="h-[26rem] w-full object-cover"
+              eager
+              rounded="rounded-[2rem]"
+              className="w-full"
             />
             <span className="absolute left-5 top-5 flex size-12 items-center justify-center rounded-full bg-background/90 backdrop-blur">
               <Icon className="size-5 text-primary" />

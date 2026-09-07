@@ -22,6 +22,7 @@ import { useConsultModal } from "@/hooks/useConsultModal";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { MobilePageHero } from "@/components/site/MobilePageHero";
 import { Skeleton, SmartImage } from "@/components/site/SmartImage";
+import { AdaptiveImage } from "@/components/site/AdaptiveImage";
 import { Reveal } from "@/components/site/Reveal";
 
 import { canonical, canonicalLink, breadcrumbJsonLd } from "@/lib/seo";
@@ -343,13 +344,15 @@ function PhotoGrid({ content }: { content: GalleryPageContent["grid"] }) {
                   aria-label={`Open ${photo.caption || "gallery photo"}`}
                   className="block w-full cursor-zoom-in text-left"
                 >
-                  <SmartImage
+                  {/* Height follows the photo, so nothing is cropped. */}
+                  <AdaptiveImage
                     src={photo.img}
                     alt={photo.alt}
                     width={900}
                     sizes="(min-width: 1024px) 24rem, 45vw"
-                    className={i % 3 === 0 ? "h-64 lg:h-80" : "h-48 lg:h-56"}
-                    imgClassName="transition-transform duration-[900ms] ease-out group-hover:scale-[1.06] motion-reduce:group-hover:scale-100"
+                    rounded=""
+                    className="w-full"
+                    imgClassName="transition-transform duration-[900ms] ease-out group-hover:scale-[1.03] motion-reduce:group-hover:scale-100"
                   />
                 </button>
                 <figcaption className="flex items-center justify-between gap-3 p-4">
