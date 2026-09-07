@@ -346,25 +346,38 @@ html[data-loading="true"] {
   }
 }
 
+/*
+ * Spans the whole preloader (max progress 1700ms + 200ms hold + 1200ms fade),
+ * so the mark keeps zooming gently for as long as the screen is up instead of
+ * finishing its motion in the first second and then sitting still.
+ */
 .site-loader__mark {
-  animation: loader-reveal 1100ms cubic-bezier(0.22, 0.8, 0.24, 1) both;
+  animation: loader-reveal 3100ms cubic-bezier(0.33, 0, 0.25, 1) both;
 }
 
 .site-loader__tag {
   animation: loader-tag 900ms cubic-bezier(0.22, 0.8, 0.24, 1) 420ms both;
 }
 
+/*
+ * Deliberately no opacity ramp. The mark is fully visible on the first painted
+ * frame and simply keeps zooming while the progress bar fills — fading it in
+ * is what made the logo look absent at the start of the preloader.
+ */
 @keyframes loader-reveal {
   from {
-    opacity: 0;
-    transform: scale(0.92);
+    transform: scale(0.94);
     filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
   }
   to {
-    opacity: 1;
-    transform: scale(1);
+    transform: scale(1.06);
     filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.8));
   }
+}
+
+/* The image itself never fades; only the wrapper scales. */
+.site-loader__logo {
+  opacity: 1;
 }
 
 .site-loader__leaf {

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import { useNavigationContent } from "@/hooks/useSiteContent";
+import type { SiteLogo } from "@/lib/site-logo.functions";
 
 /**
  * Premium full-screen intro loader.
@@ -41,8 +42,16 @@ function Leaf({ size }: { size: number }) {
   );
 }
 
-export function SiteLoader() {
+export function SiteLoader({ logo }: { logo?: SiteLogo }) {
+  /*
+   * The mark comes from the server-rendered root loader, so it is present on
+   * the very first frame. The live navigation document is only a late
+   * fallback — it cannot arrive in time, because the Firebase client is still
+   * booting while this screen is on show.
+   */
   const nav = useNavigationContent();
+  const markUrl = logo?.url || nav.logo;
+  const markAlt = logo?.alt || nav.logoAlt || "Reclaim Hormones";
   const [leaving, setLeaving] = useState(false);
   const [gone, setGone] = useState(false);
   const startRef = useRef(Date.now());
@@ -162,14 +171,15 @@ export function SiteLoader() {
          * The admin's logo, never a bundled stand-in. Until it arrives the
          * space is held open at the same size so the mark does not jump in.
          */}
-        {nav.logo ? (
+        {markUrl ? (
           <img
-            src={nav.logo}
-            alt={nav.logoAlt || "Reclaim Hormones"}
+            src={markUrl}
+            alt={markAlt}
             width={640}
             height={168}
-            className="h-auto w-[min(74vw,26rem)] select-none"
+            className="site-loader__logo h-auto w-[min(74vw,26rem)] select-none"
             fetchPriority="high"
+            decoding="sync"
           />
         ) : (
           <div className="h-24 w-[min(74vw,26rem)]" aria-hidden="true" />

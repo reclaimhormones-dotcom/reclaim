@@ -19,6 +19,8 @@ import { useGlobalRipple } from "@/hooks/useRipple";
 import { useMagneticButtons } from "@/hooks/useMagnetic";
 import { ReactLenis } from "lenis/react";
 
+import { getSiteLogo } from "@/lib/site-logo.functions";
+
 import appCss from "../styles.css?url";
 
 function NotFoundComponent() {
@@ -79,6 +81,8 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+  /* The intro loader needs the brand mark before Firestore can boot. */
+  loader: () => getSiteLogo(),
   head: () => ({
     meta: [
       { charSet: "utf-8" },
@@ -139,6 +143,7 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const logo = Route.useLoaderData();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   useGlobalRipple();
   useMagneticButtons();
@@ -159,7 +164,7 @@ function RootComponent() {
             <Outlet />
           </div>
         </ConsultModalProvider>
-        <SiteLoader />
+        <SiteLoader logo={logo} />
         <ConsultPopup />
         <Toaster position="top-center" richColors />
       </ReactLenis>
