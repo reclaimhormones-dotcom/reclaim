@@ -267,12 +267,13 @@ function ProgramsHero({ hero }: { hero: ProgramsPageContent["hero"] }) {
 
         <div className="relative mt-8 lg:mt-0">
           <div className="overflow-hidden rounded-[1.75rem]">
-            <img
-              src={hero.image ? cldOptimize(hero.image, 1600) : TRANSPARENT_PIXEL}
+            <SmartImage
+              src={hero.image}
               alt={hero.imageAlt}
               width={1600}
-              height={1000}
-              className="h-[17rem] w-full object-cover object-[62%_35%] sm:h-[21rem] lg:h-[24rem]"
+              sizes="(min-width: 1024px) 50vw, 100vw"
+              className="h-[17rem] w-full sm:h-[21rem] lg:h-[24rem]"
+              imgClassName="object-[62%_35%]"
             />
           </div>
           <div className="mt-4 rounded-2xl border border-border bg-sage-soft/80 p-5 text-center backdrop-blur lg:absolute lg:-bottom-6 lg:right-4 lg:mt-0 lg:w-56 lg:bg-sage-soft/95">
@@ -469,13 +470,12 @@ function Approach({ content }: { content: ProgramsPageContent["approach"] }) {
       <Leaf className="pointer-events-none absolute -right-6 top-10 size-40 text-sage opacity-40" />
       <div className="relative mx-auto max-w-7xl px-4 py-12 lg:grid lg:grid-cols-2 lg:items-center lg:gap-12 lg:px-8 lg:py-16">
         <div className="relative overflow-hidden rounded-[1.75rem]">
-          <img
-            src={content.image ? cldOptimize(content.image, 1400) : TRANSPARENT_PIXEL}
+          <SmartImage
+            src={content.image}
             alt={content.imageAlt}
-            loading="lazy"
             width={1400}
-            height={1000}
-            className="h-[16rem] w-full object-cover lg:h-[22rem]"
+            sizes="(min-width: 1024px) 50vw, 100vw"
+            className="h-[16rem] w-full lg:h-[22rem]"
           />
           <div className="absolute bottom-4 right-4 flex size-24 flex-col items-center justify-center rounded-full border border-border bg-background/95 text-center backdrop-blur">
             <Leaf className="size-3.5 text-gold" />
@@ -524,13 +524,13 @@ function Glimpses({ content }: { content: ProgramsPageContent["glimpses"] }) {
         <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-5">
           {content.items.map(({ img, alt }) => (
             <div key={img} className="overflow-hidden rounded-xl">
-              <img
-                src={img ? cldOptimize(img, 1000) : TRANSPARENT_PIXEL}
+              <SmartImage
+                src={img}
                 alt={alt}
-                loading="lazy"
                 width={1000}
-                height={750}
-                className="h-28 w-full object-cover transition-transform duration-500 hover:scale-105 sm:h-36 lg:h-44"
+                sizes="(min-width: 1024px) 25vw, 50vw"
+                className="h-28 w-full sm:h-36 lg:h-44"
+                imgClassName="transition-transform duration-500 hover:scale-105"
               />
             </div>
           ))}

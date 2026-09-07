@@ -57,6 +57,25 @@ export function cldOptimize(url: string, width = 1200): string {
   return url.replace("/upload/", `/upload/f_auto,q_auto,w_${width}/`);
 }
 
+/** Widths offered to the browser, in CSS pixels. */
+const SRCSET_WIDTHS = [320, 480, 640, 768, 1024, 1280, 1600, 1920];
+
+/**
+ * A `srcset` of Cloudinary renditions up to `maxWidth`.
+ *
+ * Without this every device downloads the same full-size file — a phone was
+ * pulling a 1200px image to paint it 380px wide, which is most of why images
+ * felt slow. Paired with a `sizes` attribute the browser picks the smallest
+ * rendition that still looks sharp, including for high-DPR screens.
+ */
+export function cldSrcSet(url: string, maxWidth = 1200): string {
+  if (!url.includes("/upload/")) return "";
+  const widths = SRCSET_WIDTHS.filter((w) => w <= maxWidth);
+  /* Always offer the requested width itself, so small images stay sharp. */
+  if (widths[widths.length - 1] !== maxWidth) widths.push(maxWidth);
+  return widths.map((w) => `${cldOptimize(url, w)} ${w}w`).join(", ");
+}
+
 /**
  * 1x1 transparent GIF.
  *

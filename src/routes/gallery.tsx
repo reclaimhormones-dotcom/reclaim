@@ -111,12 +111,13 @@ function GalleryHero({
 
         <div className="relative mt-8 lg:mt-0">
           <div className="overflow-hidden rounded-[1.75rem]">
-            <img
-              src={hero.image ? cldOptimize(hero.image, 1400) : TRANSPARENT_PIXEL}
+            <SmartImage
+              src={hero.image}
               alt={hero.imageAlt}
               width={1400}
-              height={1000}
-              className="h-[17rem] w-full object-cover object-[65%_30%] sm:h-[21rem] lg:h-[25rem]"
+              sizes="(min-width: 1024px) 45vw, 100vw"
+              className="h-[17rem] w-full sm:h-[21rem] lg:h-[25rem]"
+              imgClassName="object-[65%_30%]"
             />
           </div>
           <div className="mt-4 grid grid-cols-2 gap-3 lg:absolute lg:-bottom-6 lg:left-4 lg:mt-0 lg:w-64">

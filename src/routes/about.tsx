@@ -17,6 +17,7 @@ import { SiteHeader } from "@/components/site/SiteHeader";
 import { useConsultModal } from "@/hooks/useConsultModal";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { MobilePageHero } from "@/components/site/MobilePageHero";
+import { SmartImage } from "@/components/site/SmartImage";
 import { TRANSPARENT_PIXEL, cldOptimize } from "@/lib/cloudinary";
 import { icon } from "@/lib/site-content";
 import type { AboutContent } from "@/lib/site-content";
@@ -133,12 +134,12 @@ function AboutHero({ hero }: { hero: AboutContent["hero"] }) {
 
         <div className="relative mt-9 lg:mt-0">
           <div className="relative hidden overflow-hidden rounded-[2rem] rounded-tl-[9rem] lg:block">
-            <img
-              src={hero.image ? cldOptimize(hero.image, 1600) : TRANSPARENT_PIXEL}
+            <SmartImage
+              src={hero.image}
               alt={hero.imageAlt}
               width={1600}
-              height={1104}
-              className="h-[27rem] w-full object-cover"
+              sizes="(min-width: 1024px) 50vw, 100vw"
+              className="h-[27rem] w-full"
             />
             <div className="absolute bottom-0 left-0 rounded-tr-2xl bg-brand-deep/95 px-6 py-4 backdrop-blur-sm">
               <p className="text-sm font-semibold text-primary-foreground">{hero.name}</p>
@@ -210,13 +211,12 @@ function Story({ content }: { content: AboutContent["story"] }) {
         </h2>
 
         <div className="mt-8 grid gap-8 lg:grid-cols-2 lg:items-start lg:gap-12">
-          <img
-            src={content.image ? cldOptimize(content.image, 1200) : TRANSPARENT_PIXEL}
+          <SmartImage
+            src={content.image}
             alt={content.imageAlt}
-            loading="lazy"
             width={1200}
-            height={900}
-            className="h-64 w-full rounded-2xl object-cover lg:h-[26rem]"
+            sizes="(min-width: 1024px) 50vw, 100vw"
+            className="h-64 w-full rounded-2xl lg:h-[26rem]"
           />
 
           <ol className="relative space-y-7 border-l border-border pl-8">
@@ -309,13 +309,13 @@ function Experts({ content }: { content: AboutContent["experts"] }) {
               key={name}
               className="flex flex-col items-center surface lift p-4 text-center lg:p-6"
             >
-              <img
-                src={img ? cldOptimize(img, 500) : TRANSPARENT_PIXEL}
+              <SmartImage
+                src={img}
                 alt={img ? name : ""}
-                loading="lazy"
-                width={700}
-                height={700}
-                className="size-16 rounded-full object-cover object-top lg:size-24"
+                width={500}
+                sizes="6rem"
+                className="size-16 rounded-full lg:size-24"
+                imgClassName="object-top"
               />
               <p className="mt-3 text-xs font-semibold text-foreground lg:text-base">{name}</p>
               <p className="mt-1 text-[0.65rem] text-muted-foreground lg:text-xs">{degree}</p>
@@ -427,13 +427,12 @@ function ClinicExperience({ content }: { content: AboutContent["clinic"] }) {
               key={caption}
               className="overflow-hidden surface lift"
             >
-              <img
-                src={img ? cldOptimize(img, 900) : TRANSPARENT_PIXEL}
+              <SmartImage
+                src={img}
                 alt={caption}
-                loading="lazy"
-                width={1200}
-                height={900}
-                className="h-32 w-full object-cover lg:h-48"
+                width={900}
+                sizes="(min-width: 1024px) 25vw, 50vw"
+                className="h-32 w-full lg:h-48"
               />
               <figcaption className="px-3 py-2.5 text-center text-[0.7rem] text-muted-foreground lg:text-xs">
                 {caption}

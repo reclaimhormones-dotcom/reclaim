@@ -754,6 +754,45 @@ html[data-reveal-ready="true"] [data-reveal="in"] .star-pop {
   }
 }
 
+/* ------------------------------ image skeleton ---------------------------- */
+
+/*
+ * The placeholder every image sits on until it decodes.
+ *
+ * Pure CSS on purpose: the previous approach fetched a tiny blurred rendition
+ * from Cloudinary, which meant a second round trip per image and a flat, empty
+ * box until *that* arrived. This paints on the first frame and costs nothing,
+ * so an image area is never blank.
+ */
+@utility img-skeleton {
+  background-color: var(--muted);
+  background-image: linear-gradient(
+    100deg,
+    transparent 20%,
+    oklch(1 0 0 / 55%) 45%,
+    transparent 70%
+  );
+  background-size: 220% 100%;
+  background-repeat: no-repeat;
+  animation: img-shimmer 1.6s ease-in-out infinite;
+}
+
+@keyframes img-shimmer {
+  from {
+    background-position: 140% 0;
+  }
+  to {
+    background-position: -40% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .img-skeleton {
+    animation: none;
+    background-image: none;
+  }
+}
+
 /* --------------------------- image treatment ----------------------------- */
 
 /* Slow, subtle scale-down as a photo settles into view. */

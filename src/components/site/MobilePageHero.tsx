@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, ChevronDown } from "lucide-react";
 
@@ -90,15 +91,23 @@ export function MobilePageHero({
   scrollTo,
   position = "object-[50%_22%]",
 }: MobilePageHeroProps) {
+  /* Held until the photo has decoded, so the hero is never an empty band. */
+  const [ready, setReady] = useState(false);
+
   return (
     <section className="relative isolate h-[100svh] overflow-hidden bg-cream lg:hidden">
-      {!img ? <div className="absolute inset-0 animate-pulse bg-muted/50" aria-hidden="true" /> : null}
+      {!ready ? <div className="img-skeleton absolute inset-0" aria-hidden="true" /> : null}
       <img
         src={img || TRANSPARENT_PIXEL}
         alt={img ? alt : ""}
         width={896}
         height={1344}
-        className={`absolute inset-0 size-full object-cover ${position} motion-safe:animate-[hero-kenburns_14s_ease-out_forwards]`}
+        fetchPriority="high"
+        onLoad={() => img && setReady(true)}
+        onError={() => setReady(true)}
+        className={`absolute inset-0 size-full object-cover ${position} transition-opacity duration-700 ${
+          ready ? "opacity-100 motion-safe:animate-[hero-kenburns_14s_ease-out_forwards]" : "opacity-0"
+        }`}
       />
 
       {/* Airy legibility scrims — light cream, never dark */}

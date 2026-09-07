@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-import { cldOptimize } from "@/lib/cloudinary";
+import { cldOptimize, cldSrcSet } from "@/lib/cloudinary";
 
 /**
  * An image that the layout adapts to, rather than the other way round.
@@ -50,13 +50,15 @@ export function AdaptiveImage({
   const [loaded, setLoaded] = useState(false);
   const imgRef = useRef<HTMLImageElement | null>(null);
 
-  const full = cldOptimize(src, width);
-  const tiny = src.includes("/upload/")
-    ? src.replace("/upload/", "/upload/f_auto,q_10,w_40,e_blur:400/")
-    : src;
+  const full = src ? cldOptimize(src, width) : "";
+  const srcSet = src ? cldSrcSet(src, width) : "";
 
   function measure(img: HTMLImageElement | null) {
-    if (!img?.naturalWidth || !img.naturalHeight) return;
+    /* A broken upload must not leave the shimmer running forever. */
+    if (!img?.naturalWidth || !img.naturalHeight) {
+      setLoaded(true);
+      return;
+    }
     const raw = img.naturalWidth / img.naturalHeight;
     setMeasured(Math.min(maxRatio, Math.max(minRatio, raw)));
     setLoaded(true);
@@ -71,52 +73,35 @@ export function AdaptiveImage({
   /* Until the real ratio is known, hold a calm 4:3 so nothing jumps far. */
   const applied = measured ?? 4 / 3;
 
-  /*
-   * No URL yet means the admin's data has not arrived. Hold a skeleton rather
-   * than painting a stand-in photo that would be swapped out a moment later.
-   */
-  if (!src) {
-    return (
-      <div
-        className={`relative overflow-hidden bg-muted/50 ${rounded} ${className}`}
-        style={{ aspectRatio: String(ratio ?? 4 / 3) }}
-        aria-hidden="true"
-      >
-        <div className="size-full animate-pulse bg-muted/60" />
-      </div>
-    );
-  }
-
   return (
     <div
-      className={`relative overflow-hidden bg-muted/40 transition-[aspect-ratio] duration-500 ${rounded} ${className}`}
+      className={`relative overflow-hidden transition-[aspect-ratio] duration-500 ${
+        loaded ? "" : "img-skeleton"
+      } ${rounded} ${className}`}
       style={{ aspectRatio: String(applied) }}
+      {...(loaded ? {} : { "aria-hidden": "true" })}
     >
-      {!loaded ? (
+      {src ? (
         <img
-          src={tiny}
-          alt=""
-          aria-hidden="true"
-          className="absolute inset-0 size-full scale-105 object-cover blur-md"
+          ref={imgRef}
+          src={full}
+          {...(srcSet ? { srcSet } : {})}
+          alt={alt}
+          {...(sizes ? { sizes } : {})}
+          loading={eager ? "eager" : "lazy"}
+          decoding="async"
+          onLoad={(e) => measure(e.currentTarget)}
+          onError={() => setLoaded(true)}
+          /*
+           * `contain` is the whole point: the container already matches the
+           * image's ratio, so nothing is letterboxed in practice, and any
+           * clamped extreme is shown whole rather than cropped.
+           */
+          className={`size-full object-contain transition-opacity duration-700 ${
+            loaded ? "opacity-100" : "opacity-0"
+          } ${imgClassName}`}
         />
       ) : null}
-      <img
-        ref={imgRef}
-        src={full}
-        alt={alt}
-        {...(sizes ? { sizes } : {})}
-        loading={eager ? "eager" : "lazy"}
-        decoding="async"
-        onLoad={(e) => measure(e.currentTarget)}
-        /*
-         * `contain` is the whole point: the container already matches the
-         * image's ratio, so nothing is letterboxed in practice, and any
-         * clamped extreme is shown whole rather than cropped.
-         */
-        className={`size-full object-contain transition-opacity duration-700 ${
-          loaded ? "opacity-100" : "opacity-0"
-        } ${imgClassName}`}
-      />
     </div>
   );
 }

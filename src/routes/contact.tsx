@@ -32,6 +32,7 @@ import type { ContactPageContent } from "@/lib/site-content";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { MobilePageHero } from "@/components/site/MobilePageHero";
+import { SmartImage } from "@/components/site/SmartImage";
 
 import { canonical, canonicalLink, breadcrumbJsonLd } from "@/lib/seo";
 
@@ -135,12 +136,13 @@ function ContactHero({ hero }: { hero: ContactPageContent["hero"] }) {
         </div>
 
         <div className="mt-8 overflow-hidden rounded-[1.75rem] lg:mt-0">
-          <img
-            src={hero.image ? cldOptimize(hero.image, 1400) : TRANSPARENT_PIXEL}
+          <SmartImage
+            src={hero.image}
             alt={hero.imageAlt}
             width={1400}
-            height={1000}
-            className="h-[16rem] w-full object-cover object-[62%_35%] sm:h-[20rem] lg:h-[24rem]"
+            sizes="(min-width: 1024px) 45vw, 100vw"
+            className="h-[16rem] w-full sm:h-[20rem] lg:h-[24rem]"
+            imgClassName="object-[62%_35%]"
           />
         </div>
       </div>
@@ -456,13 +458,12 @@ function EnquiryForm({
 
         <div className="mt-8 lg:mt-0">
           <div className="overflow-hidden surface lift">
-            <img
-              src={side.image ? cldOptimize(side.image, 1200) : TRANSPARENT_PIXEL}
+            <SmartImage
+              src={side.image}
               alt={side.imageAlt}
-              loading="lazy"
               width={1200}
-              height={900}
-              className="h-44 w-full object-cover lg:h-52"
+              sizes="(min-width: 1024px) 30vw, 100vw"
+              className="h-44 w-full lg:h-52"
             />
             <div className="p-5">
               <h3 className="text-sm font-semibold text-foreground">{side.hoursHeading}</h3>

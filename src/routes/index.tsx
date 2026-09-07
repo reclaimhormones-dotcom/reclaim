@@ -82,6 +82,9 @@ function Eyebrow({ children }: { children: string }) {
 function MobileHero({ hero }: { hero: HomeContent["hero"] }) {
   const consult = useConsultModal();
   const [active, setActive] = useState(0);
+  /* The shimmer stays until the first photo has decoded — having a URL is not
+     the same as having pixels, and that gap was the blank hero. */
+  const [heroReady, setHeroReady] = useState(false);
   const slides = hero.mobileSlides;
 
   // Autoplay; the timer restarts whenever the slide changes (including manual taps)
@@ -95,8 +98,8 @@ function MobileHero({ hero }: { hero: HomeContent["hero"] }) {
     <section className="relative isolate h-[100svh] overflow-hidden bg-cream lg:hidden">
       {/* Slideshow. A shimmer holds the frame until the admin's photo lands. */}
       <div className="absolute inset-0">
-        {!slides.some((s) => s.img) ? (
-          <div className="absolute inset-0 animate-pulse bg-muted/50" aria-hidden="true" />
+        {!heroReady ? (
+          <div className="img-skeleton absolute inset-0" aria-hidden="true" />
         ) : null}
         {slides.map((s, i) => (
           <img
@@ -106,9 +109,12 @@ function MobileHero({ hero }: { hero: HomeContent["hero"] }) {
             width={1024}
             height={1536}
             loading={i === 0 ? "eager" : "lazy"}
+            fetchPriority={i === 0 ? "high" : "auto"}
             aria-hidden={i !== active}
+            onLoad={() => i === 0 && setHeroReady(true)}
+            onError={() => i === 0 && setHeroReady(true)}
             className={`absolute inset-0 size-full object-cover ${s.position} transition-opacity duration-[1600ms] ease-in-out ${
-              i === active
+              i === active && heroReady
                 ? "opacity-100 motion-safe:animate-[hero-kenburns_9s_ease-out_forwards]"
                 : "opacity-0"
             }`}
@@ -169,6 +175,7 @@ function MobileHero({ hero }: { hero: HomeContent["hero"] }) {
 function DesktopHero({ hero, stats }: { hero: HomeContent["hero"]; stats: HomeContent["stats"] }) {
   const consult = useConsultModal();
   const [active, setActive] = useState(0);
+  const [heroReady, setHeroReady] = useState(false);
   const slides = hero.desktopSlides;
 
   useEffect(() => {
@@ -183,8 +190,8 @@ function DesktopHero({ hero, stats }: { hero: HomeContent["hero"]; stats: HomeCo
     <section className="relative isolate hidden h-screen overflow-hidden bg-cream lg:block">
       {/* Full-screen slideshow, with a shimmer until the photos arrive. */}
       <div className="absolute inset-0">
-        {!slides.some((s) => s.img) ? (
-          <div className="absolute inset-0 animate-pulse bg-muted/50" aria-hidden="true" />
+        {!heroReady ? (
+          <div className="img-skeleton absolute inset-0" aria-hidden="true" />
         ) : null}
         {slides.map((s, i) => (
           <img
@@ -194,9 +201,12 @@ function DesktopHero({ hero, stats }: { hero: HomeContent["hero"]; stats: HomeCo
             width={1920}
             height={1080}
             loading={i === 0 ? "eager" : "lazy"}
+            fetchPriority={i === 0 ? "high" : "auto"}
             aria-hidden={i !== active}
+            onLoad={() => i === 0 && setHeroReady(true)}
+            onError={() => i === 0 && setHeroReady(true)}
             className={`absolute inset-0 size-full object-cover ${s.position} transition-opacity duration-[1800ms] ease-in-out ${
-              i === active
+              i === active && heroReady
                 ? "opacity-100 motion-safe:animate-[hero-kenburns_12s_ease-out_forwards]"
                 : "opacity-0"
             }`}
