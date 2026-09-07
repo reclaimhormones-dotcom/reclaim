@@ -17,7 +17,7 @@ import { SiteHeader } from "@/components/site/SiteHeader";
 import { useConsultModal } from "@/hooks/useConsultModal";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { MobilePageHero } from "@/components/site/MobilePageHero";
-import { cldOptimize } from "@/lib/cloudinary";
+import { TRANSPARENT_PIXEL, cldOptimize } from "@/lib/cloudinary";
 import { icon } from "@/lib/site-content";
 import type { AboutContent } from "@/lib/site-content";
 
@@ -134,7 +134,7 @@ function AboutHero({ hero }: { hero: AboutContent["hero"] }) {
         <div className="relative mt-9 lg:mt-0">
           <div className="relative hidden overflow-hidden rounded-[2rem] rounded-tl-[9rem] lg:block">
             <img
-              src={cldOptimize(hero.image, 1600)}
+              src={hero.image ? cldOptimize(hero.image, 1600) : TRANSPARENT_PIXEL}
               alt={hero.imageAlt}
               width={1600}
               height={1104}
@@ -211,7 +211,7 @@ function Story({ content }: { content: AboutContent["story"] }) {
 
         <div className="mt-8 grid gap-8 lg:grid-cols-2 lg:items-start lg:gap-12">
           <img
-            src={cldOptimize(content.image, 1200)}
+            src={content.image ? cldOptimize(content.image, 1200) : TRANSPARENT_PIXEL}
             alt={content.imageAlt}
             loading="lazy"
             width={1200}
@@ -310,8 +310,8 @@ function Experts({ content }: { content: AboutContent["experts"] }) {
               className="flex flex-col items-center surface lift p-4 text-center lg:p-6"
             >
               <img
-                src={cldOptimize(img, 500)}
-                alt={name}
+                src={img ? cldOptimize(img, 500) : TRANSPARENT_PIXEL}
+                alt={img ? name : ""}
                 loading="lazy"
                 width={700}
                 height={700}
@@ -428,7 +428,7 @@ function ClinicExperience({ content }: { content: AboutContent["clinic"] }) {
               className="overflow-hidden surface lift"
             >
               <img
-                src={cldOptimize(img, 900)}
+                src={img ? cldOptimize(img, 900) : TRANSPARENT_PIXEL}
                 alt={caption}
                 loading="lazy"
                 width={1200}
@@ -482,7 +482,7 @@ function WhyUs({ content }: { content: AboutContent["whyUs"] }) {
         <div className="overflow-hidden rounded-3xl border border-border lg:grid lg:grid-cols-[0.85fr_1.15fr]">
           <div className="relative isolate bg-brand-deep p-6 lg:p-9">
             <img
-              src={cldOptimize(content.image, 1000)}
+              src={content.image ? cldOptimize(content.image, 1000) : TRANSPARENT_PIXEL}
               alt=""
               aria-hidden="true"
               loading="lazy"

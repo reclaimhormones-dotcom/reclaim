@@ -197,6 +197,35 @@ export function mergeContent<T>(defaults: T, override: unknown): T {
   return out as T;
 }
 
+/**
+ * Object keys whose string value is an image URL.
+ *
+ * Exact matches only — `imageAlt` is alt text and `videoUrl` is a video, and
+ * blanking either would be a bug.
+ */
+const IMAGE_KEYS = new Set(["img", "image", "logo", "photo", "qrImage", "shareImage", "url"]);
+
+/**
+ * A copy of the defaults with every image URL emptied.
+ *
+ * The defaults exist for two different jobs and only one of them wants images.
+ * Seeding ("Initialise content library") writes the full defaults, starter
+ * photography included, into Firestore. Rendering must not: painting a
+ * hardcoded photo and swapping it for the admin's upload a moment later is
+ * exactly the flash we are removing. An empty URL is the signal every image
+ * component uses to hold a skeleton until the real data arrives.
+ */
+export function blankImages<T>(value: T): T {
+  if (Array.isArray(value)) return value.map((v) => blankImages(v)) as unknown as T;
+  if (!value || typeof value !== "object") return value;
+
+  const out: Plain = {};
+  for (const [k, v] of Object.entries(value as Plain)) {
+    out[k] = IMAGE_KEYS.has(k) && typeof v === "string" ? "" : blankImages(v);
+  }
+  return out as T;
+}
+
 /* ------------------------------- shared shapes ---------------------------- */
 
 export type IconItem = { icon: string; title: string; sub: string };

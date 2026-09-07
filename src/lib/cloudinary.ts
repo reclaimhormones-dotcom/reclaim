@@ -56,3 +56,15 @@ export function cldOptimize(url: string, width = 1200): string {
   if (!url.includes("/upload/")) return url;
   return url.replace("/upload/", `/upload/f_auto,q_auto,w_${width}/`);
 }
+
+/**
+ * 1x1 transparent GIF.
+ *
+ * Used as the `src` of a full-bleed hero image while the admin's photo is
+ * still loading. An empty `src` makes browsers re-request the page URL and
+ * paint a broken-image icon, so the element needs *something* — and this is
+ * the only thing that shows nothing at all. The skeleton behind it provides
+ * the visible loading state.
+ */
+export const TRANSPARENT_PIXEL =
+  "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";

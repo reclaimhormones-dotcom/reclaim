@@ -159,7 +159,12 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
 
       <div className="relative mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 py-3 lg:flex lg:justify-between lg:px-8 lg:py-4">
         <Link to="/" className="min-w-0">
-          <img src={nav.logo} alt={nav.logoAlt} className="h-8 w-auto lg:h-10" />
+          {/* Skeleton, never a bundled logo, until the admin's data lands. */}
+          {nav.logo ? (
+            <img src={nav.logo} alt={nav.logoAlt} className="h-8 w-auto lg:h-10" />
+          ) : (
+            <div className="h-8 w-32 animate-pulse rounded-md bg-muted/60 lg:h-10 lg:w-40" />
+          )}
         </Link>
 
         <nav className="hidden items-center gap-9 lg:flex">
@@ -226,11 +231,15 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
               </button>
             </div>
 
-            <img
-              src={nav.logo}
-              alt={nav.logoAlt}
-              className="mx-auto h-[8vh] max-h-14 min-h-9 w-auto max-w-[70%] shrink-0 object-contain"
-            />
+            {nav.logo ? (
+              <img
+                src={nav.logo}
+                alt={nav.logoAlt}
+                className="mx-auto h-[8vh] max-h-14 min-h-9 w-auto max-w-[70%] shrink-0 object-contain"
+              />
+            ) : (
+              <div className="mx-auto h-[8vh] max-h-14 min-h-9 w-40 shrink-0 animate-pulse rounded-md bg-muted/60" />
+            )}
 
             <div className="mt-[2vh] shrink-0">
               <div className="flex items-center gap-2 text-[0.68rem] font-medium uppercase tracking-[0.18em] text-brand">

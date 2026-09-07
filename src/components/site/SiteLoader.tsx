@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-import { NAVIGATION_DEFAULT } from "@/lib/site-content";
+import { useNavigationContent } from "@/hooks/useSiteContent";
 
 /**
  * Premium full-screen intro loader.
@@ -42,6 +42,7 @@ function Leaf({ size }: { size: number }) {
 }
 
 export function SiteLoader() {
+  const nav = useNavigationContent();
   const [leaving, setLeaving] = useState(false);
   const [gone, setGone] = useState(false);
   const startRef = useRef(Date.now());
@@ -157,14 +158,22 @@ export function SiteLoader() {
       </div>
 
       <div className="site-loader__mark relative flex flex-col items-center px-6">
-        <img
-          src={NAVIGATION_DEFAULT.logo}
-          alt="Reclaim Hormones"
-          width={640}
-          height={168}
-          className="h-auto w-[min(74vw,26rem)] select-none"
-          fetchPriority="high"
-        />
+        {/*
+         * The admin's logo, never a bundled stand-in. Until it arrives the
+         * space is held open at the same size so the mark does not jump in.
+         */}
+        {nav.logo ? (
+          <img
+            src={nav.logo}
+            alt={nav.logoAlt || "Reclaim Hormones"}
+            width={640}
+            height={168}
+            className="h-auto w-[min(74vw,26rem)] select-none"
+            fetchPriority="high"
+          />
+        ) : (
+          <div className="h-24 w-[min(74vw,26rem)]" aria-hidden="true" />
+        )}
         {/* Progress bar container (aligned to logo width, spaced 24px below) */}
         <div className="mt-6 flex w-[min(74vw,26rem)] items-center gap-3">
           <div className="site-loader__track h-[2px] w-full overflow-hidden rounded-full">

@@ -23,12 +23,16 @@ export function SiteFooter() {
         <div className="mx-auto gap-8 px-4 py-10 lg:grid lg:max-w-7xl lg:grid-cols-4 lg:px-8 lg:py-12">
           <div>
             <span className="inline-flex rounded-xl bg-primary-foreground/95 px-3 py-2">
-              <img
-                src={copy.logo}
-                alt="Reclaim Hormones — Nourishing Hormones. Restoring You."
-                loading="lazy"
-                className="h-9 w-auto"
-              />
+              {copy.logo ? (
+                <img
+                  src={copy.logo}
+                  alt="Reclaim Hormones — Nourishing Hormones. Restoring You."
+                  loading="lazy"
+                  className="h-9 w-auto"
+                />
+              ) : (
+                <div className="h-9 w-32 animate-pulse rounded-md bg-muted/50" />
+              )}
             </span>
             <p className="mt-4 text-xs uppercase tracking-[0.14em] text-primary-foreground/70">
               {copy.tagline}

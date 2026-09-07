@@ -38,7 +38,8 @@ export function SmartImage({
 }) {
   const [loaded, setLoaded] = useState(false);
   const imgRef = useRef<HTMLImageElement | null>(null);
-  const full = cldOptimize(src, width);
+
+  const full = src ? cldOptimize(src, width) : "";
   const tiny = src.includes("/upload/")
     ? src.replace("/upload/", "/upload/f_auto,q_10,w_40,e_blur:400/")
     : src;
@@ -48,6 +49,20 @@ export function SmartImage({
   useEffect(() => {
     if (imgRef.current?.complete) setLoaded(true);
   }, [full]);
+
+  /*
+   * No URL yet means the admin's data has not arrived. Hold a skeleton rather
+   * than painting anything — the site never shows a stand-in photo that would
+   * be swapped out a moment later. Declared after the hooks so their order
+   * never changes between renders.
+   */
+  if (!src) {
+    return (
+      <div className={`relative overflow-hidden bg-muted/50 ${className}`} aria-hidden="true">
+        <div className="size-full animate-pulse bg-muted/60" />
+      </div>
+    );
+  }
 
   return (
     <div className={`relative overflow-hidden bg-muted/40 ${className}`}>

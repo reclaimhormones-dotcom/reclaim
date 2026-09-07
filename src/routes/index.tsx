@@ -24,7 +24,7 @@ import { MobileCarousel } from "@/components/site/MobileCarousel";
 import { Reveal } from "@/components/site/Reveal";
 import { Rating } from "@/components/site/Rating";
 import { TestimonialGrid } from "@/components/site/TestimonialGrid";
-import { cldOptimize } from "@/lib/cloudinary";
+import { TRANSPARENT_PIXEL, cldOptimize } from "@/lib/cloudinary";
 import { programSlug, publicPrograms, type TestimonialDoc } from "@/lib/content-types";
 import { ORGANIZATION_JSONLD, canonical, canonicalLink } from "@/lib/seo";
 import { icon } from "@/lib/site-content";
@@ -93,13 +93,16 @@ function MobileHero({ hero }: { hero: HomeContent["hero"] }) {
 
   return (
     <section className="relative isolate h-[100svh] overflow-hidden bg-cream lg:hidden">
-      {/* Slideshow */}
+      {/* Slideshow. A shimmer holds the frame until the admin's photo lands. */}
       <div className="absolute inset-0">
+        {!slides.some((s) => s.img) ? (
+          <div className="absolute inset-0 animate-pulse bg-muted/50" aria-hidden="true" />
+        ) : null}
         {slides.map((s, i) => (
           <img
             key={`${s.img}-${i}`}
-            src={cldOptimize(s.img, 1024)}
-            alt={s.alt}
+            src={s.img ? cldOptimize(s.img, 1024) : TRANSPARENT_PIXEL}
+            alt={s.img ? s.alt : ""}
             width={1024}
             height={1536}
             loading={i === 0 ? "eager" : "lazy"}
@@ -178,13 +181,16 @@ function DesktopHero({ hero, stats }: { hero: HomeContent["hero"]; stats: HomeCo
 
   return (
     <section className="relative isolate hidden h-screen overflow-hidden bg-cream lg:block">
-      {/* Full-screen slideshow */}
+      {/* Full-screen slideshow, with a shimmer until the photos arrive. */}
       <div className="absolute inset-0">
+        {!slides.some((s) => s.img) ? (
+          <div className="absolute inset-0 animate-pulse bg-muted/50" aria-hidden="true" />
+        ) : null}
         {slides.map((s, i) => (
           <img
             key={`${s.img}-${i}`}
-            src={cldOptimize(s.img, 1920)}
-            alt={s.alt}
+            src={s.img ? cldOptimize(s.img, 1920) : TRANSPARENT_PIXEL}
+            alt={s.img ? s.alt : ""}
             width={1920}
             height={1080}
             loading={i === 0 ? "eager" : "lazy"}
@@ -450,13 +456,11 @@ function About({ content }: { content: HomeContent["about"] }) {
     <section className="bg-background">
       <div className="mx-auto max-w-7xl px-4 pb-12 lg:grid lg:grid-cols-2 lg:items-center lg:gap-12 lg:px-8 lg:pb-16">
         <div className="order-2 lg:order-1">
-          <img
-            src={cldOptimize(content.image, 1000)}
+          <SmartImage
+            src={content.image}
             alt={content.imageAlt}
-            loading="lazy"
-            width={912}
-            height={912}
-            className="mt-8 h-72 w-full rounded-xl object-cover lg:mt-0 lg:h-[24rem]"
+            width={1000}
+            className="mt-8 h-72 w-full rounded-xl lg:mt-0 lg:h-[24rem]"
           />
           <p className="mt-4 font-script text-3xl text-primary/80">{content.name}</p>
           <p className="mt-1 text-sm text-muted-foreground">{content.role}</p>
@@ -595,12 +599,12 @@ function Journey({ content }: { content: HomeContent["journey"] }) {
 
 function Gallery({ content }: { content: HomeContent["gallery"] }) {
   const { data: live } = useGallery();
-  /* Raw URLs — SmartImage applies the Cloudinary transform and the blurred
-     placeholder itself, so optimising here would chain transforms twice. */
-  const images =
-    live.length > 0
-      ? live.slice(0, 5).map((g) => ({ src: g.url, alt: g.caption || "" }))
-      : content.images.map((g) => ({ src: g.img, alt: g.alt }));
+  /*
+   * Live gallery only. Raw URLs — SmartImage applies the Cloudinary transform
+   * and the blurred placeholder itself, so optimising here would chain
+   * transforms twice.
+   */
+  const images = live.slice(0, 5).map((g) => ({ src: g.url, alt: g.caption || "" }));
   return (
     <section className="bg-background">
       <div className="mx-auto max-w-7xl px-4 py-10 lg:px-8 lg:py-14">

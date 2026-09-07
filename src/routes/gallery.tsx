@@ -13,8 +13,8 @@ import {
 } from "lucide-react";
 
 import { useGallery, useGalleryPageContent } from "@/hooks/useSiteContent";
-import { cldOptimize } from "@/lib/cloudinary";
-import { icon, GALLERY_SEED } from "@/lib/site-content";
+import { TRANSPARENT_PIXEL, cldOptimize } from "@/lib/cloudinary";
+import { icon } from "@/lib/site-content";
 import type { GalleryPageContent } from "@/lib/site-content";
 import { GALLERY_CATEGORIES, type GalleryCategory } from "@/lib/content-types";
 import { SiteHeader } from "@/components/site/SiteHeader";
@@ -112,7 +112,7 @@ function GalleryHero({
         <div className="relative mt-8 lg:mt-0">
           <div className="overflow-hidden rounded-[1.75rem]">
             <img
-              src={cldOptimize(hero.image, 1400)}
+              src={hero.image ? cldOptimize(hero.image, 1400) : TRANSPARENT_PIXEL}
               alt={hero.imageAlt}
               width={1400}
               height={1000}
@@ -282,8 +282,8 @@ function PhotoGrid({ content }: { content: GalleryPageContent["grid"] }) {
   const [open, setOpen] = useState<number | null>(null);
   const { data: live, loading } = useGallery();
   const photos = useMemo(() => {
-    const source = live.length > 0 ? live : GALLERY_SEED.map((g, i) => ({ id: String(i), ...g }));
-    return source.map((g) => ({
+    /* Live photos only — no seeded stand-ins that would be swapped out. */
+    return live.map((g) => ({
       img: g.url,
       alt: g.caption || "Reclaim Hormones gallery photo",
       cat: g.category as GalleryCategory,
@@ -328,6 +328,19 @@ function PhotoGrid({ content }: { content: GalleryPageContent["grid"] }) {
             {Array.from({ length: 6 }).map((_, i) => (
               <Skeleton key={i} className="mb-4 h-52 w-full" />
             ))}
+          </div>
+        ) : shown.length === 0 ? (
+          /* Genuinely empty, now that there are no seeded stand-in photos. */
+          <div className="surface surface-lg mx-auto mt-8 max-w-md border-dashed px-6 py-14 text-center">
+            <span className="icon-pod mx-auto size-14 rounded-full">
+              <Images className="size-6" aria-hidden="true" />
+            </span>
+            <p className="mt-5 font-serif text-lg text-brand-deep">Photos coming soon</p>
+            <p className="mx-auto mt-2 max-w-xs text-pretty-body text-sm text-muted-foreground">
+              {active === "All"
+                ? "We're adding photos of the clinic and our community events."
+                : `No photos in “${active}” yet — try another category.`}
+            </p>
           </div>
         ) : (
           <div className="mt-8 columns-2 gap-4 [column-fill:_balance] lg:columns-3 lg:gap-5">

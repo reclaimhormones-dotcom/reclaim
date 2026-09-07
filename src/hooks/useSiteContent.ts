@@ -26,6 +26,7 @@ import {
   HOME_DEFAULT,
   NAVIGATION_DEFAULT,
   PROGRAMS_PAGE_DEFAULT,
+  blankImages,
   mergeContent,
   type AboutContent,
   type ContactPageContent,
@@ -85,9 +86,22 @@ export function usePageCopy(page: "homepage" | "aboutpage" | "contactpage" | "pr
 
 /* --------------------------- structured page content ---------------------- */
 
+/**
+ * Page content merged over the defaults — with every default image blanked.
+ *
+ * Text defaults stay, so the server-rendered HTML still carries real copy for
+ * crawlers. Images do not: rendering a hardcoded photo and swapping it for the
+ * admin's upload a moment later is the flash this removes. Until Firestore
+ * answers, image fields are empty strings and the image components hold a
+ * skeleton in their place.
+ */
 function useMergedDoc<T>(collection: string, id: string, defaults: T): T {
   const { data } = useDocData<Record<string, unknown>>(collection, id);
-  return useMemo(() => mergeContent(defaults, data), [data, defaults]);
+  const imagelessDefaults = useMemo(() => blankImages(defaults), [defaults]);
+  return useMemo(
+    () => mergeContent(imagelessDefaults, data),
+    [data, imagelessDefaults],
+  );
 }
 
 export function useNavigationContent(): NavigationContent {

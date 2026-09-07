@@ -71,6 +71,22 @@ export function AdaptiveImage({
   /* Until the real ratio is known, hold a calm 4:3 so nothing jumps far. */
   const applied = measured ?? 4 / 3;
 
+  /*
+   * No URL yet means the admin's data has not arrived. Hold a skeleton rather
+   * than painting a stand-in photo that would be swapped out a moment later.
+   */
+  if (!src) {
+    return (
+      <div
+        className={`relative overflow-hidden bg-muted/50 ${rounded} ${className}`}
+        style={{ aspectRatio: String(ratio ?? 4 / 3) }}
+        aria-hidden="true"
+      >
+        <div className="size-full animate-pulse bg-muted/60" />
+      </div>
+    );
+  }
+
   return (
     <div
       className={`relative overflow-hidden bg-muted/40 transition-[aspect-ratio] duration-500 ${rounded} ${className}`}

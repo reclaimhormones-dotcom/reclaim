@@ -11,7 +11,7 @@ import {
 import { WhatsAppIcon } from "@/components/site/BrandIcons";
 
 import { usePrograms, useProgramsPageContent, useSettings, whatsappLink } from "@/hooks/useSiteContent";
-import { cldOptimize } from "@/lib/cloudinary";
+import { TRANSPARENT_PIXEL, cldOptimize } from "@/lib/cloudinary";
 import {
   categoryLabel,
   programSlug,
@@ -268,7 +268,7 @@ function ProgramsHero({ hero }: { hero: ProgramsPageContent["hero"] }) {
         <div className="relative mt-8 lg:mt-0">
           <div className="overflow-hidden rounded-[1.75rem]">
             <img
-              src={cldOptimize(hero.image, 1600)}
+              src={hero.image ? cldOptimize(hero.image, 1600) : TRANSPARENT_PIXEL}
               alt={hero.imageAlt}
               width={1600}
               height={1000}
@@ -470,7 +470,7 @@ function Approach({ content }: { content: ProgramsPageContent["approach"] }) {
       <div className="relative mx-auto max-w-7xl px-4 py-12 lg:grid lg:grid-cols-2 lg:items-center lg:gap-12 lg:px-8 lg:py-16">
         <div className="relative overflow-hidden rounded-[1.75rem]">
           <img
-            src={cldOptimize(content.image, 1400)}
+            src={content.image ? cldOptimize(content.image, 1400) : TRANSPARENT_PIXEL}
             alt={content.imageAlt}
             loading="lazy"
             width={1400}
@@ -525,7 +525,7 @@ function Glimpses({ content }: { content: ProgramsPageContent["glimpses"] }) {
           {content.items.map(({ img, alt }) => (
             <div key={img} className="overflow-hidden rounded-xl">
               <img
-                src={cldOptimize(img, 1000)}
+                src={img ? cldOptimize(img, 1000) : TRANSPARENT_PIXEL}
                 alt={alt}
                 loading="lazy"
                 width={1000}

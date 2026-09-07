@@ -1,6 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, ChevronDown } from "lucide-react";
 
+import { TRANSPARENT_PIXEL } from "@/lib/cloudinary";
+
 type Action = {
   label: string;
   /** Internal route */
@@ -90,9 +92,10 @@ export function MobilePageHero({
 }: MobilePageHeroProps) {
   return (
     <section className="relative isolate h-[100svh] overflow-hidden bg-cream lg:hidden">
+      {!img ? <div className="absolute inset-0 animate-pulse bg-muted/50" aria-hidden="true" /> : null}
       <img
-        src={img}
-        alt={alt}
+        src={img || TRANSPARENT_PIXEL}
+        alt={img ? alt : ""}
         width={896}
         height={1344}
         className={`absolute inset-0 size-full object-cover ${position} motion-safe:animate-[hero-kenburns_14s_ease-out_forwards]`}

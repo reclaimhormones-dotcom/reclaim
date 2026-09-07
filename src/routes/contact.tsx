@@ -24,7 +24,7 @@ import {
   usePrograms,
   whatsappLink,
 } from "@/hooks/useSiteContent";
-import { cldOptimize } from "@/lib/cloudinary";
+import { TRANSPARENT_PIXEL, cldOptimize } from "@/lib/cloudinary";
 import { publicPrograms } from "@/lib/content-types";
 import { buildLeadMessage, openWhatsApp } from "@/lib/whatsapp";
 import { icon } from "@/lib/site-content";
@@ -136,7 +136,7 @@ function ContactHero({ hero }: { hero: ContactPageContent["hero"] }) {
 
         <div className="mt-8 overflow-hidden rounded-[1.75rem] lg:mt-0">
           <img
-            src={cldOptimize(hero.image, 1400)}
+            src={hero.image ? cldOptimize(hero.image, 1400) : TRANSPARENT_PIXEL}
             alt={hero.imageAlt}
             width={1400}
             height={1000}
@@ -457,7 +457,7 @@ function EnquiryForm({
         <div className="mt-8 lg:mt-0">
           <div className="overflow-hidden surface lift">
             <img
-              src={cldOptimize(side.image, 1200)}
+              src={side.image ? cldOptimize(side.image, 1200) : TRANSPARENT_PIXEL}
               alt={side.imageAlt}
               loading="lazy"
               width={1200}
