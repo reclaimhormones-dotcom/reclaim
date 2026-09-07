@@ -51,10 +51,30 @@ function AdminTestimonials() {
       toast.error("Please add a name and a review of at least 10 characters.");
       return;
     }
+
+    /* Each story type has its own required media. */
+    const type = draft.mediaType ?? "text";
+    if (type === "video" && !draft.videoUrl?.trim()) {
+      toast.error("Add a video link, or change the story type.");
+      return;
+    }
+    if (type === "image" && !draft.photo?.trim()) {
+      toast.error("Upload a client photo, or change the story type.");
+      return;
+    }
+
+    /* Clear whatever the chosen type does not use, so the website never has to
+       guess which of a stale photo/video pair to trust. */
+    const cleaned: Draft = {
+      ...draft,
+      photo: type === "text" ? "" : (draft.photo ?? ""),
+      videoUrl: type === "video" ? (draft.videoUrl ?? "") : "",
+    };
+
     setSaving(true);
     try {
-      if (editingId === "new") await createItem("testimonials", draft);
-      else if (editingId) await updateItem("testimonials", editingId, draft);
+      if (editingId === "new") await createItem("testimonials", cleaned);
+      else if (editingId) await updateItem("testimonials", editingId, cleaned);
       toast.success("Testimonial saved");
       setEditingId(null);
       setDraft(null);
@@ -162,14 +182,19 @@ function AdminTestimonials() {
                 <option value="video">Text + video</option>
               </select>
             </Field>
-            <Field label="Video link (YouTube, Vimeo or MP4)">
-              <input
-                className={inputClass}
-                value={draft.videoUrl ?? ""}
-                placeholder="https://youtu.be/…"
-                onChange={(e) => setDraft({ ...draft, videoUrl: e.target.value })}
-              />
-            </Field>
+            {(draft.mediaType ?? "text") === "video" ? (
+              <Field
+                label="Video link (YouTube, Vimeo or MP4) *"
+                hint="Required for a video story. The website shows a clean thumbnail until the visitor presses play."
+              >
+                <input
+                  className={inputClass}
+                  value={draft.videoUrl ?? ""}
+                  placeholder="https://youtu.be/…"
+                  onChange={(e) => setDraft({ ...draft, videoUrl: e.target.value })}
+                />
+              </Field>
+            ) : null}
             <Field label="Show on website">
               <select
                 className={inputClass}
@@ -190,14 +215,23 @@ function AdminTestimonials() {
                 <option value="yes">Featured first</option>
               </select>
             </Field>
-            <div className="lg:col-span-2">
-              <ImageUploadField
-                label="Client photo (optional)"
-                value={draft.photo}
-                folder="reclaim/testimonials"
-                onChange={(url) => setDraft({ ...draft, photo: url })}
-              />
-            </div>
+            {(draft.mediaType ?? "text") !== "text" ? (
+              <div className="lg:col-span-2">
+                <ImageUploadField
+                  label={
+                    (draft.mediaType ?? "text") === "image"
+                      ? "Client photo *"
+                      : "Client photo (optional)"
+                  }
+                  value={draft.photo}
+                  folder="reclaim/testimonials"
+                  onChange={(url) => setDraft({ ...draft, photo: url })}
+                />
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Shown as the round avatar at the top of the card — never as a banner image.
+                </p>
+              </div>
+            ) : null}
           </div>
           <div className="mt-5 flex gap-2">
             <Button loading={saving} onClick={() => void save()}>

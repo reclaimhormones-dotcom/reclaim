@@ -23,8 +23,9 @@ import { SmartImage } from "@/components/site/SmartImage";
 import { MobileCarousel } from "@/components/site/MobileCarousel";
 import { Reveal } from "@/components/site/Reveal";
 import { Rating } from "@/components/site/Rating";
+import { TestimonialCard } from "@/components/site/TestimonialCard";
 import { cldOptimize } from "@/lib/cloudinary";
-import { embedUrl, programSlug, publicPrograms } from "@/lib/content-types";
+import { programSlug, publicPrograms, type TestimonialDoc } from "@/lib/content-types";
 import { ORGANIZATION_JSONLD, canonical, canonicalLink } from "@/lib/seo";
 import { icon } from "@/lib/site-content";
 import type { HomeContent } from "@/lib/site-content";
@@ -501,19 +502,24 @@ function About({ content }: { content: HomeContent["about"] }) {
 }
 
 function Testimonials({ content }: { content: HomeContent["testimonials"] }) {
-  const [active, setActive] = useState(0);
   const { data: live } = useTestimonials();
-  const items =
+
+  /* Live stories when the clinic has published any; otherwise the seed copy,
+     shaped into the same document type so one card component renders both. */
+  const items: TestimonialDoc[] =
     live.length > 0
-      ? live.map((t) => ({
-          quote: t.review,
-          name: `— ${t.name}`,
+      ? live
+      : content.items.map((t, i) => ({
+          id: `seed-${i}`,
+          name: t.name.replace(/^—s*/, ""),
           program: t.program,
-          rating: t.rating || 5,
-          photo: t.mediaType === "video" ? "" : (t.photo ?? ""),
-          video: t.mediaType === "video" ? embedUrl(t.videoUrl ?? "") : "",
-        }))
-      : content.items.map((t) => ({ ...t, rating: 5, photo: "", video: "" }));
+          review: t.quote,
+          rating: 5,
+          photo: "",
+          order: i,
+          mediaType: "text" as const,
+        }));
+
   return (
     <section className="bg-cream-deep">
       <div className="mx-auto max-w-7xl px-4 py-10 lg:px-8 lg:py-14">
@@ -524,73 +530,13 @@ function Testimonials({ content }: { content: HomeContent["testimonials"] }) {
           </h2>
         </div>
 
-        <div className="mt-7">
-          <MobileCarousel
-            containerClassName="lg:grid-cols-3 lg:gap-5"
-            autoPlayDelay={5000}
-          >
-            {items.map((t, i) => (
-              <Reveal key={t.name} delay={Math.min(i * 90, 360)} className="h-full">
-                <figure className="surface-glass lift flex h-full flex-col p-6 lg:p-7">
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="icon-pod size-11">
-                      <Quote className="size-[1.05rem] fill-current" />
-                    </span>
-                    <Rating value={t.rating} />
-                  </div>
-
-                  {t.video ? (
-                    <div className="mt-5 overflow-hidden rounded-2xl border border-white/25 shadow-inner">
-                      <iframe
-                        src={t.video}
-                        title={`${t.name} video story`}
-                        loading="lazy"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"
-                        allowFullScreen
-                        className="aspect-video w-full"
-                      />
-                    </div>
-                  ) : t.photo ? (
-                    <SmartImage
-                      src={t.photo}
-                      alt={`${t.name} — client story`}
-                      width={600}
-                      zoom
-                      className="mt-5 aspect-[4/3] rounded-2xl border border-white/25 shadow-inner"
-                    />
-                  ) : null}
-
-                  <blockquote className="mt-5 text-pretty-body text-[0.95rem] text-foreground/85">
-                    {t.quote}
-                  </blockquote>
-
-                  <figcaption className="mt-auto pt-6">
-                    <hr className="rule-soft" />
-                    <div className="mt-4 flex items-center gap-3">
-                      {t.photo ? (
-                        <SmartImage
-                          src={t.photo}
-                          alt=""
-                          width={120}
-                          className="size-12 shrink-0 rounded-full ring-2 ring-white/70"
-                        />
-                      ) : (
-                        <span className="icon-pod size-12 rounded-full font-serif text-base text-brand-deep">
-                          {t.name.replace(/^—\s*/, "").charAt(0)}
-                        </span>
-                      )}
-                      <div className="min-w-0">
-                        <p className="text-[0.92rem] font-semibold text-foreground">{t.name}</p>
-                        <p className="mt-0.5 text-[0.72rem] font-medium uppercase tracking-wide text-primary/80">
-                          {t.program}
-                        </p>
-                      </div>
-                    </div>
-                  </figcaption>
-                </figure>
-              </Reveal>
-            ))}
-          </MobileCarousel>
+        {/* Single column on mobile, 2–3 equal-height cards per row on desktop. */}
+        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
+          {items.map((t, i) => (
+            <Reveal key={t.id} delay={Math.min(i * 90, 360)} className="h-full">
+              <TestimonialCard testimonial={t} />
+            </Reveal>
+          ))}
         </div>
       </div>
     </section>

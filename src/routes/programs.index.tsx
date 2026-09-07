@@ -91,10 +91,10 @@ function toCardModel(p: ProgramDoc): ProgramCardModel {
  * gets one centred card rather than one lonely column in a five-column row.
  */
 function gridClass(count: number): string {
-  if (count <= 1) return "max-w-sm grid-cols-1";
-  if (count === 2) return "max-w-2xl grid-cols-1 sm:grid-cols-2";
-  if (count === 3) return "max-w-5xl grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
-  return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
+  /* Horizontal cards are wide, so desktop tops out at two per row. A single
+     programme is centred rather than left stranded beside an empty column. */
+  if (count <= 1) return "max-w-xl grid-cols-1";
+  return "grid-cols-1 lg:grid-cols-2";
 }
 
 /* -------------------------------- helpers -------------------------------- */
@@ -121,86 +121,83 @@ function ProgramCard({
   learnMoreLabel: string;
 }) {
   const Icon = icon(program.iconName);
-  const visiblePoints = program.points.slice(0, 3);
-  const extraPoints = program.points.length - visiblePoints.length;
+  /* Three chips only — the detail page carries the full list. */
+  const chips = program.points.slice(0, 3);
 
   return (
     <Link
       to="/programs/$slug"
       params={{ slug: program.slug }}
       aria-label={`${program.title} — ${learnMoreLabel}`}
-      className="group surface surface-lg lift relative flex h-full flex-col overflow-hidden hover:border-brand/30"
+      className="group surface lift relative grid h-full overflow-hidden rounded-[1.5rem] hover:border-brand/30 sm:grid-cols-[40%_60%] sm:min-h-[15rem]"
     >
-      <div className="relative aspect-[4/3] overflow-hidden">
+      {/* Media — full width on mobile, the left 40% from sm up. */}
+      <div className="relative aspect-[16/10] overflow-hidden sm:aspect-auto sm:h-full">
         <SmartImage
           src={program.image}
           alt={program.title}
-          width={800}
-          sizes="(min-width: 1280px) 22rem, (min-width: 640px) 45vw, 85vw"
+          width={700}
+          sizes="(min-width: 1024px) 20rem, (min-width: 640px) 40vw, 100vw"
           className="size-full"
           imgClassName="object-center transition-transform duration-[1200ms] ease-out group-hover:scale-[1.07] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
         />
         <div
-          className="absolute inset-0 bg-gradient-to-t from-brand-deep/60 via-brand-deep/5 to-transparent"
+          className="absolute inset-0 bg-gradient-to-t from-brand-deep/45 via-transparent to-transparent"
           aria-hidden="true"
         />
-        <span className="absolute left-4 top-4 flex size-10 items-center justify-center rounded-full bg-background/90 shadow-sm backdrop-blur">
-          <Icon className="size-[1.15rem] text-primary" />
+        <span className="icon-pod absolute left-3 top-3 size-9 bg-background/90 backdrop-blur">
+          <Icon className="size-4" />
         </span>
-        <span className="absolute right-4 top-4 rounded-full bg-background/85 px-2.5 py-1 text-[0.6rem] font-semibold uppercase tracking-[0.14em] text-brand-deep backdrop-blur">
+        <span className="absolute right-3 top-3 rounded-full bg-background/85 px-2.5 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.14em] text-brand-deep backdrop-blur">
           {categoryLabel(program.category)}
         </span>
-        {program.duration ? (
-          <span className="absolute bottom-4 left-4 inline-flex items-center gap-1.5 text-[0.7rem] font-semibold text-white drop-shadow">
-            <Clock className="size-3.5" aria-hidden="true" />
-            {program.duration}
-          </span>
-        ) : null}
       </div>
 
-      <div className="flex flex-1 flex-col p-5">
-        <h3 className="font-serif text-[1.15rem] leading-snug text-brand-deep">{program.title}</h3>
+      {/* Content — one line of description, three chips, meta, action. */}
+      <div className="flex min-w-0 flex-col p-5 lg:p-6">
+        <h3 className="font-serif text-[1.15rem] leading-snug text-brand-deep lg:text-[1.25rem]">
+          {program.title}
+        </h3>
         {program.description ? (
-          <p className="mt-2 line-clamp-3 text-[0.8rem] leading-relaxed text-muted-foreground">
+          <p className="mt-1.5 line-clamp-2 text-[0.82rem] leading-relaxed text-muted-foreground">
             {program.description}
           </p>
         ) : null}
 
-        {visiblePoints.length > 0 ? (
-          <ul className="mt-4 flex flex-wrap gap-1.5">
-            {visiblePoints.map((p) => (
+        {chips.length > 0 ? (
+          <ul className="mt-3 flex flex-wrap gap-1.5">
+            {chips.map((p) => (
               <li
                 key={p}
-                className="rounded-full bg-sage-soft px-2.5 py-1 text-[0.65rem] font-medium text-brand-deep"
+                className="truncate rounded-full bg-sage-soft px-2.5 py-1 text-[0.63rem] font-medium text-brand-deep"
               >
                 {p}
               </li>
             ))}
-            {extraPoints > 0 ? (
-              <li className="rounded-full px-1.5 py-1 text-[0.65rem] font-medium text-muted-foreground">
-                +{extraPoints} more
-              </li>
-            ) : null}
           </ul>
         ) : null}
 
         <div className="mt-auto flex items-end justify-between gap-3 pt-5">
           <div className="min-w-0">
-            {program.price !== null ? (
-              <p className="font-serif text-lg leading-none text-brand-deep">
-                ₹{program.price.toLocaleString("en-IN")}
-              </p>
-            ) : null}
-            <span
-              className={`text-[0.72rem] font-semibold text-primary ${
-                program.price !== null ? "mt-1.5 block" : ""
-              }`}
-            >
+            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+              {program.duration ? (
+                <span className="inline-flex items-center gap-1.5 text-[0.72rem] font-semibold text-brand-deep">
+                  <Clock className="size-3.5 text-gold" aria-hidden="true" />
+                  {program.duration}
+                </span>
+              ) : null}
+              {program.price !== null ? (
+                <span className="font-serif text-base text-brand-deep">
+                  ₹{program.price.toLocaleString("en-IN")}
+                </span>
+              ) : null}
+            </div>
+            <span className="mt-1.5 block text-[0.75rem] font-semibold text-primary">
               {learnMoreLabel}
             </span>
           </div>
           <span
-            className="flex size-9 shrink-0 items-center justify-center rounded-full bg-sage-soft text-primary transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground"
+            className="flex size-10 shrink-0 items-center justify-center rounded-full bg-sage-soft text-primary transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground"
             aria-hidden="true"
           >
             <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-0.5" />

@@ -90,6 +90,26 @@ export type TestimonialDoc = {
   featured?: boolean;
 };
 
+
+/** What a story actually renders, derived from the admin's chosen type. */
+export type StoryLayout = "text" | "video";
+
+/**
+ * The declared type is authoritative, but it is validated against the data so
+ * a story saved as "video" with no link, or a legacy document with no type at
+ * all, still renders something sensible instead of an empty frame.
+ *
+ * Note "image" is NOT a layout: a client photo is the avatar, never a banner,
+ * so a photo story lays out exactly like a text one.
+ */
+export function storyLayout(
+  t: Pick<TestimonialDoc, "mediaType" | "photo" | "videoUrl">,
+): StoryLayout {
+  const hasVideo = Boolean(t.videoUrl?.trim());
+  const declared = t.mediaType ?? (hasVideo ? "video" : t.photo?.trim() ? "image" : "text");
+  return declared === "video" && hasVideo ? "video" : "text";
+}
+
 /** True when a testimonial may appear on the public website. */
 export function isApproved(t: Pick<TestimonialDoc, "approved">): boolean {
   return t.approved !== false;
