@@ -22,7 +22,7 @@ const slideFields: FieldSpec[] = [
     label: "Focal point",
     type: "text",
     hint: 'Tailwind object-position, e.g. object-[50%_12%]',
-  },
+  }, 
 ]; 
 
 const mobileHeroFields: FieldSpec[] = [
